@@ -106,7 +106,7 @@ const assets = [
 
 // P2P premium rates by currency (P2P markets trade above forex rates)
 const p2pPremium: Record<string, number> = {
-  INR: 1.0,    // avoid double premium; live USDT/INR already includes spread
+  INR: 1.09,   // base USDT = 85.5×1.09 ≈ ₹93 → sell 93-97, buy 99-104
   NGN: 1.12,
   KES: 1.10,
   VND: 1.08,
