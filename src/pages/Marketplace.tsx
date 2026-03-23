@@ -9,11 +9,11 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import SEOHead from "@/components/SEOHead";
 import BuyModal from "@/components/marketplace/BuyModal";
 import SellModal from "@/components/marketplace/SellModal";
-import { useCryptoPrices, type CryptoPrices } from "@/hooks/use-crypto-prices";
+import { getSafeInrRate, useCryptoPrices, type CryptoPrices } from "@/hooks/use-crypto-prices";
 import { useDemoUser } from "@/hooks/use-demo-user";
 import { useDemoWallet } from "@/hooks/use-demo-wallet";
 import { useLockedDeals } from "@/hooks/use-locked-deals";
-import { generateAllOffers, filterOffers, countries, type SeededOffer } from "@/data/seed-engine";
+import { generateAllOffers, filterOffers, countries, currencyByCountry, FALLBACK_USD_INR_RATE, type SeededOffer } from "@/data/seed-engine";
 import { toast } from "sonner";
 
 const coinOptions = ["USDT", "Bitcoin", "Ethereum", "Solana"];
@@ -110,7 +110,7 @@ const OfferRow = ({ offer, onBuyClick }: OfferRowProps) => {
               <div className="text-xs text-muted-foreground">Price</div>
               <div className="font-display font-bold text-foreground">
                 {offer.price.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-                <span className="text-sm font-normal text-muted-foreground ml-1">{offer.country === "India" ? "INR" : offer.country === "USA" ? "USD" : ""}</span>
+                <span className="text-sm font-normal text-muted-foreground ml-1">{currencyByCountry[offer.country] ?? "USD"}</span>
               </div>
               <div className="text-xs font-medium flex items-center gap-0.5 text-success">
                 <TrendingUp className="h-3 w-3" />
@@ -172,7 +172,7 @@ const Marketplace = () => {
   const [buyOffer, setBuyOffer] = useState<SeededOffer | null>(null);
   const [showSell, setShowSell] = useState(false);
 
-  const liveInrRate = prices ? (prices.tether.inr / prices.tether.usd) : undefined;
+  const liveInrRate = getSafeInrRate(prices) ?? FALLBACK_USD_INR_RATE;
 
   const allOffers = useMemo(
     () => generateAllOffers(toLivePrices(prices), liveInrRate),
@@ -218,7 +218,7 @@ const Marketplace = () => {
     toast.success("Your sell offer is now live!");
   };
 
-  const suggestedPrice = prices ? Math.round(prices.tether.inr * 1.1 * 100) / 100 : undefined;
+  const suggestedPrice = prices ? Math.round(prices.tether.usd * liveInrRate * 1.1 * 100) / 100 : undefined;
 
   return (
     <>
