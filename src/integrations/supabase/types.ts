@@ -255,6 +255,36 @@ export type Database = {
           },
         ]
       }
+      transactions: {
+        Row: {
+          amount: number
+          asset: string
+          created_at: string
+          id: string
+          status: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          asset: string
+          created_at?: string
+          id?: string
+          status?: string
+          type?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          asset?: string
+          created_at?: string
+          id?: string
+          status?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       wallets: {
         Row: {
           asset: string
