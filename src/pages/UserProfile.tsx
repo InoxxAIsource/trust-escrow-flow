@@ -2,15 +2,27 @@ import { useParams, Link } from "react-router-dom";
 import { Shield, Star, CheckCircle, Clock, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import SEOHead from "@/components/SEOHead";
-import { mockListings } from "@/data/mock-listings";
+import { useMemo } from "react";
+import { generateAllOffers, filterOffers } from "@/data/seed-engine";
+import { useCryptoPrices, type CryptoPrices } from "@/hooks/use-crypto-prices";
+
+function toLivePrices(prices?: CryptoPrices) {
+  if (!prices) return undefined;
+  return { USDT: prices.tether.usd, BTC: prices.bitcoin.usd, ETH: prices.ethereum.usd, SOL: prices.solana.usd };
+}
 
 const UserProfile = () => {
   const { username } = useParams();
-  const userListings = mockListings.filter((l) => l.username === username);
-  const user = userListings[0];
+  const { data: prices } = useCryptoPrices();
+
+  const userOffers = useMemo(() => {
+    const all = generateAllOffers(toLivePrices(prices));
+    return all.filter((o) => o.username === username).slice(0, 10);
+  }, [username, prices]);
+
+  const user = userOffers[0];
 
   if (!user) {
     return (
@@ -25,19 +37,18 @@ const UserProfile = () => {
     <>
       <SEOHead
         title={`${username} — Trader Profile | TrustP2P`}
-        description={`View ${username}'s trader profile on TrustP2P. ${user.completedTrades} completed trades, ${user.rating}/5 rating.`}
+        description={`View ${username}'s trader profile on TrustP2P. ${user.trades.toLocaleString()} completed trades, ${user.rating}/5 rating.`}
       />
 
       <div className="container py-12">
         <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Marketplace", href: "/marketplace" }, { label: username || "", href: `/user/${username}` }]} />
 
         <div className="grid lg:grid-cols-3 gap-8 max-w-5xl">
-          {/* Profile */}
           <div>
             <Card>
               <CardContent className="pt-8 text-center">
                 <div className="w-20 h-20 rounded-full bg-primary/10 text-primary flex items-center justify-center font-display font-bold text-2xl mx-auto mb-4">
-                  {username?.[0]}
+                  {username?.[0]?.toUpperCase()}
                 </div>
                 <h1 className="font-display text-xl font-bold text-foreground flex items-center justify-center gap-2">
                   {username}
@@ -49,7 +60,7 @@ const UserProfile = () => {
 
                 <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t">
                   <div>
-                    <div className="font-display text-lg font-bold text-foreground">{user.completedTrades}</div>
+                    <div className="font-display text-lg font-bold text-foreground">{user.trades.toLocaleString()}</div>
                     <div className="text-xs text-muted-foreground">Trades</div>
                   </div>
                   <div>
@@ -59,12 +70,12 @@ const UserProfile = () => {
                     <div className="text-xs text-muted-foreground">Rating</div>
                   </div>
                   <div>
-                    <div className="font-display text-lg font-bold text-foreground">~2m</div>
-                    <div className="text-xs text-muted-foreground">Response</div>
+                    <div className="font-display text-lg font-bold text-foreground">{user.completionRate}%</div>
+                    <div className="text-xs text-muted-foreground">Completion</div>
                   </div>
                 </div>
 
-                <div className="mt-6 space-y-2 text-sm">
+                <div className="mt-6 space-y-2 text-sm text-left">
                   {user.isVerified && (
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <CheckCircle className="h-4 w-4 text-primary" /> Email Verified
@@ -78,34 +89,29 @@ const UserProfile = () => {
             </Card>
           </div>
 
-          {/* Listings */}
           <div className="lg:col-span-2">
             <Card>
               <CardHeader>
-                <CardTitle className="font-display">Active Offers</CardTitle>
+                <CardTitle className="font-display">Active Offers ({userOffers.length})</CardTitle>
               </CardHeader>
               <CardContent>
-                {userListings.length > 0 ? (
-                  <div className="space-y-3">
-                    {userListings.map((listing) => (
-                      <div key={listing.id} className="flex items-center justify-between p-4 rounded-lg border">
-                        <div>
-                          <div className="font-semibold text-foreground text-sm">
-                            {listing.type === "sell" ? "Selling" : "Buying"} {listing.coin}
-                          </div>
-                          <div className="text-sm text-muted-foreground mt-1">
-                            {listing.price.toLocaleString()} {listing.currency} • {listing.paymentMethods.join(", ")}
-                          </div>
+                <div className="space-y-3">
+                  {userOffers.map((offer) => (
+                    <div key={offer.id} className="flex items-center justify-between p-4 rounded-lg border">
+                      <div>
+                        <div className="font-semibold text-foreground text-sm">
+                          {offer.type === "sell" ? "Selling" : "Buying"} {offer.asset}
                         </div>
-                        <Button size="sm" asChild>
-                          <Link to={`/offer/${listing.id}`}>View Offer</Link>
-                        </Button>
+                        <div className="text-sm text-muted-foreground mt-1">
+                          {offer.price.toLocaleString(undefined, { maximumFractionDigits: 2 })} • {offer.paymentMethod} • {offer.country}
+                        </div>
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground">No active offers.</p>
-                )}
+                      <Button size="sm" asChild>
+                        <Link to={`/offer/${offer.id}`}>View Offer</Link>
+                      </Button>
+                    </div>
+                  ))}
+                </div>
               </CardContent>
             </Card>
           </div>
