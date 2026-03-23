@@ -1,14 +1,16 @@
 import { useParams, Link } from "react-router-dom";
-import { Shield, Star, Circle, Clock, MessageSquare } from "lucide-react";
+import { Shield, Star, Circle, Clock, MessageSquare, TrendingUp, TrendingDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import SEOHead from "@/components/SEOHead";
 import { mockListings } from "@/data/mock-listings";
+import { useCryptoPrices, getLivePrice } from "@/hooks/use-crypto-prices";
 
 const OfferDetail = () => {
   const { id } = useParams();
+  const { data: prices } = useCryptoPrices();
   const listing = mockListings.find((l) => l.id === id);
 
   if (!listing) {
@@ -20,16 +22,24 @@ const OfferDetail = () => {
     );
   }
 
+  const livePrice = getLivePrice(prices, listing.coin, listing.currency);
+  const margin = listing.marginPct / 100;
+  const displayPrice = livePrice
+    ? listing.type === "sell"
+      ? +(livePrice * (1 + margin)).toFixed(2)
+      : +(livePrice * (1 - margin)).toFixed(2)
+    : 0;
+
   return (
     <>
       <SEOHead
         title={`${listing.type === "sell" ? "Buy" : "Sell"} ${listing.coin} from ${listing.username} | TrustP2P`}
-        description={`${listing.type === "sell" ? "Buy" : "Sell"} ${listing.coin} at ${listing.price} ${listing.currency} from ${listing.username}. Escrow-protected P2P trade on TrustP2P.`}
+        description={`${listing.type === "sell" ? "Buy" : "Sell"} ${listing.coin} at ${displayPrice} ${listing.currency} from ${listing.username}. Escrow-protected P2P trade on TrustP2P.`}
         jsonLd={{
           "@context": "https://schema.org",
           "@type": "Offer",
           name: `${listing.type === "sell" ? "Buy" : "Sell"} ${listing.coin}`,
-          price: listing.price,
+          price: displayPrice,
           priceCurrency: listing.currency,
           seller: { "@type": "Person", name: listing.username },
         }}
@@ -43,7 +53,6 @@ const OfferDetail = () => {
         ]} />
 
         <div className="grid lg:grid-cols-3 gap-8 max-w-5xl">
-          {/* Main */}
           <div className="lg:col-span-2 space-y-6">
             <div>
               <Badge variant={listing.type === "sell" ? "default" : "secondary"} className="mb-3">
@@ -58,7 +67,23 @@ const OfferDetail = () => {
               <CardContent className="py-6 grid sm:grid-cols-2 gap-6">
                 <div>
                   <div className="text-sm text-muted-foreground mb-1">Price</div>
-                  <div className="font-display text-2xl font-bold text-foreground">{listing.price.toLocaleString()} {listing.currency}</div>
+                  <div className="font-display text-2xl font-bold text-foreground">
+                    {displayPrice > 0
+                      ? displayPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                      : "Loading…"}{" "}
+                    {listing.currency}
+                  </div>
+                  {livePrice && (
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-xs text-muted-foreground">
+                        Market: {livePrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {listing.currency}
+                      </span>
+                      <span className={`text-xs font-medium flex items-center gap-0.5 ${listing.type === "sell" ? "text-destructive" : "text-emerald-600"}`}>
+                        {listing.type === "sell" ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                        {listing.type === "sell" ? "+" : "-"}{listing.marginPct}%
+                      </span>
+                    </div>
+                  )}
                 </div>
                 <div>
                   <div className="text-sm text-muted-foreground mb-1">Trade Limits</div>
@@ -97,7 +122,6 @@ const OfferDetail = () => {
             </div>
           </div>
 
-          {/* Seller Info */}
           <div>
             <Card>
               <CardHeader>
