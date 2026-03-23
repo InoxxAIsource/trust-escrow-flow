@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Lock, Clock, CheckCircle, Shield, AlertTriangle } from "lucide-react";
-import type { SeededOffer } from "@/data/seed-engine";
+import { currencyByCountry, type SeededOffer } from "@/data/seed-engine";
 
 const paymentOptions = ["UPI", "Bank Transfer", "PayPal", "Zelle", "Venmo", "CashApp", "IMPS", "SEPA", "PIX", "M-Pesa"];
 
@@ -65,7 +65,7 @@ export default function BuyModal({ offer, open, onClose, onLockDeal }: BuyModalP
 
   if (!offer) return null;
 
-  const currency = offer.country === "India" ? "INR" : offer.country === "USA" ? "USD" : "USD";
+  const currency = currencyByCountry[offer.country] ?? "USD";
   const numAmount = parseFloat(amount) || 0;
   const cryptoAmount = numAmount > 0 ? (numAmount / offer.price).toFixed(6) : "0";
 

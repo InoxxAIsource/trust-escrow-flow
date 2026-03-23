@@ -25,6 +25,17 @@ export function useCryptoPrices() {
   });
 }
 
+const INR_RATE_MIN = 65;
+const INR_RATE_MAX = 90;
+
+export function getSafeInrRate(prices: CryptoPrices | undefined): number | null {
+  if (!prices || !prices.tether?.usd) return null;
+  const rawRate = prices.tether.inr / prices.tether.usd;
+  if (!Number.isFinite(rawRate)) return null;
+  if (rawRate < INR_RATE_MIN || rawRate > INR_RATE_MAX) return null;
+  return rawRate;
+}
+
 // Map our coin names to CoinGecko ids
 const coinMap: Record<string, keyof CryptoPrices> = {
   Bitcoin: "bitcoin",
