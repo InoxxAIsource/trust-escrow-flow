@@ -191,7 +191,7 @@ const Marketplace = () => {
   const { data: prices, isLoading, dataUpdatedAt, refetch } = useCryptoPrices();
   const { user } = useAuth();
   const { deposit, getBalance } = useWallets();
-  const { lockDeal, activeDeals } = useDeals();
+  const { activeTrades } = useUserTrades();
   const { createOffer } = useUserOffers();
 
   const [coin, setCoin] = useState("all");
