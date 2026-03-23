@@ -14,7 +14,242 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      locked_deals: {
+        Row: {
+          amount: number
+          asset: string
+          asset_symbol: string
+          created_at: string
+          currency: string
+          expires_at: string
+          id: string
+          offer_id: string
+          payment_method: string
+          price: number
+          seller_username: string
+          status: Database["public"]["Enums"]["deal_status"]
+          type: Database["public"]["Enums"]["offer_type"]
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          asset: string
+          asset_symbol: string
+          created_at?: string
+          currency?: string
+          expires_at: string
+          id?: string
+          offer_id: string
+          payment_method: string
+          price: number
+          seller_username: string
+          status?: Database["public"]["Enums"]["deal_status"]
+          type: Database["public"]["Enums"]["offer_type"]
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          asset?: string
+          asset_symbol?: string
+          created_at?: string
+          currency?: string
+          expires_at?: string
+          id?: string
+          offer_id?: string
+          payment_method?: string
+          price?: number
+          seller_username?: string
+          status?: Database["public"]["Enums"]["deal_status"]
+          type?: Database["public"]["Enums"]["offer_type"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      offers: {
+        Row: {
+          amount: number
+          asset: string
+          clicks_count: number
+          created_at: string
+          currency: string
+          id: string
+          locks_count: number
+          max_limit: number
+          min_limit: number
+          payment_methods: string[]
+          price: number
+          remaining_amount: number
+          status: Database["public"]["Enums"]["offer_status"]
+          type: Database["public"]["Enums"]["offer_type"]
+          updated_at: string
+          user_id: string
+          views_count: number
+        }
+        Insert: {
+          amount: number
+          asset: string
+          clicks_count?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          locks_count?: number
+          max_limit?: number
+          min_limit?: number
+          payment_methods?: string[]
+          price: number
+          remaining_amount: number
+          status?: Database["public"]["Enums"]["offer_status"]
+          type: Database["public"]["Enums"]["offer_type"]
+          updated_at?: string
+          user_id: string
+          views_count?: number
+        }
+        Update: {
+          amount?: number
+          asset?: string
+          clicks_count?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          locks_count?: number
+          max_limit?: number
+          min_limit?: number
+          payment_methods?: string[]
+          price?: number
+          remaining_amount?: number
+          status?: Database["public"]["Enums"]["offer_status"]
+          type?: Database["public"]["Enums"]["offer_type"]
+          updated_at?: string
+          user_id?: string
+          views_count?: number
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          completion_rate: number
+          created_at: string
+          id: string
+          is_verified: boolean
+          rating: number
+          trades_count: number
+          updated_at: string
+          user_id: string
+          username: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          completion_rate?: number
+          created_at?: string
+          id?: string
+          is_verified?: boolean
+          rating?: number
+          trades_count?: number
+          updated_at?: string
+          user_id: string
+          username: string
+        }
+        Update: {
+          avatar_url?: string | null
+          completion_rate?: number
+          created_at?: string
+          id?: string
+          is_verified?: boolean
+          rating?: number
+          trades_count?: number
+          updated_at?: string
+          user_id?: string
+          username?: string
+        }
+        Relationships: []
+      }
+      trades: {
+        Row: {
+          amount: number
+          asset: string
+          buyer_id: string
+          created_at: string
+          currency: string
+          id: string
+          offer_id: string
+          payment_method: string
+          price: number
+          seller_id: string
+          status: Database["public"]["Enums"]["trade_status"]
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          asset: string
+          buyer_id: string
+          created_at?: string
+          currency?: string
+          id?: string
+          offer_id: string
+          payment_method: string
+          price: number
+          seller_id: string
+          status?: Database["public"]["Enums"]["trade_status"]
+          total: number
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          asset?: string
+          buyer_id?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          offer_id?: string
+          payment_method?: string
+          price?: number
+          seller_id?: string
+          status?: Database["public"]["Enums"]["trade_status"]
+          total?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trades_offer_id_fkey"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "offers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wallets: {
+        Row: {
+          asset: string
+          balance: number
+          created_at: string
+          id: string
+          locked_balance: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          asset: string
+          balance?: number
+          created_at?: string
+          id?: string
+          locked_balance?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          asset?: string
+          balance?: number
+          created_at?: string
+          id?: string
+          locked_balance?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +258,10 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      deal_status: "locked" | "expired" | "completed"
+      offer_status: "active" | "inactive" | "completed"
+      offer_type: "buy" | "sell"
+      trade_status: "pending" | "paid" | "completed" | "disputed" | "cancelled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +388,11 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      deal_status: ["locked", "expired", "completed"],
+      offer_status: ["active", "inactive", "completed"],
+      offer_type: ["buy", "sell"],
+      trade_status: ["pending", "paid", "completed", "disputed", "cancelled"],
+    },
   },
 } as const

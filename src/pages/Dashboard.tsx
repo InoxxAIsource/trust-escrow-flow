@@ -1,16 +1,16 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Clock, Lock, Wallet, TrendingUp, AlertCircle, CheckCircle, Package } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Link, useNavigate } from "react-router-dom";
+import { Clock, Lock, Wallet, TrendingUp, AlertCircle, CheckCircle, Package, Eye, MousePointer } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SEOHead from "@/components/SEOHead";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { CountdownTimer } from "@/components/marketplace/BuyModal";
-import { useLockedDeals, type LockedDeal, type UserOffer } from "@/hooks/use-locked-deals";
-import { useDemoWallet } from "@/hooks/use-demo-wallet";
-import { useDemoUser } from "@/hooks/use-demo-user";
+import { useAuth } from "@/hooks/use-auth";
+import { useWallets } from "@/hooks/use-wallets";
+import { useDeals, type DealRow } from "@/hooks/use-deals";
+import { useUserOffers, type OfferRow } from "@/hooks/use-offers";
 
 const statusColors: Record<string, string> = {
   locked: "bg-primary/10 text-primary border-primary/20",
@@ -20,7 +20,7 @@ const statusColors: Record<string, string> = {
   inactive: "bg-muted text-muted-foreground border-border",
 };
 
-const DealCard = ({ deal }: { deal: LockedDeal }) => (
+const DealCard = ({ deal }: { deal: DealRow }) => (
   <Card>
     <CardContent className="p-4">
       <div className="flex items-center justify-between mb-3">
@@ -29,36 +29,36 @@ const DealCard = ({ deal }: { deal: LockedDeal }) => (
             {deal.status === "locked" ? <Lock className="h-3 w-3 mr-1" /> : deal.status === "expired" ? <AlertCircle className="h-3 w-3 mr-1" /> : <CheckCircle className="h-3 w-3 mr-1" />}
             {deal.status.charAt(0).toUpperCase() + deal.status.slice(1)}
           </Badge>
-          <span className="text-xs text-muted-foreground">Buy {deal.assetSymbol}</span>
+          <span className="text-xs text-muted-foreground">Buy {deal.asset_symbol}</span>
         </div>
-        {deal.status === "locked" && <CountdownTimer expiresAt={deal.expiresAt} />}
+        {deal.status === "locked" && <CountdownTimer expiresAt={new Date(deal.expires_at).getTime()} />}
       </div>
       <div className="grid grid-cols-2 gap-y-2 text-sm">
         <div>
           <span className="text-muted-foreground">Amount</span>
-          <p className="font-bold text-foreground">{deal.amount.toLocaleString()} {deal.currency}</p>
+          <p className="font-bold text-foreground">{Number(deal.amount).toLocaleString()} {deal.currency}</p>
         </div>
         <div>
           <span className="text-muted-foreground">Locked Price</span>
-          <p className="font-bold text-foreground">{deal.price.toLocaleString()} {deal.currency}/{deal.assetSymbol}</p>
+          <p className="font-bold text-foreground">{Number(deal.price).toLocaleString()} {deal.currency}/{deal.asset_symbol}</p>
         </div>
         <div>
           <span className="text-muted-foreground">Payment</span>
-          <p className="text-foreground">{deal.paymentMethod}</p>
+          <p className="text-foreground">{deal.payment_method}</p>
         </div>
         <div>
           <span className="text-muted-foreground">Seller</span>
-          <Link to={`/user/${deal.sellerUsername}`} className="text-primary hover:underline block">{deal.sellerUsername}</Link>
+          <Link to={`/user/${deal.seller_username}`} className="text-primary hover:underline block">{deal.seller_username}</Link>
         </div>
       </div>
       <p className="text-xs text-muted-foreground mt-2">
-        Created {new Date(deal.createdAt).toLocaleString()}
+        Created {new Date(deal.created_at).toLocaleString()}
       </p>
     </CardContent>
   </Card>
 );
 
-const OfferCard = ({ offer }: { offer: UserOffer }) => (
+const OfferCard = ({ offer }: { offer: OfferRow }) => (
   <Card>
     <CardContent className="p-4">
       <div className="flex items-center justify-between mb-3">
@@ -67,36 +67,46 @@ const OfferCard = ({ offer }: { offer: UserOffer }) => (
             {offer.status === "active" ? <TrendingUp className="h-3 w-3 mr-1" /> : <Package className="h-3 w-3 mr-1" />}
             {offer.status.charAt(0).toUpperCase() + offer.status.slice(1)}
           </Badge>
-          <span className="text-xs text-muted-foreground">Sell {offer.assetSymbol}</span>
+          <span className="text-xs text-muted-foreground">Sell {offer.asset}</span>
         </div>
       </div>
       <div className="grid grid-cols-2 gap-y-2 text-sm">
         <div>
           <span className="text-muted-foreground">Amount</span>
-          <p className="font-bold text-foreground">{offer.remainingAmount} / {offer.amount} {offer.assetSymbol}</p>
+          <p className="font-bold text-foreground">{Number(offer.remaining_amount)} / {Number(offer.amount)} {offer.asset}</p>
         </div>
         <div>
           <span className="text-muted-foreground">Price</span>
-          <p className="font-bold text-foreground">{offer.price.toLocaleString()} {offer.currency}/{offer.assetSymbol}</p>
+          <p className="font-bold text-foreground">{Number(offer.price).toLocaleString()} {offer.currency}/{offer.asset}</p>
         </div>
         <div>
           <span className="text-muted-foreground">Payments</span>
           <div className="flex gap-1 flex-wrap">
-            {offer.paymentMethods.map((p) => <Badge key={p} variant="secondary" className="text-xs">{p}</Badge>)}
+            {offer.payment_methods.map((p) => <Badge key={p} variant="secondary" className="text-xs">{p}</Badge>)}
+          </div>
+        </div>
+        <div>
+          <span className="text-muted-foreground">Stats</span>
+          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+            <span className="flex items-center gap-0.5"><Eye className="h-3 w-3" /> {offer.views_count}</span>
+            <span className="flex items-center gap-0.5"><MousePointer className="h-3 w-3" /> {offer.clicks_count}</span>
+            <span className="flex items-center gap-0.5"><Lock className="h-3 w-3" /> {offer.locks_count}</span>
           </div>
         </div>
       </div>
       <p className="text-xs text-muted-foreground mt-2">
-        Created {new Date(offer.createdAt).toLocaleString()}
+        Created {new Date(offer.created_at).toLocaleString()}
       </p>
     </CardContent>
   </Card>
 );
 
 const Dashboard = () => {
-  const { user, loginAsDemo } = useDemoUser();
-  const { deals, activeDeals, expiredDeals, userOffers } = useLockedDeals();
-  const { wallets } = useDemoWallet();
+  const navigate = useNavigate();
+  const { user, profile } = useAuth();
+  const { deals, activeDeals } = useDeals();
+  const { wallets } = useWallets();
+  const { offers } = useUserOffers();
 
   if (!user) {
     return (
@@ -106,13 +116,15 @@ const Dashboard = () => {
           <Lock className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
           <h1 className="font-display text-2xl font-bold text-foreground mb-2">Sign in to view your dashboard</h1>
           <p className="text-muted-foreground mb-6">Track your locked deals, wallet balances, and sell offers.</p>
-          <Button onClick={loginAsDemo} size="lg">
-            Continue as Demo Trader
+          <Button onClick={() => navigate("/auth")} size="lg">
+            Sign In
           </Button>
         </div>
       </div>
     );
   }
+
+  const activeOffers = offers.filter((o) => o.status === "active");
 
   return (
     <div className="container py-12">
@@ -122,9 +134,8 @@ const Dashboard = () => {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="font-display text-3xl font-bold text-foreground">Dashboard</h1>
-          <p className="text-muted-foreground mt-1">Welcome, <span className="font-medium text-foreground">{user.username}</span></p>
+          <p className="text-muted-foreground mt-1">Welcome, <span className="font-medium text-foreground">{profile?.username ?? "trader"}</span></p>
         </div>
-        <Badge variant="secondary" className="text-xs">Demo Mode</Badge>
       </div>
 
       {/* Wallet Overview */}
@@ -136,10 +147,10 @@ const Dashboard = () => {
                 <Wallet className="h-4 w-4 text-primary" />
                 <span className="text-sm font-medium text-foreground">{w.asset}</span>
               </div>
-              <p className="font-display font-bold text-lg text-foreground">{w.balance.toFixed(4)}</p>
-              {w.lockedBalance > 0 && (
+              <p className="font-display font-bold text-lg text-foreground">{Number(w.balance).toFixed(4)}</p>
+              {Number(w.locked_balance) > 0 && (
                 <p className="text-xs text-warning flex items-center gap-1">
-                  <Lock className="h-3 w-3" /> {w.lockedBalance.toFixed(4)} locked
+                  <Lock className="h-3 w-3" /> {Number(w.locked_balance).toFixed(4)} locked
                 </p>
               )}
             </CardContent>
@@ -157,8 +168,8 @@ const Dashboard = () => {
           </TabsTrigger>
           <TabsTrigger value="offers" className="flex items-center gap-1">
             <Package className="h-3.5 w-3.5" /> My Offers
-            {userOffers.filter((o) => o.status === "active").length > 0 && (
-              <Badge className="bg-primary text-primary-foreground text-xs h-5 px-1.5 ml-1">{userOffers.filter((o) => o.status === "active").length}</Badge>
+            {activeOffers.length > 0 && (
+              <Badge className="bg-primary text-primary-foreground text-xs h-5 px-1.5 ml-1">{activeOffers.length}</Badge>
             )}
           </TabsTrigger>
         </TabsList>
@@ -180,7 +191,7 @@ const Dashboard = () => {
         </TabsContent>
 
         <TabsContent value="offers" className="mt-4">
-          {userOffers.length === 0 ? (
+          {offers.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center text-muted-foreground">
                 <Package className="h-8 w-8 mx-auto mb-2 opacity-50" />
@@ -190,7 +201,7 @@ const Dashboard = () => {
             </Card>
           ) : (
             <div className="space-y-3">
-              {userOffers.map((offer) => <OfferCard key={offer.id} offer={offer} />)}
+              {offers.map((offer) => <OfferCard key={offer.id} offer={offer} />)}
             </div>
           )}
         </TabsContent>

@@ -4,13 +4,14 @@ import { HelmetProvider } from "react-helmet-async";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { DemoUserProvider } from "@/hooks/use-demo-user";
+import { AuthProvider } from "@/hooks/use-auth";
 import Layout from "@/components/layout/Layout";
 import Index from "./pages/Index";
 import HowItWorks from "./pages/HowItWorks";
 import Fees from "./pages/Fees";
 import Marketplace from "./pages/Marketplace";
 import Dashboard from "./pages/Dashboard";
+import Auth from "./pages/Auth";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import SEOLanding from "./pages/SEOLanding";
@@ -26,7 +27,7 @@ const seoSlugs = getAllSlugs();
 const App = () => (
   <HelmetProvider>
     <QueryClientProvider client={queryClient}>
-      <DemoUserProvider>
+      <AuthProvider>
         <TooltipProvider>
           <Toaster />
           <Sonner />
@@ -38,6 +39,7 @@ const App = () => (
                 <Route path="/fees" element={<Fees />} />
                 <Route path="/marketplace" element={<Marketplace />} />
                 <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/auth" element={<Auth />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/blog/:slug" element={<BlogPost />} />
                 <Route path="/offer/:id" element={<OfferDetail />} />
@@ -50,7 +52,7 @@ const App = () => (
             </Layout>
           </BrowserRouter>
         </TooltipProvider>
-      </DemoUserProvider>
+      </AuthProvider>
     </QueryClientProvider>
   </HelmetProvider>
 );
