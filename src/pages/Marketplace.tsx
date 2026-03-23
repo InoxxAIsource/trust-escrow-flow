@@ -237,30 +237,6 @@ const Marketplace = () => {
     requireAuth(() => setShowSell(true));
   };
 
-  const handleLockDeal = (data: {
-    offerId: string;
-    asset: string;
-    assetSymbol: string;
-    amount: number;
-    price: number;
-    currency: string;
-    paymentMethod: string;
-    type: "buy";
-    sellerUsername: string;
-  }) => {
-    lockDeal.mutate({
-      offer_id: data.offerId,
-      asset: data.asset,
-      asset_symbol: data.assetSymbol,
-      amount: data.amount,
-      price: data.price,
-      currency: data.currency,
-      payment_method: data.paymentMethod,
-      type: data.type,
-      seller_username: data.sellerUsername,
-    });
-    toast.success("Deal locked! Price secured for 3 hours.");
-  };
 
   const handleCreateOffer = (data: {
     asset: string;
