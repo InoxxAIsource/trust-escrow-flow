@@ -19,12 +19,6 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 // All SEO page slugs
-const seoSlugs = [
-  "buy-usdt", "sell-usdt", "buy-bitcoin", "sell-bitcoin", "buy-ethereum", "sell-ethereum", "buy-solana", "sell-solana",
-  "buy-usdt-india", "buy-usdt-usa", "buy-bitcoin-india",
-  "buy-usdt-upi", "buy-usdt-bank-transfer", "buy-bitcoin-paypal",
-];
-
 const App = () => (
   <HelmetProvider>
     <QueryClientProvider client={queryClient}>
