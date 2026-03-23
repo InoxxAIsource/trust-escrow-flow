@@ -1,5 +1,5 @@
 import { useParams, Link } from "react-router-dom";
-import { Shield, Star, Circle, Clock, MessageSquare, TrendingUp, TrendingDown } from "lucide-react";
+import { Shield, Star, Circle, Clock, MessageSquare, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
