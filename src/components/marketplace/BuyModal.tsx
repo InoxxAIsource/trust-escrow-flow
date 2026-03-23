@@ -124,7 +124,7 @@ export default function BuyModal({ offer, open, onClose }: BuyModalProps) {
 
               <div>
                 <label className="text-sm font-medium text-foreground mb-1 block">Amount (INR)</label>
-                <Input
+              <Input
                   type="number"
                   placeholder={`Min ₹${offer.minLimit.toLocaleString()} — Max ₹${offer.maxLimit.toLocaleString()}`}
                   value={amount}
@@ -132,7 +132,17 @@ export default function BuyModal({ offer, open, onClose }: BuyModalProps) {
                   min={offer.minLimit}
                   max={offer.maxLimit}
                 />
-                {numAmount > 0 && (
+                {numAmount > 0 && numAmount < offer.minLimit && (
+                  <p className="text-xs text-destructive mt-1">
+                    Minimum amount is ₹{offer.minLimit.toLocaleString()}
+                  </p>
+                )}
+                {numAmount > offer.maxLimit && (
+                  <p className="text-xs text-destructive mt-1">
+                    Maximum amount is ₹{offer.maxLimit.toLocaleString()}
+                  </p>
+                )}
+                {numAmount >= offer.minLimit && numAmount <= offer.maxLimit && (
                   <p className="text-xs text-muted-foreground mt-1">
                     You'll receive ≈ <span className="font-bold text-foreground">{cryptoAmount} {offer.assetSymbol}</span>
                   </p>
