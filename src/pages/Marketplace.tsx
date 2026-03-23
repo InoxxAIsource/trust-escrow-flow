@@ -14,10 +14,10 @@ function getListingPrice(listing: Listing, prices?: CryptoPrices): number {
   const livePrice = getLivePrice(prices, listing.coin, listing.currency);
   if (!livePrice) return listing.price || 0;
   const margin = listing.marginPct / 100;
-  // Sellers add margin (higher price), buyers subtract margin (lower price)
-  return listing.type === "sell"
-    ? +(livePrice * (1 + margin)).toFixed(2)
-    : +(livePrice * (1 - margin)).toFixed(2);
+  // Both buy and sell prices are ABOVE market price
+  // Sell listings: seller sets higher price (buy from them at premium)
+  // Buy listings: buyer willing to pay above market
+  return +(livePrice * (1 + margin)).toFixed(2);
 }
 
 const PriceTicker = ({ prices }: { prices?: CryptoPrices }) => {
