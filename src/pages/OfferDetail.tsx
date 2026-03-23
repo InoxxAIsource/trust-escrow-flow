@@ -77,9 +77,9 @@ const OfferDetail = () => {
                       <span className="text-xs text-muted-foreground">
                         Market: {livePrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {listing.currency}
                       </span>
-                      <span className={`text-xs font-medium flex items-center gap-0.5 ${listing.type === "sell" ? "text-destructive" : "text-emerald-600"}`}>
-                        {listing.type === "sell" ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                        {listing.type === "sell" ? "+" : "-"}{listing.marginPct}%
+                      <span className="text-xs font-medium flex items-center gap-0.5 text-emerald-600">
+                        <TrendingUp className="h-3 w-3" />
+                        +{listing.marginPct}% above market
                       </span>
                     </div>
                   )}
