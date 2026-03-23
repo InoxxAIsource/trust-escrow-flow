@@ -46,11 +46,7 @@ const PriceTicker = ({ prices }: { prices?: CryptoPrices }) => {
 const ListingCard = ({ listing, prices }: { listing: Listing; prices?: CryptoPrices }) => {
   const displayPrice = getListingPrice(listing, prices);
   const livePrice = getLivePrice(prices, listing.coin, listing.currency);
-  const marginLabel = livePrice
-    ? listing.type === "sell"
-      ? `+${listing.marginPct}%`
-      : `-${listing.marginPct}%`
-    : null;
+  const marginLabel = livePrice ? `+${listing.marginPct}%` : null;
 
   return (
     <Card className="hover:shadow-md transition-shadow">
