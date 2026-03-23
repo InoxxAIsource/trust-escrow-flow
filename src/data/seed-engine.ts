@@ -99,10 +99,28 @@ let usdRates = { ...defaultUsdRates };
 
 const assets = [
   { name: "USDT", symbol: "USDT", baseUSD: 1 },
-  { name: "Bitcoin", symbol: "BTC", baseUSD: 68500 },
-  { name: "Ethereum", symbol: "ETH", baseUSD: 2050 },
-  { name: "Solana", symbol: "SOL", baseUSD: 86 },
+  { name: "Bitcoin", symbol: "BTC", baseUSD: 87000 },
+  { name: "Ethereum", symbol: "ETH", baseUSD: 2100 },
+  { name: "Solana", symbol: "SOL", baseUSD: 140 },
 ];
+
+// P2P premium rates by currency (P2P markets trade above forex rates)
+const p2pPremium: Record<string, number> = {
+  INR: 1.145,  // ~14.5% premium → USDT ≈ ₹97-99
+  NGN: 1.12,
+  KES: 1.10,
+  VND: 1.08,
+  PHP: 1.06,
+  IDR: 1.06,
+};
+
+// Asset-specific margin ranges (USDT margins are much tighter in P2P)
+const marginRanges: Record<string, { sell: [number, number]; buy: [number, number] }> = {
+  USDT: { sell: [0.5, 2.0], buy: [0.2, 1.0] },
+  BTC:  { sell: [10, 12], buy: [2, 5] },
+  ETH:  { sell: [10, 12], buy: [2, 5] },
+  SOL:  { sell: [10, 12], buy: [2, 5] },
+};
 
 // ── Deterministic seeded random (consistent per session, rotates on refresh) ──
 let _seed = Date.now();
