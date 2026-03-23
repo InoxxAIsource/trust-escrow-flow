@@ -176,7 +176,7 @@ function generateUSDTOffers(liveInrRate: number): SeededOffer[] {
   const sellCount = 12;
   for (let i = 0; i < sellCount; i++) {
     const ratio = i / (sellCount - 1); // 0 to 1
-    const basePrice = 93 + ratio * 4; // ₹93 to ₹97
+    const basePrice = 97 + ratio * 7; // ₹97 to ₹104
     const price = +(basePrice + randBetween(-0.3, 0.3)).toFixed(2);
     const marginPct = +((price / marketPriceINR - 1) * 100).toFixed(1);
     const availableAmount = computeAvailableAmount(ratio);
