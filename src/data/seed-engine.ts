@@ -201,11 +201,11 @@ function generateUSDTOffers(liveInrRate: number): SeededOffer[] {
     });
   }
 
-  // 9 BUY offers: ₹98 → ₹104
+  // 9 BUY offers: ₹93 → ₹97 (trader buys from user at lower price)
   const buyCount = 9;
   for (let i = 0; i < buyCount; i++) {
     const ratio = i / (buyCount - 1);
-    const basePrice = 98 + ratio * 6; // ₹98 to ₹104
+    const basePrice = 93 + ratio * 4; // ₹93 to ₹97
     const price = +(basePrice + randBetween(-0.3, 0.3)).toFixed(2);
     const marginPct = +((price / marketPriceINR - 1) * 100).toFixed(1);
     const availableAmount = computeAvailableAmount(ratio);
