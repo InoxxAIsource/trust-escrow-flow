@@ -201,7 +201,7 @@ function generateUSDTOffers(liveInrRate: number): SeededOffer[] {
     });
   }
 
-  // 9 BUY offers: ₹98 → ₹104 (trader buys from user at higher price)
+  // 9 BUY offers: ₹93 → ₹97 (trader buys from user at lower price)
   const buyCount = 9;
   for (let i = 0; i < buyCount; i++) {
     const ratio = i / (buyCount - 1);
