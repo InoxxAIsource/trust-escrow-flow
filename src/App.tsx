@@ -11,6 +11,7 @@ import HowItWorks from "./pages/HowItWorks";
 import Fees from "./pages/Fees";
 import Marketplace from "./pages/Marketplace";
 import Dashboard from "./pages/Dashboard";
+import TradePage from "./pages/TradePage";
 import Auth from "./pages/Auth";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
