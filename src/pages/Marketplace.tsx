@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Star, Shield, Circle, TrendingUp, RefreshCw, Search, Zap, Lock, Flame, Plus } from "lucide-react";
+import { Star, Shield, Circle, TrendingUp, RefreshCw, Search, Zap, Lock, Flame, Plus, Award, ThumbsUp } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -13,11 +13,11 @@ import { getSafeInrRate, useCryptoPrices, type CryptoPrices } from "@/hooks/use-
 import { useDemoUser } from "@/hooks/use-demo-user";
 import { useDemoWallet } from "@/hooks/use-demo-wallet";
 import { useLockedDeals } from "@/hooks/use-locked-deals";
-import { generateAllOffers, filterOffers, countries, currencyByCountry, FALLBACK_USD_INR_RATE, type SeededOffer } from "@/data/seed-engine";
+import { generateAllOffers, filterOffers, FALLBACK_USD_INR_RATE, type SeededOffer } from "@/data/seed-engine";
 import { toast } from "sonner";
 
 const coinOptions = ["USDT", "Bitcoin", "Ethereum", "Solana"];
-const paymentOptions = ["UPI", "Bank Transfer", "PayPal", "Zelle", "Venmo", "IMPS", "SEPA", "PIX", "M-Pesa", "GCash", "CashApp", "Revolut"];
+const paymentOptions = ["UPI", "Bank Transfer", "IMPS"];
 
 function toLivePrices(prices?: CryptoPrices) {
   if (!prices) return undefined;
@@ -55,23 +55,46 @@ const PriceTicker = ({ prices }: { prices?: CryptoPrices }) => {
   );
 };
 
+// Find best (lowest) sell price per asset for "Recommended" badge
+function getBestSellPriceIds(offers: SeededOffer[]): Set<string> {
+  const bestByAsset: Record<string, SeededOffer> = {};
+  for (const o of offers) {
+    if (o.type !== "sell") continue;
+    if (!bestByAsset[o.asset] || o.price < bestByAsset[o.asset].price) {
+      bestByAsset[o.asset] = o;
+    }
+  }
+  return new Set(Object.values(bestByAsset).map((o) => o.id));
+}
+
 interface OfferRowProps {
   offer: SeededOffer;
   onBuyClick: (offer: SeededOffer) => void;
+  isRecommended: boolean;
 }
 
-const OfferRow = ({ offer, onBuyClick }: OfferRowProps) => {
-  // Pseudo-random badge based on offer id
+const OfferRow = ({ offer, onBuyClick, isRecommended }: OfferRowProps) => {
   const hash = offer.id.charCodeAt(5) ?? 0;
   const showInstant = hash % 3 === 0;
   const showLock = hash % 4 === 0;
   const fakeLocks = 5 + (hash % 18);
+  const isHighCompletion = offer.completionRate >= 99;
 
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardContent className="p-4 sm:p-6">
-        {/* Urgency badges */}
+        {/* Badges */}
         <div className="flex flex-wrap gap-1.5 mb-2">
+          {isRecommended && (
+            <Badge className="bg-success/10 text-success border-success/20 border text-xs">
+              <Award className="h-3 w-3 mr-0.5" /> Recommended
+            </Badge>
+          )}
+          {isHighCompletion && (
+            <Badge className="bg-accent text-accent-foreground border text-xs">
+              <ThumbsUp className="h-3 w-3 mr-0.5" /> High Completion Trader
+            </Badge>
+          )}
           {showInstant && (
             <Badge className="bg-warning/10 text-warning border-warning/20 border text-xs">
               <Zap className="h-3 w-3 mr-0.5" /> Instant Trade Available
@@ -112,8 +135,7 @@ const OfferRow = ({ offer, onBuyClick }: OfferRowProps) => {
             <div>
               <div className="text-xs text-muted-foreground">Price</div>
               <div className="font-display font-bold text-foreground">
-                {offer.price.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-                <span className="text-sm font-normal text-muted-foreground ml-1">{currencyByCountry[offer.country] ?? "USD"}</span>
+                ₹{offer.price.toLocaleString(undefined, { maximumFractionDigits: 2 })}
               </div>
               <div className="text-xs font-medium flex items-center gap-0.5 text-success">
                 <TrendingUp className="h-3 w-3" />
@@ -123,11 +145,15 @@ const OfferRow = ({ offer, onBuyClick }: OfferRowProps) => {
             <div className="hidden sm:block">
               <div className="text-xs text-muted-foreground">Limits</div>
               <div className="text-sm text-foreground">
-                {offer.minLimit.toLocaleString()} – {offer.maxLimit.toLocaleString()}
+                ₹{offer.minLimit.toLocaleString()} – ₹{offer.maxLimit.toLocaleString()}
               </div>
             </div>
             <div className="hidden sm:block">
-              <Badge variant="secondary" className="text-xs">{offer.paymentMethod}</Badge>
+              <div className="flex gap-1">
+                {offer.paymentMethods.map((pm) => (
+                  <Badge key={pm} variant="secondary" className="text-xs">{pm}</Badge>
+                ))}
+              </div>
             </div>
             {offer.type === "sell" ? (
               <Button size="sm" onClick={() => onBuyClick(offer)}>
@@ -143,11 +169,13 @@ const OfferRow = ({ offer, onBuyClick }: OfferRowProps) => {
           </div>
         </div>
 
-        {/* Scarcity / urgency line */}
+        {/* Mobile payment + scarcity */}
         <div className="flex gap-3 flex-wrap mt-2">
           <span className="text-xs text-muted-foreground flex items-center gap-1 sm:hidden">
-            <Badge variant="secondary" className="text-xs">{offer.paymentMethod}</Badge>
-            {offer.minLimit.toLocaleString()} – {offer.maxLimit.toLocaleString()}
+            {offer.paymentMethods.map((pm) => (
+              <Badge key={pm} variant="secondary" className="text-xs">{pm}</Badge>
+            ))}
+            ₹{offer.minLimit.toLocaleString()} – ₹{offer.maxLimit.toLocaleString()}
           </span>
           {fakeLocks > 10 && (
             <span className="text-xs text-destructive flex items-center gap-0.5">
@@ -169,7 +197,6 @@ const Marketplace = () => {
 
   const [coin, setCoin] = useState("all");
   const [payment, setPayment] = useState("all");
-  const [country, setCountry] = useState("all");
   const [tradeType, setTradeType] = useState<"all" | "buy" | "sell">("all");
 
   const [buyOffer, setBuyOffer] = useState<SeededOffer | null>(null);
@@ -184,15 +211,14 @@ const Marketplace = () => {
 
   const filtered = useMemo(() => {
     const mappedType = tradeType === "buy" ? "sell" : tradeType === "sell" ? "buy" : undefined;
-    let result = filterOffers(allOffers, {
+    return filterOffers(allOffers, {
       asset: coin !== "all" ? coin : undefined,
-      country: country !== "all" ? country : undefined,
       paymentMethod: payment !== "all" ? payment : undefined,
       type: mappedType,
     });
-    return result.slice(0, 30);
-  }, [allOffers, coin, payment, country, tradeType]);
+  }, [allOffers, coin, payment, tradeType]);
 
+  const recommendedIds = useMemo(() => getBestSellPriceIds(allOffers), [allOffers]);
   const totalOffers = allOffers.length;
 
   const handleBuyClick = (offer: SeededOffer) => {
@@ -227,7 +253,7 @@ const Marketplace = () => {
     <>
       <SEOHead
         title="P2P Crypto Marketplace — Buy & Sell USDT, BTC, ETH, SOL | TrustP2P"
-        description="Browse escrow-protected P2P crypto listings. Buy and sell USDT, Bitcoin, Ethereum, and Solana with verified traders across 20+ countries."
+        description="Browse escrow-protected P2P crypto listings. Buy and sell USDT, Bitcoin, Ethereum, and Solana with verified traders in India."
       />
 
       <div className="container py-12">
@@ -237,7 +263,7 @@ const Marketplace = () => {
           <div>
             <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground">P2P Marketplace</h1>
             <p className="text-muted-foreground mt-1">
-              {totalOffers.toLocaleString()} active offers from verified traders across 20+ countries.
+              {totalOffers} active offers from verified Indian traders.
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -268,7 +294,7 @@ const Marketplace = () => {
         {/* Stats bar */}
         <div className="flex flex-wrap gap-4 mb-6 text-sm text-muted-foreground">
           <span className="flex items-center gap-1"><Shield className="h-4 w-4 text-primary" /> All trades escrow-protected</span>
-          <span>• {totalOffers.toLocaleString()} offers</span>
+          <span>• {totalOffers} offers</span>
           <span>• 98% avg completion rate</span>
           <span>• 12,400+ trades completed</span>
         </div>
@@ -302,22 +328,14 @@ const Marketplace = () => {
               {paymentOptions.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
             </SelectContent>
           </Select>
-
-          <Select value={country} onValueChange={setCountry}>
-            <SelectTrigger className="w-[150px]"><SelectValue placeholder="Country" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Countries</SelectItem>
-              {countries.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-            </SelectContent>
-          </Select>
         </div>
 
         {/* Best offers label */}
         <div className="flex items-center gap-2 mb-4">
           <Search className="h-4 w-4 text-primary" />
           <span className="text-sm font-medium text-foreground">
-            {coin !== "all" || country !== "all" || payment !== "all"
-              ? `Top offers${coin !== "all" ? ` for ${coin}` : ""}${country !== "all" ? ` in ${country}` : ""}${payment !== "all" ? ` via ${payment}` : ""}`
+            {coin !== "all" || payment !== "all"
+              ? `Top offers${coin !== "all" ? ` for ${coin}` : ""}${payment !== "all" ? ` via ${payment}` : ""}`
               : "Best offers today"}
           </span>
           <span className="text-xs text-muted-foreground">({filtered.length} shown)</span>
@@ -326,7 +344,14 @@ const Marketplace = () => {
         {/* Listings */}
         <div className="space-y-3">
           {filtered.length > 0 ? (
-            filtered.map((offer) => <OfferRow key={offer.id} offer={offer} onBuyClick={handleBuyClick} />)
+            filtered.map((offer) => (
+              <OfferRow
+                key={offer.id}
+                offer={offer}
+                onBuyClick={handleBuyClick}
+                isRecommended={recommendedIds.has(offer.id)}
+              />
+            ))
           ) : (
             <Card>
               <CardContent className="py-12 text-center text-muted-foreground">
@@ -335,12 +360,6 @@ const Marketplace = () => {
             </Card>
           )}
         </div>
-
-        {filtered.length >= 30 && (
-          <p className="text-center text-sm text-muted-foreground mt-6">
-            Showing top 30 offers. Refine your filters to see more specific results.
-          </p>
-        )}
       </div>
 
       {/* Modals */}

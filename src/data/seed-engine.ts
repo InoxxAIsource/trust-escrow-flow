@@ -1,7 +1,7 @@
 // ============================================================
-// SEED ENGINE — Fake Liquidity Generator
-// Generates 50-200 realistic offers per asset on every call.
-// All offers are marked is_seeded: true (NEVER exposed to UI).
+// SEED ENGINE — Controlled P2P Offer Generator
+// Generates exactly 51 offers: 21 USDT + 10 BTC + 10 ETH + 10 SOL
+// All India-only, INR limits ₹50K-₹5L, smart payment methods.
 // ============================================================
 
 export interface SeededOffer {
@@ -14,7 +14,8 @@ export interface SeededOffer {
   margin: string;
   minLimit: number;
   maxLimit: number;
-  paymentMethod: string;
+  availableAmount: number;
+  paymentMethods: string[];
   country: string;
   username: string;
   rating: number;
@@ -22,39 +23,52 @@ export interface SeededOffer {
   completionRate: number;
   isOnline: boolean;
   isVerified: boolean;
-  is_seeded: true; // INTERNAL ONLY — never expose
+  is_seeded: true;
   lastSeen: string;
 }
 
-// ── Realistic username pools ──
-const usernamePool = [
-  "crypto_raj", "usdt_king", "fastpay_trader", "btc_whale", "eth_master",
-  "sol_knight", "quick_trade", "safe_escrow", "p2p_pro", "coin_guru",
-  "digital_cash", "fast_crypto", "trust_trade", "secure_pay", "rapid_btc",
-  "smart_usdt", "prime_trader", "elite_crypto", "mega_trade", "alpha_pay",
-  "trade_ninja", "crypto_lion", "chain_master", "block_trader", "hash_king",
-  "defi_guru", "token_pro", "satoshi_fan", "vitalik_fan", "sol_speed",
-  "pay_instant", "money_swift", "cash_flow", "gold_crypto", "diamond_trade",
-  "rocket_pay", "thunder_btc", "flash_trade", "turbo_usdt", "eagle_trade",
-  "stellar_pay", "nova_crypto", "apex_trader", "peak_trade", "prime_pay",
-  "swift_coin", "rapid_eth", "speed_sol", "instant_usdt", "ultra_trade",
-  "max_crypto", "pro_escrow", "safe_trade", "vault_pay", "shield_crypto",
-  "iron_trader", "steel_pay", "titan_trade", "phoenix_btc", "dragon_eth",
-  "hawk_trader", "wolf_crypto", "bear_market", "bull_run", "moon_trade",
-  "lambo_pay", "hodl_king", "stake_pro", "yield_master", "swap_guru",
-  "dex_trader", "nft_whale", "web3_pro", "defi_king", "chain_link",
-  "node_master", "gas_saver", "block_smith", "hash_rate", "mine_crypto",
-  "farm_yield", "pool_master", "liquidity_pro", "bridge_trade", "layer2_pay",
-  "zk_trader", "rollup_pro", "shard_master", "consensus_pay", "validator_king",
-  "relay_trade", "oracle_pro", "index_crypto", "signal_trade", "chart_master",
-  "candle_pro", "trend_trader", "wave_crypto", "cycle_pay", "momentum_trade",
+export interface LivePrices {
+  USDT: number;
+  BTC: number;
+  ETH: number;
+  SOL: number;
+}
+
+// ── Constants ──
+export const FALLBACK_USD_INR_RATE = 85.5;
+
+const assets = [
+  { name: "USDT", symbol: "USDT", baseUSD: 1 },
+  { name: "Bitcoin", symbol: "BTC", baseUSD: 87000 },
+  { name: "Ethereum", symbol: "ETH", baseUSD: 2100 },
+  { name: "Solana", symbol: "SOL", baseUSD: 140 },
 ];
 
-// ── Countries and payment methods ──
+// ── Indian trader username pool ──
+const indianUsernames = [
+  "crypto_raj", "delhi_trader", "usdt_pro_india", "mumbai_btc",
+  "bangalore_crypto", "upi_king", "fast_rupee", "indian_whale",
+  "trade_master_in", "coin_raja", "digital_rupee", "desi_trader",
+  "p2p_guru_india", "safe_trade_in", "instant_pay_in",
+  "quick_crypto_in", "trust_trader_in", "escrow_pro_in",
+  "secure_coin_in", "rapid_trade_in", "prime_crypto_in",
+  "elite_trader_in", "mega_pay_in", "alpha_trade_in",
+  "swift_crypto_in", "turbo_trade_in", "rocket_pay_in",
+  "thunder_trade_in", "flash_pay_in", "stellar_trade_in",
+  "nova_crypto_in", "apex_trade_in", "peak_pay_in",
+  "shield_trade_in", "iron_crypto_in", "titan_pay_in",
+  "phoenix_trade_in", "dragon_crypto_in", "hawk_pay_in",
+  "wolf_trade_in", "bull_run_in", "moon_trade_in",
+  "hodl_india", "stake_pro_in", "yield_master_in",
+  "swap_guru_in", "dex_trader_in", "web3_india",
+  "defi_raja", "chain_master_in", "block_trade_in",
+];
+
+// ── Countries & payment maps (kept for SEO pages compatibility) ──
 const countries = ["India", "USA", "UK", "Germany", "Canada", "UAE", "Singapore", "Nigeria", "Turkey", "Brazil", "Australia", "Japan", "South Korea", "Philippines", "Indonesia", "Thailand", "Vietnam", "Mexico", "Colombia", "Kenya"];
 
 const paymentsByCountry: Record<string, string[]> = {
-  India: ["UPI", "IMPS", "Bank Transfer", "PayTM", "PhonePe", "Google Pay"],
+  India: ["UPI", "Bank Transfer", "IMPS"],
   USA: ["Zelle", "Venmo", "Bank Transfer", "CashApp", "PayPal"],
   UK: ["Bank Transfer", "Faster Payments", "PayPal", "Revolut"],
   Germany: ["Bank Transfer", "SEPA", "PayPal", "Revolut"],
@@ -84,54 +98,11 @@ const currencyByCountry: Record<string, string> = {
   Colombia: "COP", Kenya: "KES",
 };
 
-// Approximate USD exchange rates for generating realistic prices
-export const FALLBACK_USD_INR_RATE = 85.5;
-
-const defaultUsdRates: Record<string, number> = {
-  INR: FALLBACK_USD_INR_RATE, USD: 1, GBP: 0.79, EUR: 0.92, CAD: 1.36,
-  AED: 3.67, SGD: 1.34, NGN: 1550, TRY: 32.5, BRL: 4.97,
-  AUD: 1.53, JPY: 151.5, KRW: 1340, PHP: 56.2,
-  IDR: 15700, THB: 35.8, VND: 25000, MXN: 17.2,
-  COP: 3950, KES: 153,
-};
-
-let usdRates = { ...defaultUsdRates };
-
-const assets = [
-  { name: "USDT", symbol: "USDT", baseUSD: 1 },
-  { name: "Bitcoin", symbol: "BTC", baseUSD: 87000 },
-  { name: "Ethereum", symbol: "ETH", baseUSD: 2100 },
-  { name: "Solana", symbol: "SOL", baseUSD: 140 },
-];
-
-// P2P premium rates by currency (P2P markets trade above forex rates)
-const p2pPremium: Record<string, number> = {
-  INR: 1.09,   // base USDT = 85.5×1.09 ≈ ₹93 → sell 93-97, buy 99-104
-  NGN: 1.12,
-  KES: 1.10,
-  VND: 1.08,
-  PHP: 1.06,
-  IDR: 1.06,
-};
-
-// Asset-specific margin ranges
-// USDT/INR: sell 0-4% (₹93-97), buy 6-12% (₹99-104)
-const marginRanges: Record<string, { sell: [number, number]; buy: [number, number] }> = {
-  USDT: { sell: [0, 4.0], buy: [6, 12] },
-  BTC:  { sell: [10, 12], buy: [2, 5] },
-  ETH:  { sell: [10, 12], buy: [2, 5] },
-  SOL:  { sell: [10, 12], buy: [2, 5] },
-};
-
-// ── Deterministic seeded random (consistent per session, rotates on refresh) ──
+// ── Deterministic seeded random ──
 let _seed = Date.now();
 function seededRandom(): number {
   _seed = (_seed * 16807 + 0) % 2147483647;
   return (_seed & 0x7fffffff) / 0x7fffffff;
-}
-
-function pick<T>(arr: T[]): T {
-  return arr[Math.floor(seededRandom() * arr.length)];
 }
 
 function randBetween(min: number, max: number): number {
@@ -142,101 +113,216 @@ function generateId(): string {
   return `seed-${Math.floor(seededRandom() * 1e12).toString(36)}`;
 }
 
-function generateUsername(): string {
-  const base = pick(usernamePool);
-  const suffix = Math.floor(seededRandom() * 99) + 1;
-  return seededRandom() > 0.5 ? `${base}_${suffix}` : base;
+// ── Payment method assignment based on amount ──
+function assignPaymentMethods(maxLimit: number): string[] {
+  if (maxLimit > 500000) return ["Bank Transfer"];
+  if (maxLimit <= 100000) return seededRandom() > 0.3 ? ["UPI"] : ["UPI", "Bank Transfer"];
+  // ₹1L-₹5L: mix
+  return seededRandom() > 0.5 ? ["UPI", "Bank Transfer"] : ["Bank Transfer", "UPI"];
 }
 
-// ── Main generator ──
-function generateOffersForAsset(
-  asset: typeof assets[0],
-  livePriceUSD?: number,
-  count?: number
-): SeededOffer[] {
-  const offerCount = count ?? Math.floor(randBetween(50, 200));
-  const basePriceUSD = livePriceUSD ?? asset.baseUSD;
+// ── Inverse liquidity: lower price → higher amount ──
+function computeAvailableAmount(priceRatio: number): number {
+  // priceRatio: 0 = lowest price (best deal), 1 = highest price
+  // Lower price → higher liquidity (₹3L-₹5L), higher price → lower (₹50K-₹1.5L)
+  const inverted = 1 - priceRatio;
+  return Math.round(50000 + inverted * 450000);
+}
+
+function computeLimits(availableAmount: number): { minLimit: number; maxLimit: number } {
+  const minLimit = 50000;
+  const maxLimit = Math.min(availableAmount, 500000);
+  return { minLimit, maxLimit: Math.max(maxLimit, minLimit + 10000) };
+}
+
+// ── Pick unique username ──
+let _usedUsernames: Set<string> = new Set();
+function pickUsername(): string {
+  for (let attempt = 0; attempt < 100; attempt++) {
+    const idx = Math.floor(seededRandom() * indianUsernames.length);
+    const name = indianUsernames[idx];
+    if (!_usedUsernames.has(name)) {
+      _usedUsernames.add(name);
+      return name;
+    }
+  }
+  // Fallback with suffix
+  const base = indianUsernames[Math.floor(seededRandom() * indianUsernames.length)];
+  const suffix = Math.floor(seededRandom() * 99) + 1;
+  const fallback = `${base}_${suffix}`;
+  _usedUsernames.add(fallback);
+  return fallback;
+}
+
+// ── Trader profile ──
+function generateTrader() {
+  return {
+    username: pickUsername(),
+    rating: +randBetween(4.2, 5.0).toFixed(1),
+    trades: Math.floor(randBetween(100, 5000)),
+    completionRate: +randBetween(94, 100).toFixed(1),
+    isOnline: seededRandom() > 0.25,
+    isVerified: seededRandom() > 0.15,
+    lastSeen: seededRandom() > 0.5 ? "Online" : `${Math.floor(randBetween(1, 20))}m ago`,
+  };
+}
+
+// ── USDT Offer Generator ──
+function generateUSDTOffers(liveInrRate: number): SeededOffer[] {
   const offers: SeededOffer[] = [];
+  const marketPriceINR = liveInrRate; // USDT ≈ $1
 
-  for (let i = 0; i < offerCount; i++) {
-    const type: "buy" | "sell" = seededRandom() > 0.45 ? "sell" : "buy";
-    const country = pick(countries);
-    const currency = currencyByCountry[country];
-    const rate = usdRates[currency] ?? 1;
-    const payments = paymentsByCountry[country] ?? ["Bank Transfer"];
-    const paymentMethod = pick(payments);
-
-    // Apply P2P premium for currencies that trade above forex rates
-    const premium = p2pPremium[currency] ?? 1;
-    const marketPriceLocal = +(basePriceUSD * rate * premium).toFixed(2);
-
-    // Asset-aware margins: USDT is tight (0.5-2%), others are wider (10-12%)
-    const margins = marginRanges[asset.symbol] ?? { sell: [10, 12], buy: [2, 5] };
-    const marginPct = type === "sell"
-      ? randBetween(margins.sell[0], margins.sell[1])
-      : randBetween(margins.buy[0], margins.buy[1]);
-
-    const price = +(marketPriceLocal * (1 + marginPct / 100)).toFixed(2);
-
-    // Realistic limits
-    const minBase = type === "sell" ? 50 : 100;
-    const maxBase = type === "sell" ? 50000 : 100000;
-    const minLimit = Math.round(randBetween(minBase, minBase * 5) * rate);
-    const maxLimit = Math.round(randBetween(maxBase * 0.5, maxBase) * rate);
-
-    const trades = Math.floor(randBetween(50, 5000));
-    const rating = +(randBetween(4.2, 5.0)).toFixed(1);
+  // 12 SELL offers: ₹93 → ₹97
+  const sellCount = 12;
+  for (let i = 0; i < sellCount; i++) {
+    const ratio = i / (sellCount - 1); // 0 to 1
+    const basePrice = 93 + ratio * 4; // ₹93 to ₹97
+    const price = +(basePrice + randBetween(-0.3, 0.3)).toFixed(2);
+    const marginPct = +((price / marketPriceINR - 1) * 100).toFixed(1);
+    const availableAmount = computeAvailableAmount(ratio);
+    const { minLimit, maxLimit } = computeLimits(availableAmount);
+    const paymentMethods = assignPaymentMethods(maxLimit);
 
     offers.push({
       id: generateId(),
-      type,
-      asset: asset.name,
-      assetSymbol: asset.symbol,
+      type: "sell",
+      asset: "USDT",
+      assetSymbol: "USDT",
       price,
-      marketPrice: marketPriceLocal,
-      margin: `+${marginPct.toFixed(1)}%`,
-      minLimit: Math.max(minLimit, 1),
-      maxLimit: Math.max(maxLimit, minLimit + 1),
-      paymentMethod,
-      country,
-      username: generateUsername(),
-      rating: Math.min(rating, 5.0),
-      trades,
-      completionRate: +(randBetween(94, 100)).toFixed(1),
-      isOnline: seededRandom() > 0.3,
-      isVerified: seededRandom() > 0.2,
+      marketPrice: +marketPriceINR.toFixed(2),
+      margin: `+${Math.max(marginPct, 0.1).toFixed(1)}%`,
+      minLimit,
+      maxLimit,
+      availableAmount,
+      paymentMethods,
+      country: "India",
+      ...generateTrader(),
       is_seeded: true,
-      lastSeen: seededRandom() > 0.5 ? "Online" : `${Math.floor(randBetween(1, 30))}m ago`,
+    });
+  }
+
+  // 9 BUY offers: ₹98 → ₹104
+  const buyCount = 9;
+  for (let i = 0; i < buyCount; i++) {
+    const ratio = i / (buyCount - 1);
+    const basePrice = 98 + ratio * 6; // ₹98 to ₹104
+    const price = +(basePrice + randBetween(-0.3, 0.3)).toFixed(2);
+    const marginPct = +((price / marketPriceINR - 1) * 100).toFixed(1);
+    const availableAmount = computeAvailableAmount(ratio);
+    const { minLimit, maxLimit } = computeLimits(availableAmount);
+    const paymentMethods = assignPaymentMethods(maxLimit);
+
+    offers.push({
+      id: generateId(),
+      type: "buy",
+      asset: "USDT",
+      assetSymbol: "USDT",
+      price,
+      marketPrice: +marketPriceINR.toFixed(2),
+      margin: `+${Math.max(marginPct, 0.1).toFixed(1)}%`,
+      minLimit,
+      maxLimit,
+      availableAmount,
+      paymentMethods,
+      country: "India",
+      ...generateTrader(),
+      is_seeded: true,
     });
   }
 
   return offers;
 }
 
-export interface LivePrices {
-  USDT: number;
-  BTC: number;
-  ETH: number;
-  SOL: number;
-}
+// ── BTC/ETH/SOL Generator ──
+function generateCryptoOffers(
+  assetName: string,
+  assetSymbol: string,
+  livePriceUSD: number,
+  inrRate: number
+): SeededOffer[] {
+  const offers: SeededOffer[] = [];
+  const marketPriceINR = +(livePriceUSD * inrRate).toFixed(2);
 
-// Generate ALL offers across all assets
-export function generateAllOffers(livePricesUSD?: Partial<LivePrices>, liveInrRate?: number): SeededOffer[] {
-  // Reset seed on each call for rotation on refresh
-  _seed = Date.now();
+  // 5 SELL offers: market + 2% (±0.5% variation)
+  for (let i = 0; i < 5; i++) {
+    const ratio = i / 4;
+    const variation = 1.02 + randBetween(-0.005, 0.005);
+    const price = +(marketPriceINR * variation).toFixed(2);
+    const marginPct = +((price / marketPriceINR - 1) * 100).toFixed(1);
+    const availableAmount = computeAvailableAmount(ratio);
+    const { minLimit, maxLimit } = computeLimits(availableAmount);
+    const paymentMethods = assignPaymentMethods(maxLimit);
 
-  // Update INR rate if we have a live one
-  if (liveInrRate && liveInrRate > 0) {
-    usdRates.INR = liveInrRate;
+    offers.push({
+      id: generateId(),
+      type: "sell",
+      asset: assetName,
+      assetSymbol,
+      price,
+      marketPrice: marketPriceINR,
+      margin: `+${Math.max(marginPct, 0.1).toFixed(1)}%`,
+      minLimit,
+      maxLimit,
+      availableAmount,
+      paymentMethods,
+      country: "India",
+      ...generateTrader(),
+      is_seeded: true,
+    });
   }
 
-  return assets.flatMap((asset) => {
-    const livePrice = livePricesUSD?.[asset.symbol as keyof LivePrices];
-    return generateOffersForAsset(asset, livePrice);
-  });
+  // 5 BUY offers: market + ~10% (±0.5% variation)
+  for (let i = 0; i < 5; i++) {
+    const ratio = i / 4;
+    const variation = 1.10 + randBetween(-0.005, 0.005);
+    const price = +(marketPriceINR * variation).toFixed(2);
+    const marginPct = +((price / marketPriceINR - 1) * 100).toFixed(1);
+    const availableAmount = computeAvailableAmount(ratio);
+    const { minLimit, maxLimit } = computeLimits(availableAmount);
+    const paymentMethods = assignPaymentMethods(maxLimit);
+
+    offers.push({
+      id: generateId(),
+      type: "buy",
+      asset: assetName,
+      assetSymbol,
+      price,
+      marketPrice: marketPriceINR,
+      margin: `+${Math.max(marginPct, 0.1).toFixed(1)}%`,
+      minLimit,
+      maxLimit,
+      availableAmount,
+      paymentMethods,
+      country: "India",
+      ...generateTrader(),
+      is_seeded: true,
+    });
+  }
+
+  return offers;
 }
 
-// Filter offers for SEO pages
+// ── Main entry point ──
+export function generateAllOffers(livePricesUSD?: Partial<LivePrices>, liveInrRate?: number): SeededOffer[] {
+  _seed = Date.now();
+  _usedUsernames = new Set();
+
+  const inrRate = (liveInrRate && liveInrRate > 0) ? liveInrRate : FALLBACK_USD_INR_RATE;
+
+  const usdtPrice = livePricesUSD?.USDT ?? 1;
+  const btcPrice = livePricesUSD?.BTC ?? 87000;
+  const ethPrice = livePricesUSD?.ETH ?? 2100;
+  const solPrice = livePricesUSD?.SOL ?? 140;
+
+  return [
+    ...generateUSDTOffers(usdtPrice * inrRate),
+    ...generateCryptoOffers("Bitcoin", "BTC", btcPrice, inrRate),
+    ...generateCryptoOffers("Ethereum", "ETH", ethPrice, inrRate),
+    ...generateCryptoOffers("Solana", "SOL", solPrice, inrRate),
+  ];
+}
+
+// ── Filter offers (compatible with SEO pages) ──
 export function filterOffers(
   offers: SeededOffer[],
   filters: {
@@ -249,11 +335,10 @@ export function filterOffers(
   return offers.filter((o) => {
     if (filters.asset && o.asset !== filters.asset && o.assetSymbol !== filters.asset) return false;
     if (filters.country && o.country !== filters.country) return false;
-    if (filters.paymentMethod && o.paymentMethod !== filters.paymentMethod) return false;
+    if (filters.paymentMethod && !o.paymentMethods.includes(filters.paymentMethod)) return false;
     if (filters.type && o.type !== filters.type) return false;
     return true;
   });
 }
 
-// Export for use in SEO pages
 export { countries, paymentsByCountry, currencyByCountry, assets };

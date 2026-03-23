@@ -103,7 +103,7 @@ const UserProfile = () => {
                           {offer.type === "sell" ? "Selling" : "Buying"} {offer.asset}
                         </div>
                         <div className="text-sm text-muted-foreground mt-1">
-                          {offer.price.toLocaleString(undefined, { maximumFractionDigits: 2 })} • {offer.paymentMethod} • {offer.country}
+                          {offer.price.toLocaleString(undefined, { maximumFractionDigits: 2 })} • {offer.paymentMethods.join(", ")} • {offer.country}
                         </div>
                       </div>
                       <Button size="sm" asChild>
