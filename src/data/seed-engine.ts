@@ -243,10 +243,10 @@ function generateCryptoOffers(
   const offers: SeededOffer[] = [];
   const marketPriceINR = +(livePriceUSD * inrRate).toFixed(2);
 
-  // 5 SELL offers: market + 2% (±0.5% variation)
+  // 5 SELL offers: market + ~10% (trader sells to user at higher price)
   for (let i = 0; i < 5; i++) {
     const ratio = i / 4;
-    const variation = 1.02 + randBetween(-0.005, 0.005);
+    const variation = 1.10 + randBetween(-0.005, 0.005);
     const price = +(marketPriceINR * variation).toFixed(2);
     const marginPct = +((price / marketPriceINR - 1) * 100).toFixed(1);
     const availableAmount = computeAvailableAmount(ratio);
