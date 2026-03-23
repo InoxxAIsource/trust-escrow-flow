@@ -307,9 +307,9 @@ const Marketplace = () => {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            {activeDeals.length > 0 && (
+            {activeTrades.length > 0 && (
               <Button variant="outline" size="sm" onClick={() => navigate("/dashboard")}>
-                <Lock className="h-3.5 w-3.5 mr-1" /> {activeDeals.length} Active Deal{activeDeals.length > 1 ? "s" : ""}
+                <Lock className="h-3.5 w-3.5 mr-1" /> {activeTrades.length} Active Trade{activeTrades.length > 1 ? "s" : ""}
               </Button>
             )}
             <Button size="sm" onClick={handleSellClick}>
