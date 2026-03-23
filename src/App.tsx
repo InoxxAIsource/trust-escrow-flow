@@ -36,9 +36,20 @@ const App = () => (
               <Route path="/blog/:slug" element={<BlogPost />} />
               <Route path="/offer/:id" element={<OfferDetail />} />
               <Route path="/user/:username" element={<UserProfile />} />
-              {seoSlugs.map((slug) => (
-                <Route key={slug} path={`/${slug}`} element={<SEOLanding />} />
-              ))}
+              <Route path="/buy-usdt" element={<SEOLanding />} />
+              <Route path="/sell-usdt" element={<SEOLanding />} />
+              <Route path="/buy-bitcoin" element={<SEOLanding />} />
+              <Route path="/sell-bitcoin" element={<SEOLanding />} />
+              <Route path="/buy-ethereum" element={<SEOLanding />} />
+              <Route path="/sell-ethereum" element={<SEOLanding />} />
+              <Route path="/buy-solana" element={<SEOLanding />} />
+              <Route path="/sell-solana" element={<SEOLanding />} />
+              <Route path="/buy-usdt-india" element={<SEOLanding />} />
+              <Route path="/buy-usdt-usa" element={<SEOLanding />} />
+              <Route path="/buy-bitcoin-india" element={<SEOLanding />} />
+              <Route path="/buy-usdt-upi" element={<SEOLanding />} />
+              <Route path="/buy-usdt-bank-transfer" element={<SEOLanding />} />
+              <Route path="/buy-bitcoin-paypal" element={<SEOLanding />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Layout>
