@@ -106,7 +106,7 @@ const assets = [
 
 // P2P premium rates by currency (P2P markets trade above forex rates)
 const p2pPremium: Record<string, number> = {
-  INR: 1.145,  // ~14.5% premium → USDT ≈ ₹97-99
+  INR: 1.09,   // base USDT ≈ ₹93 → sell 93-97, buy 99-104
   NGN: 1.12,
   KES: 1.10,
   VND: 1.08,
@@ -114,9 +114,10 @@ const p2pPremium: Record<string, number> = {
   IDR: 1.06,
 };
 
-// Asset-specific margin ranges (USDT margins are much tighter in P2P)
+// Asset-specific margin ranges
+// USDT/INR: sell 0-4% (₹93-97), buy 6-12% (₹99-104)
 const marginRanges: Record<string, { sell: [number, number]; buy: [number, number] }> = {
-  USDT: { sell: [0.5, 2.0], buy: [0.2, 1.0] },
+  USDT: { sell: [0, 4.0], buy: [6, 12] },
   BTC:  { sell: [10, 12], buy: [2, 5] },
   ETH:  { sell: [10, 12], buy: [2, 5] },
   SOL:  { sell: [10, 12], buy: [2, 5] },
