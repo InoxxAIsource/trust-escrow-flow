@@ -10,9 +10,10 @@ import SEOHead from "@/components/SEOHead";
 import BuyModal from "@/components/marketplace/BuyModal";
 import SellModal from "@/components/marketplace/SellModal";
 import { getSafeInrRate, useCryptoPrices, type CryptoPrices } from "@/hooks/use-crypto-prices";
-import { useDemoUser } from "@/hooks/use-demo-user";
-import { useDemoWallet } from "@/hooks/use-demo-wallet";
-import { useLockedDeals } from "@/hooks/use-locked-deals";
+import { useAuth } from "@/hooks/use-auth";
+import { useWallets } from "@/hooks/use-wallets";
+import { useDeals } from "@/hooks/use-deals";
+import { useUserOffers } from "@/hooks/use-offers";
 import { generateAllOffers, filterOffers, FALLBACK_USD_INR_RATE, type SeededOffer } from "@/data/seed-engine";
 import { toast } from "sonner";
 
@@ -55,7 +56,6 @@ const PriceTicker = ({ prices }: { prices?: CryptoPrices }) => {
   );
 };
 
-// Find best (lowest) sell price per asset for "Recommended" badge
 function getBestSellPriceIds(offers: SeededOffer[]): Set<string> {
   const bestByAsset: Record<string, SeededOffer> = {};
   for (const o of offers) {
@@ -83,7 +83,6 @@ const OfferRow = ({ offer, onBuyClick, isRecommended }: OfferRowProps) => {
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardContent className="p-4 sm:p-6">
-        {/* Badges */}
         <div className="flex flex-wrap gap-1.5 mb-2">
           {isRecommended && (
             <Badge className="bg-success/10 text-success border-success/20 border text-xs">
@@ -169,7 +168,6 @@ const OfferRow = ({ offer, onBuyClick, isRecommended }: OfferRowProps) => {
           </div>
         </div>
 
-        {/* Mobile payment + scarcity */}
         <div className="flex gap-3 flex-wrap mt-2">
           <span className="text-xs text-muted-foreground flex items-center gap-1 sm:hidden">
             {offer.paymentMethods.map((pm) => (
@@ -191,9 +189,10 @@ const OfferRow = ({ offer, onBuyClick, isRecommended }: OfferRowProps) => {
 const Marketplace = () => {
   const navigate = useNavigate();
   const { data: prices, isLoading, dataUpdatedAt, refetch } = useCryptoPrices();
-  const { user, loginAsDemo } = useDemoUser();
-  const { deposit, getBalance } = useDemoWallet();
-  const { lockDeal, createUserOffer, activeDeals } = useLockedDeals();
+  const { user } = useAuth();
+  const { deposit, getBalance } = useWallets();
+  const { lockDeal, activeDeals } = useDeals();
+  const { createOffer } = useUserOffers();
 
   const [coin, setCoin] = useState("all");
   const [payment, setPayment] = useState("all");
@@ -221,30 +220,71 @@ const Marketplace = () => {
   const recommendedIds = useMemo(() => getBestSellPriceIds(allOffers), [allOffers]);
   const totalOffers = allOffers.length;
 
-  const handleBuyClick = (offer: SeededOffer) => {
+  const requireAuth = (action: () => void) => {
     if (!user) {
-      loginAsDemo();
-      toast.success("Signed in as demo trader!");
+      navigate("/auth");
+      toast.info("Please sign in to continue");
+      return;
     }
-    setBuyOffer(offer);
+    action();
+  };
+
+  const handleBuyClick = (offer: SeededOffer) => {
+    requireAuth(() => setBuyOffer(offer));
   };
 
   const handleSellClick = () => {
-    if (!user) {
-      loginAsDemo();
-      toast.success("Signed in as demo trader!");
-    }
-    setShowSell(true);
+    requireAuth(() => setShowSell(true));
   };
 
-  const handleLockDeal = (data: Parameters<typeof lockDeal>[0]) => {
-    lockDeal(data);
+  const handleLockDeal = (data: {
+    offerId: string;
+    asset: string;
+    assetSymbol: string;
+    amount: number;
+    price: number;
+    currency: string;
+    paymentMethod: string;
+    type: "buy";
+    sellerUsername: string;
+  }) => {
+    lockDeal.mutate({
+      offer_id: data.offerId,
+      asset: data.asset,
+      asset_symbol: data.assetSymbol,
+      amount: data.amount,
+      price: data.price,
+      currency: data.currency,
+      payment_method: data.paymentMethod,
+      type: data.type,
+      seller_username: data.sellerUsername,
+    });
     toast.success("Deal locked! Price secured for 3 hours.");
   };
 
-  const handleCreateOffer = (data: Parameters<typeof createUserOffer>[0]) => {
-    createUserOffer(data);
+  const handleCreateOffer = (data: {
+    asset: string;
+    assetSymbol: string;
+    amount: number;
+    price: number;
+    currency: string;
+    paymentMethods: string[];
+  }) => {
+    createOffer.mutate({
+      type: "sell",
+      asset: data.assetSymbol,
+      amount: data.amount,
+      price: data.price,
+      currency: data.currency,
+      payment_methods: data.paymentMethods,
+      min_limit: 50000,
+      max_limit: 500000,
+    });
     toast.success("Your sell offer is now live!");
+  };
+
+  const handleDeposit = (asset: string, amount: number) => {
+    deposit.mutate({ asset, amount });
   };
 
   const suggestedPrice = prices ? Math.round(prices.tether.usd * liveInrRate * 1.1 * 100) / 100 : undefined;
@@ -291,7 +331,6 @@ const Marketplace = () => {
 
         <PriceTicker prices={prices} />
 
-        {/* Stats bar */}
         <div className="flex flex-wrap gap-4 mb-6 text-sm text-muted-foreground">
           <span className="flex items-center gap-1"><Shield className="h-4 w-4 text-primary" /> All trades escrow-protected</span>
           <span>• {totalOffers} offers</span>
@@ -299,7 +338,6 @@ const Marketplace = () => {
           <span>• 12,400+ trades completed</span>
         </div>
 
-        {/* Filters */}
         <div className="flex flex-wrap gap-3 mb-8">
           <div className="flex rounded-lg border overflow-hidden">
             {(["all", "buy", "sell"] as const).map((t) => (
@@ -330,7 +368,6 @@ const Marketplace = () => {
           </Select>
         </div>
 
-        {/* Best offers label */}
         <div className="flex items-center gap-2 mb-4">
           <Search className="h-4 w-4 text-primary" />
           <span className="text-sm font-medium text-foreground">
@@ -341,7 +378,6 @@ const Marketplace = () => {
           <span className="text-xs text-muted-foreground">({filtered.length} shown)</span>
         </div>
 
-        {/* Listings */}
         <div className="space-y-3">
           {filtered.length > 0 ? (
             filtered.map((offer) => (
@@ -362,7 +398,6 @@ const Marketplace = () => {
         </div>
       </div>
 
-      {/* Modals */}
       <BuyModal
         offer={buyOffer}
         open={!!buyOffer}
@@ -376,7 +411,7 @@ const Marketplace = () => {
       <SellModal
         open={showSell}
         onClose={() => setShowSell(false)}
-        onDeposit={deposit}
+        onDeposit={handleDeposit}
         onCreateOffer={handleCreateOffer}
         getBalance={getBalance}
         suggestedPrice={suggestedPrice}
