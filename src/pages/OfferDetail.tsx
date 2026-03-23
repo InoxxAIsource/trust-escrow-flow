@@ -6,8 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import SEOHead from "@/components/SEOHead";
 import { useMemo } from "react";
-import { generateAllOffers, type SeededOffer } from "@/data/seed-engine";
-import { useCryptoPrices, type CryptoPrices } from "@/hooks/use-crypto-prices";
+import { generateAllOffers, currencyByCountry, FALLBACK_USD_INR_RATE, type SeededOffer } from "@/data/seed-engine";
+import { getSafeInrRate, useCryptoPrices, type CryptoPrices } from "@/hooks/use-crypto-prices";
 
 function toLivePrices(prices?: CryptoPrices) {
   if (!prices) return undefined;
@@ -17,11 +17,12 @@ function toLivePrices(prices?: CryptoPrices) {
 const OfferDetail = () => {
   const { id } = useParams();
   const { data: prices } = useCryptoPrices();
+  const liveInrRate = getSafeInrRate(prices) ?? FALLBACK_USD_INR_RATE;
 
   const offer = useMemo(() => {
-    const all = generateAllOffers(toLivePrices(prices));
+    const all = generateAllOffers(toLivePrices(prices), liveInrRate);
     return all.find((o) => o.id === id);
-  }, [id, prices]);
+  }, [id, prices, liveInrRate]);
 
   if (!offer) {
     return (
@@ -32,6 +33,8 @@ const OfferDetail = () => {
       </div>
     );
   }
+
+  const currency = currencyByCountry[offer.country] ?? "USD";
 
   return (
     <>
@@ -71,10 +74,11 @@ const OfferDetail = () => {
                   <div className="text-sm text-muted-foreground mb-1">Price</div>
                   <div className="font-display text-2xl font-bold text-foreground">
                     {offer.price.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                    <span className="text-sm font-normal text-muted-foreground ml-1">{currency}</span>
                   </div>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="text-xs text-muted-foreground">
-                      Market: {offer.marketPrice.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                      Market: {offer.marketPrice.toLocaleString(undefined, { maximumFractionDigits: 2 })} {currency}
                     </span>
                     <span className="text-xs font-medium flex items-center gap-0.5 text-success">
                       <TrendingUp className="h-3 w-3" />
