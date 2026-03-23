@@ -172,11 +172,11 @@ function generateUSDTOffers(liveInrRate: number): SeededOffer[] {
   const offers: SeededOffer[] = [];
   const marketPriceINR = liveInrRate; // USDT ≈ $1
 
-  // 12 SELL offers: ₹93 → ₹97 (trader sells to user at lower price)
+  // 12 SELL offers: ₹97 → ₹104 (trader sells to user at higher price)
   const sellCount = 12;
   for (let i = 0; i < sellCount; i++) {
     const ratio = i / (sellCount - 1); // 0 to 1
-    const basePrice = 93 + ratio * 4; // ₹93 to ₹97
+    const basePrice = 97 + ratio * 7; // ₹97 to ₹104
     const price = +(basePrice + randBetween(-0.3, 0.3)).toFixed(2);
     const marginPct = +((price / marketPriceINR - 1) * 100).toFixed(1);
     const availableAmount = computeAvailableAmount(ratio);
@@ -201,11 +201,11 @@ function generateUSDTOffers(liveInrRate: number): SeededOffer[] {
     });
   }
 
-  // 9 BUY offers: ₹98 → ₹104 (trader buys from user at higher price)
+  // 9 BUY offers: ₹93 → ₹97 (trader buys from user at lower price)
   const buyCount = 9;
   for (let i = 0; i < buyCount; i++) {
     const ratio = i / (buyCount - 1);
-    const basePrice = 98 + ratio * 6; // ₹98 to ₹104
+    const basePrice = 93 + ratio * 4; // ₹93 to ₹97
     const price = +(basePrice + randBetween(-0.3, 0.3)).toFixed(2);
     const marginPct = +((price / marketPriceINR - 1) * 100).toFixed(1);
     const availableAmount = computeAvailableAmount(ratio);
@@ -243,10 +243,10 @@ function generateCryptoOffers(
   const offers: SeededOffer[] = [];
   const marketPriceINR = +(livePriceUSD * inrRate).toFixed(2);
 
-  // 5 SELL offers: market + ~2% (trader sells to user at lower price)
+  // 5 SELL offers: market + ~10% (trader sells to user at higher price)
   for (let i = 0; i < 5; i++) {
     const ratio = i / 4;
-    const variation = 1.02 + randBetween(-0.005, 0.005);
+    const variation = 1.10 + randBetween(-0.005, 0.005);
     const price = +(marketPriceINR * variation).toFixed(2);
     const marginPct = +((price / marketPriceINR - 1) * 100).toFixed(1);
     const availableAmount = computeAvailableAmount(ratio);
@@ -271,10 +271,10 @@ function generateCryptoOffers(
     });
   }
 
-  // 5 BUY offers: market + 10% (trader buys from user at higher price)
+  // 5 BUY offers: market + ~2% (trader buys from user at lower price)
   for (let i = 0; i < 5; i++) {
     const ratio = i / 4;
-    const variation = 1.10 + randBetween(-0.005, 0.005);
+    const variation = 1.02 + randBetween(-0.005, 0.005);
     const price = +(marketPriceINR * variation).toFixed(2);
     const marginPct = +((price / marketPriceINR - 1) * 100).toFixed(1);
     const availableAmount = computeAvailableAmount(ratio);
