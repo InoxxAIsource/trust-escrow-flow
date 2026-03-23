@@ -19,7 +19,7 @@ Deno.serve(async (req) => {
     // Find locked trades past their expiry
     const { data: expiredTrades, error: fetchError } = await supabase
       .from("trades")
-      .select("id")
+      .select("id, seller_id, asset, amount")
       .eq("status", "locked")
       .lt("expires_at", new Date().toISOString());
 
@@ -34,6 +34,7 @@ Deno.serve(async (req) => {
 
     const ids = expiredTrades.map((t) => t.id);
 
+    // Mark trades as expired
     const { error: updateError } = await supabase
       .from("trades")
       .update({ status: "expired" })
@@ -41,8 +42,28 @@ Deno.serve(async (req) => {
 
     if (updateError) throw updateError;
 
+    // Restore seller locked_balance for each expired trade
+    for (const trade of expiredTrades) {
+      const { data: wallet } = await supabase
+        .from("wallets")
+        .select("id, balance, locked_balance")
+        .eq("user_id", trade.seller_id)
+        .eq("asset", trade.asset)
+        .single();
+
+      if (wallet) {
+        await supabase
+          .from("wallets")
+          .update({
+            balance: Number(wallet.balance) + Number(trade.amount),
+            locked_balance: Math.max(0, Number(wallet.locked_balance) - Number(trade.amount)),
+          })
+          .eq("id", wallet.id);
+      }
+    }
+
     return new Response(
-      JSON.stringify({ message: "Expired trades updated", count: ids.length }),
+      JSON.stringify({ message: "Expired trades updated, funds restored", count: ids.length }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {

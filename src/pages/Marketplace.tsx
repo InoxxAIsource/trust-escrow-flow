@@ -190,7 +190,7 @@ const Marketplace = () => {
   const navigate = useNavigate();
   const { data: prices, isLoading, dataUpdatedAt, refetch } = useCryptoPrices();
   const { user } = useAuth();
-  const { deposit, getBalance } = useWallets();
+  const { deposit, getBalance, lockBalance } = useWallets();
   const { activeTrades } = useUserTrades();
   const { createOffer } = useUserOffers();
 
