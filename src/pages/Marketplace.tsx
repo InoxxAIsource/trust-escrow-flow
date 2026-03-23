@@ -12,7 +12,7 @@ import SellModal from "@/components/marketplace/SellModal";
 import { getSafeInrRate, useCryptoPrices, type CryptoPrices } from "@/hooks/use-crypto-prices";
 import { useAuth } from "@/hooks/use-auth";
 import { useWallets } from "@/hooks/use-wallets";
-import { useDeals } from "@/hooks/use-deals";
+import { useUserTrades } from "@/hooks/use-trades";
 import { useUserOffers } from "@/hooks/use-offers";
 import { generateAllOffers, filterOffers, FALLBACK_USD_INR_RATE, type SeededOffer } from "@/data/seed-engine";
 import { toast } from "sonner";
