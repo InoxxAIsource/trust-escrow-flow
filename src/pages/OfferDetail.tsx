@@ -1,5 +1,5 @@
 import { useParams, Link } from "react-router-dom";
-import { Shield, Star, Circle, Clock, MessageSquare, TrendingUp, TrendingDown } from "lucide-react";
+import { Shield, Star, Circle, Clock, MessageSquare, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -24,10 +24,9 @@ const OfferDetail = () => {
 
   const livePrice = getLivePrice(prices, listing.coin, listing.currency);
   const margin = listing.marginPct / 100;
+  // Both buy and sell prices are above market
   const displayPrice = livePrice
-    ? listing.type === "sell"
-      ? +(livePrice * (1 + margin)).toFixed(2)
-      : +(livePrice * (1 - margin)).toFixed(2)
+    ? +(livePrice * (1 + margin)).toFixed(2)
     : 0;
 
   return (
@@ -78,9 +77,9 @@ const OfferDetail = () => {
                       <span className="text-xs text-muted-foreground">
                         Market: {livePrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {listing.currency}
                       </span>
-                      <span className={`text-xs font-medium flex items-center gap-0.5 ${listing.type === "sell" ? "text-destructive" : "text-emerald-600"}`}>
-                        {listing.type === "sell" ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                        {listing.type === "sell" ? "+" : "-"}{listing.marginPct}%
+                      <span className="text-xs font-medium flex items-center gap-0.5 text-emerald-600">
+                        <TrendingUp className="h-3 w-3" />
+                        +{listing.marginPct}% above market
                       </span>
                     </div>
                   )}

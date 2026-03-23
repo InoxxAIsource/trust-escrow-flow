@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Star, Shield, Circle, TrendingUp, TrendingDown, RefreshCw } from "lucide-react";
+import { Star, Shield, Circle, TrendingUp, RefreshCw } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -14,10 +14,10 @@ function getListingPrice(listing: Listing, prices?: CryptoPrices): number {
   const livePrice = getLivePrice(prices, listing.coin, listing.currency);
   if (!livePrice) return listing.price || 0;
   const margin = listing.marginPct / 100;
-  // Sellers add margin (higher price), buyers subtract margin (lower price)
-  return listing.type === "sell"
-    ? +(livePrice * (1 + margin)).toFixed(2)
-    : +(livePrice * (1 - margin)).toFixed(2);
+  // Both buy and sell prices are ABOVE market price
+  // Sell listings: seller sets higher price (buy from them at premium)
+  // Buy listings: buyer willing to pay above market
+  return +(livePrice * (1 + margin)).toFixed(2);
 }
 
 const PriceTicker = ({ prices }: { prices?: CryptoPrices }) => {
@@ -46,11 +46,7 @@ const PriceTicker = ({ prices }: { prices?: CryptoPrices }) => {
 const ListingCard = ({ listing, prices }: { listing: Listing; prices?: CryptoPrices }) => {
   const displayPrice = getListingPrice(listing, prices);
   const livePrice = getLivePrice(prices, listing.coin, listing.currency);
-  const marginLabel = livePrice
-    ? listing.type === "sell"
-      ? `+${listing.marginPct}%`
-      : `-${listing.marginPct}%`
-    : null;
+  const marginLabel = livePrice ? `+${listing.marginPct}%` : null;
 
   return (
     <Card className="hover:shadow-md transition-shadow">
@@ -87,9 +83,9 @@ const ListingCard = ({ listing, prices }: { listing: Listing; prices?: CryptoPri
                 <span className="text-sm font-normal text-muted-foreground">{listing.currency}</span>
               </div>
               {marginLabel && (
-                <div className={`text-xs font-medium flex items-center gap-0.5 ${listing.type === "sell" ? "text-destructive" : "text-emerald-600"}`}>
-                  {listing.type === "sell" ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                  {marginLabel} vs market
+                <div className="text-xs font-medium flex items-center gap-0.5 text-emerald-600">
+                  <TrendingUp className="h-3 w-3" />
+                  {marginLabel} above market
                 </div>
               )}
             </div>
