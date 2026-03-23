@@ -172,7 +172,7 @@ function generateUSDTOffers(liveInrRate: number): SeededOffer[] {
   const offers: SeededOffer[] = [];
   const marketPriceINR = liveInrRate; // USDT ≈ $1
 
-  // 12 SELL offers: ₹93 → ₹97 (trader sells to user at lower price)
+  // 12 SELL offers: ₹97 → ₹104 (trader sells to user at higher price)
   const sellCount = 12;
   for (let i = 0; i < sellCount; i++) {
     const ratio = i / (sellCount - 1); // 0 to 1
