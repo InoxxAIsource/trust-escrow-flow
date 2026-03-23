@@ -377,11 +377,7 @@ const Marketplace = () => {
       <BuyModal
         offer={buyOffer}
         open={!!buyOffer}
-        onClose={() => {
-          setBuyOffer(null);
-          navigate("/dashboard");
-        }}
-        onLockDeal={handleLockDeal}
+        onClose={() => setBuyOffer(null)}
       />
 
       <SellModal
