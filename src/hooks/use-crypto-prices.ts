@@ -26,7 +26,7 @@ export function useCryptoPrices() {
 }
 
 const INR_RATE_MIN = 65;
-const INR_RATE_MAX = 90;
+const INR_RATE_MAX = 100;
 
 export function getSafeInrRate(prices: CryptoPrices | undefined): number | null {
   if (!prices || !prices.tether?.usd) return null;

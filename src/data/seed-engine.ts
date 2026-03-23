@@ -165,12 +165,16 @@ function generateOffersForAsset(
     const payments = paymentsByCountry[country] ?? ["Bank Transfer"];
     const paymentMethod = pick(payments);
 
-    // Margin: sell = +10-12%, buy = +2-5% (ALWAYS above market)
-    const marginPct = type === "sell"
-      ? randBetween(10, 12)
-      : randBetween(2, 5);
+    // Apply P2P premium for currencies that trade above forex rates
+    const premium = p2pPremium[currency] ?? 1;
+    const marketPriceLocal = +(basePriceUSD * rate * premium).toFixed(2);
 
-    const marketPriceLocal = +(basePriceUSD * rate).toFixed(2);
+    // Asset-aware margins: USDT is tight (0.5-2%), others are wider (10-12%)
+    const margins = marginRanges[asset.symbol] ?? { sell: [10, 12], buy: [2, 5] };
+    const marginPct = type === "sell"
+      ? randBetween(margins.sell[0], margins.sell[1])
+      : randBetween(margins.buy[0], margins.buy[1]);
+
     const price = +(marketPriceLocal * (1 + marginPct / 100)).toFixed(2);
 
     // Realistic limits

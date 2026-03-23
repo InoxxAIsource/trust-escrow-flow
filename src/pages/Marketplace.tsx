@@ -32,10 +32,10 @@ function toLivePrices(prices?: CryptoPrices) {
 const PriceTicker = ({ prices }: { prices?: CryptoPrices }) => {
   if (!prices) return null;
   const tickers = [
-    { name: "BTC", price: prices.bitcoin.usd },
-    { name: "ETH", price: prices.ethereum.usd },
-    { name: "SOL", price: prices.solana.usd },
-    { name: "USDT", price: prices.tether.usd },
+    { name: "BTC", usd: prices.bitcoin.usd, inr: prices.bitcoin.inr },
+    { name: "ETH", usd: prices.ethereum.usd, inr: prices.ethereum.inr },
+    { name: "SOL", usd: prices.solana.usd, inr: prices.solana.inr },
+    { name: "USDT", usd: prices.tether.usd, inr: prices.tether.inr },
   ];
   return (
     <div className="flex flex-wrap gap-3 mb-6">
@@ -43,7 +43,10 @@ const PriceTicker = ({ prices }: { prices?: CryptoPrices }) => {
         <div key={t.name} className="flex items-center gap-2 rounded-lg border bg-card px-3 py-2">
           <span className="font-display font-bold text-sm text-foreground">{t.name}</span>
           <span className="text-sm text-muted-foreground">
-            ${t.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            ${t.usd.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </span>
+          <span className="text-xs text-muted-foreground/70">
+            ₹{t.inr.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </span>
           <TrendingUp className="h-3.5 w-3.5 text-success" />
         </div>
