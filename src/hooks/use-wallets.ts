@@ -43,6 +43,15 @@ export function useWallets() {
         .update({ balance: Number(wallet.balance) + amount })
         .eq("id", wallet.id);
       if (error) throw error;
+
+      // Log the deposit transaction
+      await supabase.from("transactions").insert({
+        user_id: user.id,
+        asset,
+        amount,
+        type: "deposit",
+        status: "completed",
+      });
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["wallets"] }),
   });
@@ -64,5 +73,38 @@ export function useWallets() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["wallets"] }),
   });
 
-  return { wallets, isLoading, getBalance, deposit, lockBalance };
+  const unlockBalance = useMutation({
+    mutationFn: async ({ asset, amount }: { asset: string; amount: number }) => {
+      if (!user) throw new Error("Not logged in");
+      const wallet = wallets.find((w) => w.asset === asset);
+      if (!wallet) throw new Error("Wallet not found");
+      const { error } = await supabase
+        .from("wallets")
+        .update({
+          balance: Number(wallet.balance) + amount,
+          locked_balance: Math.max(0, Number(wallet.locked_balance) - amount),
+        })
+        .eq("id", wallet.id);
+      if (error) throw error;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["wallets"] }),
+  });
+
+  const deductLocked = useMutation({
+    mutationFn: async ({ asset, amount }: { asset: string; amount: number }) => {
+      if (!user) throw new Error("Not logged in");
+      const wallet = wallets.find((w) => w.asset === asset);
+      if (!wallet) throw new Error("Wallet not found");
+      const { error } = await supabase
+        .from("wallets")
+        .update({
+          locked_balance: Math.max(0, Number(wallet.locked_balance) - amount),
+        })
+        .eq("id", wallet.id);
+      if (error) throw error;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["wallets"] }),
+  });
+
+  return { wallets, isLoading, getBalance, deposit, lockBalance, unlockBalance, deductLocked };
 }

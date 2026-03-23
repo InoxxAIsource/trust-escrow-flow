@@ -1,5 +1,5 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { Clock, Lock, CheckCircle, AlertCircle, XCircle, Shield, CreditCard } from "lucide-react";
+import { Clock, Lock, CheckCircle, AlertCircle, XCircle, Shield, CreditCard, Wallet } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -64,7 +64,6 @@ const TradePage = () => {
   const isActive = trade.status === "locked" || trade.status === "paid";
   const chatDisabled = !isActive;
 
-  // Check client-side expiry
   const isExpired = trade.status === "locked" && trade.expires_at && new Date(trade.expires_at).getTime() <= Date.now();
 
   const handleMarkPaid = async () => {
@@ -79,7 +78,7 @@ const TradePage = () => {
   const handleConfirmRelease = async () => {
     try {
       await updateStatus.mutateAsync("completed");
-      toast.success("Trade completed successfully!");
+      toast.success("Trade completed! Crypto released to buyer.");
     } catch {
       toast.error("Failed to complete trade.");
     }
@@ -160,7 +159,7 @@ const TradePage = () => {
         </CardContent>
       </Card>
 
-      {/* Payment Instructions (buyer view, locked status) */}
+      {/* Buyer: Payment Instructions (locked) */}
       {isBuyer && trade.status === "locked" && !isExpired && (
         <Card className="mb-4">
           <CardContent className="p-5">
@@ -174,7 +173,21 @@ const TradePage = () => {
         </Card>
       )}
 
-      {/* Waiting for seller confirmation (buyer view, paid status) */}
+      {/* Seller: Waiting for buyer payment (locked) */}
+      {isSeller && trade.status === "locked" && !isExpired && (
+        <div className="flex items-start gap-2 text-sm text-foreground bg-primary/5 rounded-lg p-3 border border-primary/20 mb-4">
+          <Wallet className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+          <div>
+            <p className="font-medium">Your crypto is reserved for this buyer</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              {Number(trade.amount).toFixed(6)} {trade.asset} is locked in escrow. 
+              Waiting for buyer to send ₹{Number(trade.total).toLocaleString()} via {trade.payment_method}.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Buyer: Waiting for seller confirmation (paid) */}
       {isBuyer && trade.status === "paid" && (
         <div className="flex items-start gap-2 text-sm text-muted-foreground bg-warning/10 rounded-lg p-3 border border-warning/20 mb-4">
           <Clock className="h-4 w-4 text-warning shrink-0 mt-0.5" />
@@ -182,11 +195,16 @@ const TradePage = () => {
         </div>
       )}
 
-      {/* Seller sees "Confirm & Release" when status is paid */}
+      {/* Seller: Buyer has paid — confirm & release */}
       {isSeller && trade.status === "paid" && (
         <div className="flex items-start gap-2 text-sm text-foreground bg-success/10 rounded-lg p-3 border border-success/20 mb-4">
           <CreditCard className="h-4 w-4 text-success shrink-0 mt-0.5" />
-          <span>Buyer has marked payment as sent. Verify and release crypto.</span>
+          <div>
+            <p className="font-medium">Buyer has marked payment as sent</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Verify you received ₹{Number(trade.total).toLocaleString()} via {trade.payment_method}, then release the crypto.
+            </p>
+          </div>
         </div>
       )}
 
@@ -194,7 +212,15 @@ const TradePage = () => {
       {trade.status === "completed" && (
         <div className="flex items-start gap-2 text-sm text-success bg-success/10 rounded-lg p-3 border border-success/20 mb-4">
           <CheckCircle className="h-4 w-4 shrink-0 mt-0.5" />
-          <span>Trade completed successfully. Crypto has been released.</span>
+          <span>Trade completed successfully. {isSeller ? "Locked balance has been released." : "Crypto has been released."}</span>
+        </div>
+      )}
+
+      {/* Expired */}
+      {(trade.status === "expired" || isExpired) && isSeller && (
+        <div className="flex items-start gap-2 text-sm text-muted-foreground bg-muted rounded-lg p-3 border mb-4">
+          <AlertCircle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
+          <span>This trade expired. Your locked funds have been released back to your wallet.</span>
         </div>
       )}
 
@@ -216,9 +242,15 @@ const TradePage = () => {
           </>
         )}
 
+        {isSeller && trade.status === "locked" && !isExpired && (
+          <Button variant="outline" onClick={handleCancel} className="flex-1">
+            Cancel Trade
+          </Button>
+        )}
+
         {isSeller && trade.status === "paid" && (
           <Button onClick={handleConfirmRelease} className="flex-1">
-            <CheckCircle className="h-4 w-4 mr-1" /> Confirm & Release
+            <CheckCircle className="h-4 w-4 mr-1" /> Confirm Payment & Release Crypto
           </Button>
         )}
 
@@ -231,7 +263,7 @@ const TradePage = () => {
 
       <div className="flex items-start gap-2 text-xs text-muted-foreground bg-accent/50 rounded-lg p-2 mt-4">
         <Shield className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
-        <span>This is a reserved deal. Full escrow protection will be available soon.</span>
+        <span>Funds secured in escrow. Full escrow settlement will be available soon.</span>
       </div>
     </div>
   );

@@ -190,7 +190,7 @@ const Marketplace = () => {
   const navigate = useNavigate();
   const { data: prices, isLoading, dataUpdatedAt, refetch } = useCryptoPrices();
   const { user } = useAuth();
-  const { deposit, getBalance } = useWallets();
+  const { deposit, getBalance, lockBalance } = useWallets();
   const { activeTrades } = useUserTrades();
   const { createOffer } = useUserOffers();
 
@@ -238,7 +238,7 @@ const Marketplace = () => {
   };
 
 
-  const handleCreateOffer = (data: {
+  const handleCreateOffer = async (data: {
     asset: string;
     assetSymbol: string;
     amount: number;
@@ -246,17 +246,32 @@ const Marketplace = () => {
     currency: string;
     paymentMethods: string[];
   }) => {
-    createOffer.mutate({
-      type: "sell",
-      asset: data.assetSymbol,
-      amount: data.amount,
-      price: data.price,
-      currency: data.currency,
-      payment_methods: data.paymentMethods,
-      min_limit: 50000,
-      max_limit: 500000,
-    });
-    toast.success("Your sell offer is now live!");
+    // Validate sufficient balance
+    const bal = getBalance(data.assetSymbol);
+    if (bal.balance < data.amount) {
+      toast.error("Insufficient balance. Deposit more first.");
+      return;
+    }
+
+    try {
+      // Lock the seller's funds first
+      await lockBalance.mutateAsync({ asset: data.assetSymbol, amount: data.amount });
+
+      // Create the offer
+      createOffer.mutate({
+        type: "sell",
+        asset: data.assetSymbol,
+        amount: data.amount,
+        price: data.price,
+        currency: data.currency,
+        payment_methods: data.paymentMethods,
+        min_limit: 1000,
+        max_limit: 500000,
+      });
+      toast.success("Your sell offer is now live! Funds locked in escrow.");
+    } catch {
+      toast.error("Failed to create offer. Please try again.");
+    }
   };
 
   const handleDeposit = (asset: string, amount: number) => {
