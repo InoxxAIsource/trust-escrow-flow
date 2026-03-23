@@ -85,7 +85,7 @@ const currencyByCountry: Record<string, string> = {
 };
 
 // Approximate USD exchange rates for generating realistic prices
-export const FALLBACK_USD_INR_RATE = 83.5;
+export const FALLBACK_USD_INR_RATE = 85.5;
 
 const defaultUsdRates: Record<string, number> = {
   INR: FALLBACK_USD_INR_RATE, USD: 1, GBP: 0.79, EUR: 0.92, CAD: 1.36,
