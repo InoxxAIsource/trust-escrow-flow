@@ -130,7 +130,7 @@ function computeAvailableAmount(priceRatio: number): number {
 }
 
 function computeLimits(availableAmount: number): { minLimit: number; maxLimit: number } {
-  const minLimit = 50000;
+  const minLimit = 1000;
   const maxLimit = Math.min(availableAmount, 500000);
   return { minLimit, maxLimit: Math.max(maxLimit, minLimit + 10000) };
 }
