@@ -15,10 +15,13 @@ import SEOLanding from "./pages/SEOLanding";
 import OfferDetail from "./pages/OfferDetail";
 import UserProfile from "./pages/UserProfile";
 import NotFound from "./pages/NotFound";
+import { getAllSlugs } from "./data/seo-pages";
 
 const queryClient = new QueryClient();
 
-// All SEO page slugs
+// Generate routes for all SEO pages
+const seoSlugs = getAllSlugs();
+
 const App = () => (
   <HelmetProvider>
     <QueryClientProvider client={queryClient}>
@@ -36,20 +39,9 @@ const App = () => (
               <Route path="/blog/:slug" element={<BlogPost />} />
               <Route path="/offer/:id" element={<OfferDetail />} />
               <Route path="/user/:username" element={<UserProfile />} />
-              <Route path="/buy-usdt" element={<SEOLanding />} />
-              <Route path="/sell-usdt" element={<SEOLanding />} />
-              <Route path="/buy-bitcoin" element={<SEOLanding />} />
-              <Route path="/sell-bitcoin" element={<SEOLanding />} />
-              <Route path="/buy-ethereum" element={<SEOLanding />} />
-              <Route path="/sell-ethereum" element={<SEOLanding />} />
-              <Route path="/buy-solana" element={<SEOLanding />} />
-              <Route path="/sell-solana" element={<SEOLanding />} />
-              <Route path="/buy-usdt-india" element={<SEOLanding />} />
-              <Route path="/buy-usdt-usa" element={<SEOLanding />} />
-              <Route path="/buy-bitcoin-india" element={<SEOLanding />} />
-              <Route path="/buy-usdt-upi" element={<SEOLanding />} />
-              <Route path="/buy-usdt-bank-transfer" element={<SEOLanding />} />
-              <Route path="/buy-bitcoin-paypal" element={<SEOLanding />} />
+              {seoSlugs.map((slug) => (
+                <Route key={slug} path={`/${slug}`} element={<SEOLanding />} />
+              ))}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Layout>
