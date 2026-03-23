@@ -164,6 +164,38 @@ export type Database = {
         }
         Relationships: []
       }
+      trade_messages: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          sender_id: string
+          trade_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          sender_id: string
+          trade_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          sender_id?: string
+          trade_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trade_messages_trade_id_fkey"
+            columns: ["trade_id"]
+            isOneToOne: false
+            referencedRelation: "trades"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       trades: {
         Row: {
           amount: number
@@ -171,6 +203,7 @@ export type Database = {
           buyer_id: string
           created_at: string
           currency: string
+          expires_at: string | null
           id: string
           offer_id: string
           payment_method: string
@@ -186,6 +219,7 @@ export type Database = {
           buyer_id: string
           created_at?: string
           currency?: string
+          expires_at?: string | null
           id?: string
           offer_id: string
           payment_method: string
@@ -201,6 +235,7 @@ export type Database = {
           buyer_id?: string
           created_at?: string
           currency?: string
+          expires_at?: string | null
           id?: string
           offer_id?: string
           payment_method?: string
@@ -261,7 +296,14 @@ export type Database = {
       deal_status: "locked" | "expired" | "completed"
       offer_status: "active" | "inactive" | "completed"
       offer_type: "buy" | "sell"
-      trade_status: "pending" | "paid" | "completed" | "disputed" | "cancelled"
+      trade_status:
+        | "pending"
+        | "paid"
+        | "completed"
+        | "disputed"
+        | "cancelled"
+        | "locked"
+        | "expired"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -392,7 +434,15 @@ export const Constants = {
       deal_status: ["locked", "expired", "completed"],
       offer_status: ["active", "inactive", "completed"],
       offer_type: ["buy", "sell"],
-      trade_status: ["pending", "paid", "completed", "disputed", "cancelled"],
+      trade_status: [
+        "pending",
+        "paid",
+        "completed",
+        "disputed",
+        "cancelled",
+        "locked",
+        "expired",
+      ],
     },
   },
 } as const
