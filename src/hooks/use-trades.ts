@@ -62,9 +62,34 @@ export function useUserTrades() {
         .select()
         .single();
       if (error) throw error;
+
+      // Try to reduce remaining_amount on the offer (only works for real DB offers)
+      try {
+        const { data: offer } = await supabase
+          .from("offers")
+          .select("remaining_amount")
+          .eq("id", trade.offer_id)
+          .single();
+        if (offer) {
+          const newRemaining = Math.max(0, Number(offer.remaining_amount) - trade.amount);
+          await supabase
+            .from("offers")
+            .update({
+              remaining_amount: newRemaining,
+              status: newRemaining <= 0 ? "inactive" : "active",
+            })
+            .eq("id", trade.offer_id);
+        }
+      } catch {
+        // Seeded offers won't exist in DB — ignore
+      }
+
       return data as TradeRow;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["trades"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["trades"] });
+      queryClient.invalidateQueries({ queryKey: ["user-offers"] });
+    },
   });
 
   const updateTradeStatus = useMutation({
