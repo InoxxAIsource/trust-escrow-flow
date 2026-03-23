@@ -85,7 +85,7 @@ const currencyByCountry: Record<string, string> = {
 };
 
 // Approximate USD exchange rates for generating realistic prices
-export const FALLBACK_USD_INR_RATE = 83.5;
+export const FALLBACK_USD_INR_RATE = 85.5;
 
 const defaultUsdRates: Record<string, number> = {
   INR: FALLBACK_USD_INR_RATE, USD: 1, GBP: 0.79, EUR: 0.92, CAD: 1.36,
@@ -99,10 +99,28 @@ let usdRates = { ...defaultUsdRates };
 
 const assets = [
   { name: "USDT", symbol: "USDT", baseUSD: 1 },
-  { name: "Bitcoin", symbol: "BTC", baseUSD: 68500 },
-  { name: "Ethereum", symbol: "ETH", baseUSD: 2050 },
-  { name: "Solana", symbol: "SOL", baseUSD: 86 },
+  { name: "Bitcoin", symbol: "BTC", baseUSD: 87000 },
+  { name: "Ethereum", symbol: "ETH", baseUSD: 2100 },
+  { name: "Solana", symbol: "SOL", baseUSD: 140 },
 ];
+
+// P2P premium rates by currency (P2P markets trade above forex rates)
+const p2pPremium: Record<string, number> = {
+  INR: 1.145,  // ~14.5% premium → USDT ≈ ₹97-99
+  NGN: 1.12,
+  KES: 1.10,
+  VND: 1.08,
+  PHP: 1.06,
+  IDR: 1.06,
+};
+
+// Asset-specific margin ranges (USDT margins are much tighter in P2P)
+const marginRanges: Record<string, { sell: [number, number]; buy: [number, number] }> = {
+  USDT: { sell: [0.5, 2.0], buy: [0.2, 1.0] },
+  BTC:  { sell: [10, 12], buy: [2, 5] },
+  ETH:  { sell: [10, 12], buy: [2, 5] },
+  SOL:  { sell: [10, 12], buy: [2, 5] },
+};
 
 // ── Deterministic seeded random (consistent per session, rotates on refresh) ──
 let _seed = Date.now();
@@ -147,12 +165,16 @@ function generateOffersForAsset(
     const payments = paymentsByCountry[country] ?? ["Bank Transfer"];
     const paymentMethod = pick(payments);
 
-    // Margin: sell = +10-12%, buy = +2-5% (ALWAYS above market)
-    const marginPct = type === "sell"
-      ? randBetween(10, 12)
-      : randBetween(2, 5);
+    // Apply P2P premium for currencies that trade above forex rates
+    const premium = p2pPremium[currency] ?? 1;
+    const marketPriceLocal = +(basePriceUSD * rate * premium).toFixed(2);
 
-    const marketPriceLocal = +(basePriceUSD * rate).toFixed(2);
+    // Asset-aware margins: USDT is tight (0.5-2%), others are wider (10-12%)
+    const margins = marginRanges[asset.symbol] ?? { sell: [10, 12], buy: [2, 5] };
+    const marginPct = type === "sell"
+      ? randBetween(margins.sell[0], margins.sell[1])
+      : randBetween(margins.buy[0], margins.buy[1]);
+
     const price = +(marketPriceLocal * (1 + marginPct / 100)).toFixed(2);
 
     // Realistic limits
