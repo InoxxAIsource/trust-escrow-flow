@@ -24,10 +24,9 @@ const OfferDetail = () => {
 
   const livePrice = getLivePrice(prices, listing.coin, listing.currency);
   const margin = listing.marginPct / 100;
+  // Both buy and sell prices are above market
   const displayPrice = livePrice
-    ? listing.type === "sell"
-      ? +(livePrice * (1 + margin)).toFixed(2)
-      : +(livePrice * (1 - margin)).toFixed(2)
+    ? +(livePrice * (1 + margin)).toFixed(2)
     : 0;
 
   return (
