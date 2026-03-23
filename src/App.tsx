@@ -11,6 +11,7 @@ import HowItWorks from "./pages/HowItWorks";
 import Fees from "./pages/Fees";
 import Marketplace from "./pages/Marketplace";
 import Dashboard from "./pages/Dashboard";
+import TradePage from "./pages/TradePage";
 import Auth from "./pages/Auth";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
@@ -39,6 +40,7 @@ const App = () => (
                 <Route path="/fees" element={<Fees />} />
                 <Route path="/marketplace" element={<Marketplace />} />
                 <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/trade/:id" element={<TradePage />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/blog/:slug" element={<BlogPost />} />

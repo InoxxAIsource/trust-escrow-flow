@@ -12,7 +12,7 @@ import SellModal from "@/components/marketplace/SellModal";
 import { getSafeInrRate, useCryptoPrices, type CryptoPrices } from "@/hooks/use-crypto-prices";
 import { useAuth } from "@/hooks/use-auth";
 import { useWallets } from "@/hooks/use-wallets";
-import { useDeals } from "@/hooks/use-deals";
+import { useUserTrades } from "@/hooks/use-trades";
 import { useUserOffers } from "@/hooks/use-offers";
 import { generateAllOffers, filterOffers, FALLBACK_USD_INR_RATE, type SeededOffer } from "@/data/seed-engine";
 import { toast } from "sonner";
@@ -191,7 +191,7 @@ const Marketplace = () => {
   const { data: prices, isLoading, dataUpdatedAt, refetch } = useCryptoPrices();
   const { user } = useAuth();
   const { deposit, getBalance } = useWallets();
-  const { lockDeal, activeDeals } = useDeals();
+  const { activeTrades } = useUserTrades();
   const { createOffer } = useUserOffers();
 
   const [coin, setCoin] = useState("all");
@@ -237,30 +237,6 @@ const Marketplace = () => {
     requireAuth(() => setShowSell(true));
   };
 
-  const handleLockDeal = (data: {
-    offerId: string;
-    asset: string;
-    assetSymbol: string;
-    amount: number;
-    price: number;
-    currency: string;
-    paymentMethod: string;
-    type: "buy";
-    sellerUsername: string;
-  }) => {
-    lockDeal.mutate({
-      offer_id: data.offerId,
-      asset: data.asset,
-      asset_symbol: data.assetSymbol,
-      amount: data.amount,
-      price: data.price,
-      currency: data.currency,
-      payment_method: data.paymentMethod,
-      type: data.type,
-      seller_username: data.sellerUsername,
-    });
-    toast.success("Deal locked! Price secured for 3 hours.");
-  };
 
   const handleCreateOffer = (data: {
     asset: string;
@@ -307,9 +283,9 @@ const Marketplace = () => {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            {activeDeals.length > 0 && (
+            {activeTrades.length > 0 && (
               <Button variant="outline" size="sm" onClick={() => navigate("/dashboard")}>
-                <Lock className="h-3.5 w-3.5 mr-1" /> {activeDeals.length} Active Deal{activeDeals.length > 1 ? "s" : ""}
+                <Lock className="h-3.5 w-3.5 mr-1" /> {activeTrades.length} Active Trade{activeTrades.length > 1 ? "s" : ""}
               </Button>
             )}
             <Button size="sm" onClick={handleSellClick}>
@@ -401,11 +377,7 @@ const Marketplace = () => {
       <BuyModal
         offer={buyOffer}
         open={!!buyOffer}
-        onClose={() => {
-          setBuyOffer(null);
-          navigate("/dashboard");
-        }}
-        onLockDeal={handleLockDeal}
+        onClose={() => setBuyOffer(null)}
       />
 
       <SellModal

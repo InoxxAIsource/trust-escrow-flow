@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,22 +7,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Lock, Clock, CheckCircle, Shield, AlertTriangle } from "lucide-react";
 import { type SeededOffer } from "@/data/seed-engine";
+import { useUserTrades } from "@/hooks/use-trades";
+import { useAuth } from "@/hooks/use-auth";
+import { toast } from "sonner";
 
 interface BuyModalProps {
   offer: SeededOffer | null;
   open: boolean;
   onClose: () => void;
-  onLockDeal: (data: {
-    offerId: string;
-    asset: string;
-    assetSymbol: string;
-    amount: number;
-    price: number;
-    currency: string;
-    paymentMethod: string;
-    type: "buy";
-    sellerUsername: string;
-  }) => void;
 }
 
 function CountdownTimer({ expiresAt }: { expiresAt: number }) {
@@ -46,18 +39,22 @@ function CountdownTimer({ expiresAt }: { expiresAt: number }) {
   );
 }
 
-export default function BuyModal({ offer, open, onClose, onLockDeal }: BuyModalProps) {
+export default function BuyModal({ offer, open, onClose }: BuyModalProps) {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { createTrade } = useUserTrades();
   const [step, setStep] = useState<"form" | "confirm" | "locked">("form");
   const [amount, setAmount] = useState("");
   const [payment, setPayment] = useState("");
+  const [lockedTradeId, setLockedTradeId] = useState<string | null>(null);
   const [lockedExpiresAt, setLockedExpiresAt] = useState(0);
 
-  // Reset on open
   useEffect(() => {
     if (open && offer) {
       setStep("form");
       setAmount("");
       setPayment(offer.paymentMethods[0] ?? "UPI");
+      setLockedTradeId(null);
     }
   }, [open, offer]);
 
@@ -71,21 +68,35 @@ export default function BuyModal({ offer, open, onClose, onLockDeal }: BuyModalP
     setStep("confirm");
   };
 
-  const handleLock = () => {
-    const expiresAt = Date.now() + 3 * 60 * 60 * 1000;
-    setLockedExpiresAt(expiresAt);
-    onLockDeal({
-      offerId: offer.id,
-      asset: offer.asset,
-      assetSymbol: offer.assetSymbol,
-      amount: numAmount,
-      price: offer.price,
-      currency: "INR",
-      paymentMethod: payment,
-      type: "buy",
-      sellerUsername: offer.username,
-    });
-    setStep("locked");
+  const handleLock = async () => {
+    if (!user) return;
+    try {
+      const trade = await createTrade.mutateAsync({
+        offer_id: offer.id,
+        seller_id: user.id, // placeholder for seeded offers
+        asset: offer.assetSymbol,
+        amount: numAmount / offer.price,
+        price: offer.price,
+        total: numAmount,
+        currency: "INR",
+        payment_method: payment,
+      });
+      setLockedTradeId(trade.id);
+      setLockedExpiresAt(new Date(trade.expires_at!).getTime());
+      setStep("locked");
+      toast.success("Deal locked! Price secured for 3 hours.");
+    } catch {
+      toast.error("Failed to lock deal. Please try again.");
+    }
+  };
+
+  const handleGoToTrade = () => {
+    onClose();
+    if (lockedTradeId) {
+      navigate(`/trade/${lockedTradeId}`);
+    } else {
+      navigate("/dashboard");
+    }
   };
 
   return (
@@ -195,8 +206,8 @@ export default function BuyModal({ offer, open, onClose, onLockDeal }: BuyModalP
 
               <div className="flex gap-2">
                 <Button variant="outline" onClick={() => setStep("form")} className="flex-1">Back</Button>
-                <Button onClick={handleLock} className="flex-1">
-                  <Lock className="h-4 w-4 mr-1" /> Lock Deal
+                <Button onClick={handleLock} disabled={createTrade.isPending} className="flex-1">
+                  <Lock className="h-4 w-4 mr-1" /> {createTrade.isPending ? "Locking…" : "Lock Deal"}
                 </Button>
               </div>
             </div>
@@ -228,10 +239,10 @@ export default function BuyModal({ offer, open, onClose, onLockDeal }: BuyModalP
               </div>
 
               <div className="rounded-lg border p-3">
-                <p className="text-sm font-medium text-foreground mb-2">Payment Instructions</p>
+                <p className="text-sm font-medium text-foreground mb-2">Next Steps</p>
                 <div className="text-xs text-muted-foreground space-y-1">
-                  <p>1. Send <strong>₹{numAmount.toLocaleString()}</strong> via <strong>{payment}</strong></p>
-                  <p>2. Use the reference provided by the seller</p>
+                  <p>1. Go to the trade page to chat with the seller</p>
+                  <p>2. Send <strong>₹{numAmount.toLocaleString()}</strong> via <strong>{payment}</strong></p>
                   <p>3. Mark payment as complete once sent</p>
                 </div>
               </div>
@@ -241,7 +252,9 @@ export default function BuyModal({ offer, open, onClose, onLockDeal }: BuyModalP
                 <span>This is a reserved deal. Full escrow protection will be available soon.</span>
               </div>
 
-              <Button onClick={onClose} className="w-full">View My Deals</Button>
+              <Button onClick={handleGoToTrade} className="w-full">
+                Go to Trade Page
+              </Button>
             </div>
           </>
         )}
