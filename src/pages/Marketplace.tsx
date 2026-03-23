@@ -118,17 +118,23 @@ const Marketplace = () => {
   const [country, setCountry] = useState("all");
   const [tradeType, setTradeType] = useState<"all" | "buy" | "sell">("all");
 
+  // Derive real INR rate from CoinGecko tether data
+  const liveInrRate = prices ? (prices.tether.inr / prices.tether.usd) : undefined;
+
   const allOffers = useMemo(
-    () => generateAllOffers(toLivePrices(prices)),
-    [prices]
+    () => generateAllOffers(toLivePrices(prices), liveInrRate),
+    [prices, liveInrRate]
   );
 
   const filtered = useMemo(() => {
+    // When user clicks "Buy", they want to buy → show "sell" offers (traders selling)
+    // When user clicks "Sell", they want to sell → show "buy" offers (traders buying)
+    const mappedType = tradeType === "buy" ? "sell" : tradeType === "sell" ? "buy" : undefined;
     let result = filterOffers(allOffers, {
       asset: coin !== "all" ? coin : undefined,
       country: country !== "all" ? country : undefined,
       paymentMethod: payment !== "all" ? payment : undefined,
-      type: tradeType !== "all" ? tradeType : undefined,
+      type: mappedType,
     });
     // Show top 30 for performance
     return result.slice(0, 30);

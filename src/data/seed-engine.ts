@@ -85,13 +85,15 @@ const currencyByCountry: Record<string, string> = {
 };
 
 // Approximate USD exchange rates for generating realistic prices
-const usdRates: Record<string, number> = {
-  INR: 83.5, USD: 1, GBP: 0.79, EUR: 0.92, CAD: 1.36,
+const defaultUsdRates: Record<string, number> = {
+  INR: 93.2, USD: 1, GBP: 0.79, EUR: 0.92, CAD: 1.36,
   AED: 3.67, SGD: 1.34, NGN: 1550, TRY: 32.5, BRL: 4.97,
   AUD: 1.53, JPY: 151.5, KRW: 1340, PHP: 56.2,
   IDR: 15700, THB: 35.8, VND: 25000, MXN: 17.2,
   COP: 3950, KES: 153,
 };
+
+let usdRates = { ...defaultUsdRates };
 
 const assets = [
   { name: "USDT", symbol: "USDT", baseUSD: 1 },
@@ -194,9 +196,14 @@ export interface LivePrices {
 }
 
 // Generate ALL offers across all assets
-export function generateAllOffers(livePricesUSD?: Partial<LivePrices>): SeededOffer[] {
+export function generateAllOffers(livePricesUSD?: Partial<LivePrices>, liveInrRate?: number): SeededOffer[] {
   // Reset seed on each call for rotation on refresh
   _seed = Date.now();
+
+  // Update INR rate if we have a live one
+  if (liveInrRate && liveInrRate > 0) {
+    usdRates.INR = liveInrRate;
+  }
 
   return assets.flatMap((asset) => {
     const livePrice = livePricesUSD?.[asset.symbol as keyof LivePrices];
