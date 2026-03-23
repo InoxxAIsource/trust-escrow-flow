@@ -9,7 +9,8 @@ import { allSEOPages, type SEOPageData } from "@/data/seo-pages";
 import { mockListings } from "@/data/mock-listings";
 
 const SEOLanding = () => {
-  const { slug } = useParams();
+  const location = useLocation();
+  const slug = location.pathname.replace("/", "");
   const page = allSEOPages.find((p) => p.slug === slug);
 
   if (!page) {
