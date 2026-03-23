@@ -19,8 +19,12 @@ export interface Listing {
   marginPct: number;
 }
 
-function randMargin() {
+/** Sell listings: 10-12% above market. Buy listings: 2-5% above market. */
+function randSellMargin() {
   return +(10 + Math.random() * 2).toFixed(2);
+}
+function randBuyMargin() {
+  return +(2 + Math.random() * 3).toFixed(2);
 }
 
 export const mockListings: Listing[] = [
