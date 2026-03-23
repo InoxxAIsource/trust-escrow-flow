@@ -1,78 +1,61 @@
 
 
-## Problem Analysis
+## Complete Seed Engine Rewrite
 
-After scanning Binance P2P live data, here's what the real market shows:
+The current engine generates 50-200 random offers per asset with random countries. The new spec requires a precise, controlled system: fixed offer counts per asset, India-only, INR limits ₹50K-₹5L, smart payment method assignment, and inverse price-liquidity correlation.
 
-**Binance P2P USDT/INR prices (live):** ₹97.49 – ₹98.94 per USDT
+### Changes
 
-**Our current system has 3 issues:**
+**File 1: `src/data/seed-engine.ts`** — Full rewrite of generation logic
 
-1. **Outdated fallback prices** — BTC hardcoded at $68,500 (real: ~$85,000+), SOL at $86 (real: ~$130+). When CoinGecko API fails, prices are wildly wrong.
+1. **Update `SeededOffer` interface**: Add `availableAmount: number`, change `paymentMethod: string` → `paymentMethods: string[]` to support multiple payment methods per offer.
 
-2. **INR rate too low** — We use the forex USD/INR rate (~83.5) as the base, then add 10-12% margin = ~₹91-93 USDT. But Binance P2P shows ₹97-99 USDT. Our prices look unrealistically cheap.
+2. **New USDT generator** (replaces random generation):
+   - 12 SELL offers: prices evenly spread ₹93→₹97, ±0.3 randomness
+   - 9 BUY offers: prices evenly spread ₹98→₹104, ±0.3 randomness
+   - Inverse liquidity: lower price = higher available amount (₹3L-₹5L), higher price = lower (₹50K-₹1.5L)
 
-3. **PriceTicker shows USD only** — For Indian users, the ticker should also show INR prices so they can compare with Binance.
+3. **New BTC/ETH/SOL generator**:
+   - 5 SELL offers each: market price + 2% (±0.5% variation)
+   - 5 BUY offers each: market price + 10% (±0.5% variation)
+   - Market prices from live CoinGecko or fallbacks (BTC $87K, ETH $2.1K, SOL $140)
+   - All prices converted to INR
 
----
+4. **Limits & payment rules** (all offers):
+   - All limits in INR: min ₹50,000, max ₹5,00,000
+   - `maxLimit > ₹5,00,000` → only "Bank Transfer"
+   - `maxLimit ≤ ₹1,00,000` → prefer "UPI"
+   - `₹1L-₹5L` → mix of "UPI" + "Bank Transfer"
 
-## Plan
+5. **All offers**: country = "India", currency = "INR", realistic trader profiles (unique usernames, 100-5000 trades, 4.2-5.0 rating, 94-100% completion)
 
-### 1. Update fallback prices to current market values
-**File:** `src/data/seed-engine.ts`
+6. **Total output**: 21 USDT + 10 BTC + 10 ETH + 10 SOL = **51 offers** (down from 800+)
 
-Update the `assets` array and `defaultUsdRates`:
-- BTC: 68,500 → 87,000
-- SOL: 86 → 140
-- ETH: 2,050 → 2,100
-- INR fallback: 83.5 → 85.5
+7. **Keep** `generateAllOffers()`, `filterOffers()`, and all exports compatible
 
-### 2. Widen the INR rate safety check
-**File:** `src/hooks/use-crypto-prices.ts`
+**File 2: `src/pages/Marketplace.tsx`**
 
-The `getSafeInrRate` function caps at 90. If CoinGecko returns a rate above 90 (possible with current INR weakness), it falls back to 83.5 — making prices wrong. Fix: raise `INR_RATE_MAX` to 100.
+1. Remove the `slice(0, 30)` cap since we now have exactly 51 offers
+2. Add "Recommended" badge to the best-priced offer per asset
+3. Add "High completion trader" badge for completionRate ≥ 99%
+4. Update OfferRow to show multiple payment methods (comma-separated badges)
 
-### 3. Add P2P premium to USDT/INR pricing
-**File:** `src/data/seed-engine.ts`
+**File 3: `src/components/marketplace/BuyModal.tsx`**
 
-The core mismatch: forex USD/INR ≈ 85 but P2P USDT/INR ≈ 97-99. This is because P2P markets inherently carry a premium over forex. Add a P2P premium multiplier (~14-16%) specifically for INR-USDT offers, so our USDT prices for India show ₹97-99 (matching Binance), and BTC/ETH/SOL prices scale accordingly.
+1. Update to handle `paymentMethods: string[]` array instead of single `paymentMethod`
 
-### 4. Show INR prices in the PriceTicker
-**File:** `src/pages/Marketplace.tsx`
+**File 4: `src/components/marketplace/SellModal.tsx`**
 
-Update `PriceTicker` to show both USD and INR values for each coin, so users can immediately see real INR rates and compare with Binance.
+1. No structural changes needed — already uses INR and payment arrays
 
-### 5. Update BuyModal quote display
-**File:** `src/components/marketplace/BuyModal.tsx`
+**File 5: `src/pages/OfferDetail.tsx`**
 
-Ensure the crypto amount calculation uses the offer's actual price (which now includes P2P premium), so entering ₹1000 gives the correct USDT/BTC/ETH/SOL amount matching the displayed rate.
+1. Update to handle `paymentMethods` array display
 
----
+### Technical Notes
 
-## Technical Details
-
-**P2P Premium logic (seed-engine.ts):**
-```text
-For INR offers:
-  base = livePriceUSD × forex_rate × P2P_PREMIUM (1.14-1.16)
-  final = base × margin (sell: +10-12%, buy: +2-5%)
-
-This produces:
-  USDT: 1 × 85.5 × 1.15 = ₹98.3 base → ₹98.3 to ₹110 with margin
-  (Binance shows ₹97-99, so sell margin for USDT should be smaller)
-```
-
-Actually, looking at Binance more carefully — their ₹97-99 prices ARE the sell offers (traders selling USDT to buyers). So the correct approach:
-
-- **Market price for USDT in INR** = forex rate × P2P premium ≈ ₹85.5 × 1.14 = ₹97.5
-- **Sell offers** (our +10-12% margin) would then be ₹107-109 — too high vs Binance
-- **Solution**: For USDT specifically, reduce margins to match Binance reality: sell margin +0.5-2%, buy margin +0-1%
-
-This means the margin logic needs asset-awareness — USDT margins are much tighter than BTC/ETH/SOL margins in P2P markets.
-
-**Files changed:** 4 files
-- `src/data/seed-engine.ts` — fallback prices, P2P premium, asset-aware margins
-- `src/hooks/use-crypto-prices.ts` — widen INR rate cap
-- `src/pages/Marketplace.tsx` — INR in PriceTicker
-- `src/components/marketplace/BuyModal.tsx` — verify quote math
+- The `SeededOffer` interface change (`paymentMethod` → `paymentMethods`) is a breaking change that needs updating in all consumers
+- The `filterOffers` function will need to check if any element in the `paymentMethods` array matches
+- Seed rotation still works via `Date.now()` but with ±0.3 price jitter instead of full randomization
+- For non-India SEO pages that reference other countries, the engine will still generate India-only offers (simplification per spec)
 
