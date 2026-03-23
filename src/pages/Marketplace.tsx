@@ -118,9 +118,12 @@ const Marketplace = () => {
   const [country, setCountry] = useState("all");
   const [tradeType, setTradeType] = useState<"all" | "buy" | "sell">("all");
 
+  // Derive real INR rate from CoinGecko tether data
+  const liveInrRate = prices ? (prices.tether.inr / prices.tether.usd) : undefined;
+
   const allOffers = useMemo(
-    () => generateAllOffers(toLivePrices(prices)),
-    [prices]
+    () => generateAllOffers(toLivePrices(prices), liveInrRate),
+    [prices, liveInrRate]
   );
 
   const filtered = useMemo(() => {

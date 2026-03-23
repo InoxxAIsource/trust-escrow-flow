@@ -196,9 +196,14 @@ export interface LivePrices {
 }
 
 // Generate ALL offers across all assets
-export function generateAllOffers(livePricesUSD?: Partial<LivePrices>): SeededOffer[] {
+export function generateAllOffers(livePricesUSD?: Partial<LivePrices>, liveInrRate?: number): SeededOffer[] {
   // Reset seed on each call for rotation on refresh
   _seed = Date.now();
+
+  // Update INR rate if we have a live one
+  if (liveInrRate && liveInrRate > 0) {
+    usdRates.INR = liveInrRate;
+  }
 
   return assets.flatMap((asset) => {
     const livePrice = livePricesUSD?.[asset.symbol as keyof LivePrices];
