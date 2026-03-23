@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import { Menu, X, Shield } from "lucide-react";
+import { Menu, X, Shield, LogOut, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/use-auth";
 
 const navLinks = [
   { label: "Marketplace", href: "/marketplace" },
@@ -13,6 +14,7 @@ const navLinks = [
 
 const Header = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { user, profile, signOut } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-card/80 backdrop-blur-lg">
@@ -22,7 +24,6 @@ const Header = () => {
           TrustP2P
         </Link>
 
-        {/* Desktop */}
         <nav className="hidden md:flex items-center gap-6">
           {navLinks.map((link) => (
             <Link
@@ -36,15 +37,28 @@ const Header = () => {
         </nav>
 
         <div className="hidden md:flex items-center gap-3">
-          <Button variant="ghost" size="sm" asChild>
-            <Link to="/login">Log In</Link>
-          </Button>
-          <Button size="sm" asChild>
-            <Link to="/signup">Get Started</Link>
-          </Button>
+          {user ? (
+            <>
+              <Link to="/dashboard" className="flex items-center gap-1.5 text-sm font-medium text-foreground hover:text-primary transition-colors">
+                <User className="h-4 w-4" />
+                {profile?.username ?? "Account"}
+              </Link>
+              <Button variant="ghost" size="sm" onClick={signOut}>
+                <LogOut className="h-4 w-4 mr-1" /> Sign Out
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/auth">Log In</Link>
+              </Button>
+              <Button size="sm" asChild>
+                <Link to="/auth">Get Started</Link>
+              </Button>
+            </>
+          )}
         </div>
 
-        {/* Mobile toggle */}
         <button
           className="md:hidden p-2 text-muted-foreground"
           onClick={() => setMobileOpen(!mobileOpen)}
@@ -54,7 +68,6 @@ const Header = () => {
         </button>
       </div>
 
-      {/* Mobile menu */}
       {mobileOpen && (
         <div className="md:hidden border-t bg-card">
           <nav className="container flex flex-col gap-1 py-4">
@@ -69,12 +82,20 @@ const Header = () => {
               </Link>
             ))}
             <div className="flex gap-2 mt-3 pt-3 border-t">
-              <Button variant="outline" size="sm" className="flex-1" asChild>
-                <Link to="/login">Log In</Link>
-              </Button>
-              <Button size="sm" className="flex-1" asChild>
-                <Link to="/signup">Get Started</Link>
-              </Button>
+              {user ? (
+                <Button variant="outline" size="sm" className="flex-1" onClick={() => { signOut(); setMobileOpen(false); }}>
+                  <LogOut className="h-4 w-4 mr-1" /> Sign Out
+                </Button>
+              ) : (
+                <>
+                  <Button variant="outline" size="sm" className="flex-1" asChild>
+                    <Link to="/auth" onClick={() => setMobileOpen(false)}>Log In</Link>
+                  </Button>
+                  <Button size="sm" className="flex-1" asChild>
+                    <Link to="/auth" onClick={() => setMobileOpen(false)}>Get Started</Link>
+                  </Button>
+                </>
+              )}
             </div>
           </nav>
         </div>
