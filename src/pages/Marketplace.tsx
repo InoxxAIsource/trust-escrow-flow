@@ -83,9 +83,9 @@ const ListingCard = ({ listing, prices }: { listing: Listing; prices?: CryptoPri
                 <span className="text-sm font-normal text-muted-foreground">{listing.currency}</span>
               </div>
               {marginLabel && (
-                <div className={`text-xs font-medium flex items-center gap-0.5 ${listing.type === "sell" ? "text-destructive" : "text-emerald-600"}`}>
-                  {listing.type === "sell" ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                  {marginLabel} vs market
+                <div className="text-xs font-medium flex items-center gap-0.5 text-emerald-600">
+                  <TrendingUp className="h-3 w-3" />
+                  {marginLabel} above market
                 </div>
               )}
             </div>
