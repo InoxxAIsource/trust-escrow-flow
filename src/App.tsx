@@ -18,6 +18,7 @@ import BlogPost from "./pages/BlogPost";
 import SEOLanding from "./pages/SEOLanding";
 import OfferDetail from "./pages/OfferDetail";
 import UserProfile from "./pages/UserProfile";
+import Verify from "./pages/Verify";
 import NotFound from "./pages/NotFound";
 import { getAllSlugs } from "./data/seo-pages";
 
@@ -46,6 +47,7 @@ const App = () => (
                 <Route path="/blog/:slug" element={<BlogPost />} />
                 <Route path="/offer/:id" element={<OfferDetail />} />
                 <Route path="/user/:username" element={<UserProfile />} />
+                <Route path="/verify" element={<Verify />} />
                 {seoSlugs.map((slug) => (
                   <Route key={slug} path={`/${slug}`} element={<SEOLanding />} />
                 ))}

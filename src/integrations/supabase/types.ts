@@ -132,6 +132,7 @@ export type Database = {
           created_at: string
           id: string
           is_verified: boolean
+          kyc_status: string
           rating: number
           trades_count: number
           updated_at: string
@@ -144,6 +145,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_verified?: boolean
+          kyc_status?: string
           rating?: number
           trades_count?: number
           updated_at?: string
@@ -156,6 +158,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_verified?: boolean
+          kyc_status?: string
           rating?: number
           trades_count?: number
           updated_at?: string
