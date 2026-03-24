@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Clock, Lock, Wallet, TrendingUp, AlertCircle, CheckCircle, Package, Eye, MousePointer, CreditCard } from "lucide-react";
+import { Clock, Lock, Wallet, TrendingUp, AlertCircle, CheckCircle, Package, Eye, MousePointer, CreditCard, XCircle, ArrowDownCircle, Plus } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { useWallets } from "@/hooks/use-wallets";
 import { useUserTrades, type TradeRow } from "@/hooks/use-trades";
 import { useUserOffers, type OfferRow } from "@/hooks/use-offers";
+import { useTransactions, type TransactionRow } from "@/hooks/use-transactions";
+import { toast } from "sonner";
 
 const tradeStatusColors: Record<string, string> = {
   locked: "bg-primary/10 text-primary border-primary/20",
@@ -85,7 +88,7 @@ const TradeCard = ({ trade }: { trade: TradeRow }) => {
   );
 };
 
-const OfferCard = ({ offer }: { offer: OfferRow }) => (
+const OfferCard = ({ offer, onCancel, isCancelling }: { offer: OfferRow; onCancel: (id: string) => void; isCancelling: boolean }) => (
   <Card>
     <CardContent className="p-4">
       <div className="flex items-center justify-between mb-3">
@@ -96,6 +99,18 @@ const OfferCard = ({ offer }: { offer: OfferRow }) => (
           </Badge>
           <span className="text-xs text-muted-foreground">Sell {offer.asset}</span>
         </div>
+        {offer.status === "active" && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 text-xs"
+            onClick={() => onCancel(offer.id)}
+            disabled={isCancelling}
+          >
+            <XCircle className="h-3.5 w-3.5 mr-1" />
+            Cancel
+          </Button>
+        )}
       </div>
       <div className="grid grid-cols-2 gap-y-2 text-sm">
         <div>
@@ -121,6 +136,12 @@ const OfferCard = ({ offer }: { offer: OfferRow }) => (
           </div>
         </div>
       </div>
+      {offer.status === "active" && Number(offer.remaining_amount) > 0 && (
+        <div className="flex items-center gap-1.5 text-xs text-warning bg-warning/5 rounded px-2 py-1.5 mt-2 border border-warning/10">
+          <Lock className="h-3 w-3" />
+          {Number(offer.remaining_amount)} {offer.asset} reserved for this offer
+        </div>
+      )}
       <p className="text-xs text-muted-foreground mt-2">
         Created {new Date(offer.created_at).toLocaleString()}
       </p>
@@ -128,12 +149,31 @@ const OfferCard = ({ offer }: { offer: OfferRow }) => (
   </Card>
 );
 
+const TransactionCard = ({ tx }: { tx: TransactionRow }) => (
+  <div className="flex items-center justify-between py-3 border-b last:border-0">
+    <div className="flex items-center gap-3">
+      <div className="h-8 w-8 rounded-full bg-success/10 flex items-center justify-center">
+        <ArrowDownCircle className="h-4 w-4 text-success" />
+      </div>
+      <div>
+        <p className="text-sm font-medium text-foreground capitalize">{tx.type}</p>
+        <p className="text-xs text-muted-foreground">{new Date(tx.created_at).toLocaleString()}</p>
+      </div>
+    </div>
+    <div className="text-right">
+      <p className="text-sm font-bold text-foreground">+{Number(tx.amount).toFixed(4)} {tx.asset}</p>
+      <Badge variant="secondary" className="text-xs capitalize">{tx.status}</Badge>
+    </div>
+  </div>
+);
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const { user, profile } = useAuth();
   const { trades, activeTrades } = useUserTrades();
   const { wallets } = useWallets();
-  const { offers } = useUserOffers();
+  const { offers, cancelOffer } = useUserOffers();
+  const { transactions } = useTransactions();
 
   if (!user) {
     return (
@@ -153,6 +193,15 @@ const Dashboard = () => {
 
   const activeOffers = offers.filter((o) => o.status === "active");
 
+  const handleCancelOffer = async (offerId: string) => {
+    try {
+      await cancelOffer.mutateAsync(offerId);
+      toast.success("Offer cancelled — funds restored to your wallet");
+    } catch {
+      toast.error("Failed to cancel offer");
+    }
+  };
+
   return (
     <div className="container py-12">
       <SEOHead title="Dashboard — TrustP2P" description="View your trades, wallet, and active offers." />
@@ -163,26 +212,40 @@ const Dashboard = () => {
           <h1 className="font-display text-3xl font-bold text-foreground">Dashboard</h1>
           <p className="text-muted-foreground mt-1">Welcome, <span className="font-medium text-foreground">{profile?.username ?? "trader"}</span></p>
         </div>
+        <Button size="sm" onClick={() => navigate("/marketplace")}>
+          <Plus className="h-3.5 w-3.5 mr-1" /> Create Offer
+        </Button>
       </div>
 
       {/* Wallet Overview */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
-        {wallets.map((w) => (
-          <Card key={w.asset}>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-1">
-                <Wallet className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium text-foreground">{w.asset}</span>
-              </div>
-              <p className="font-display font-bold text-lg text-foreground">{Number(w.balance).toFixed(4)}</p>
-              {Number(w.locked_balance) > 0 && (
-                <p className="text-xs text-warning flex items-center gap-1">
-                  <Lock className="h-3 w-3" /> {Number(w.locked_balance).toFixed(4)} locked
-                </p>
-              )}
-            </CardContent>
-          </Card>
-        ))}
+        {wallets.map((w) => {
+          const available = Number(w.balance) - Number(w.locked_balance);
+          return (
+            <Card key={w.asset}>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center gap-2">
+                    <Wallet className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-medium text-foreground">{w.asset}</span>
+                  </div>
+                </div>
+                <p className="font-display font-bold text-lg text-foreground">{available.toFixed(4)}</p>
+                <p className="text-xs text-muted-foreground">available</p>
+                {Number(w.locked_balance) > 0 && (
+                  <p className="text-xs text-warning flex items-center gap-1 mt-0.5">
+                    <Lock className="h-3 w-3" /> {Number(w.locked_balance).toFixed(4)} locked
+                  </p>
+                )}
+                {Number(w.balance) > 0 && (
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Total: {Number(w.balance).toFixed(4)}
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       <Tabs defaultValue="trades">
@@ -197,6 +260,12 @@ const Dashboard = () => {
             <Package className="h-3.5 w-3.5" /> My Offers
             {activeOffers.length > 0 && (
               <Badge className="bg-primary text-primary-foreground text-xs h-5 px-1.5 ml-1">{activeOffers.length}</Badge>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value="history" className="flex items-center gap-1">
+            <ArrowDownCircle className="h-3.5 w-3.5" /> Deposits
+            {transactions.length > 0 && (
+              <Badge className="bg-muted text-muted-foreground text-xs h-5 px-1.5 ml-1">{transactions.length}</Badge>
             )}
           </TabsTrigger>
         </TabsList>
@@ -228,8 +297,33 @@ const Dashboard = () => {
             </Card>
           ) : (
             <div className="space-y-3">
-              {offers.map((offer) => <OfferCard key={offer.id} offer={offer} />)}
+              {offers.map((offer) => (
+                <OfferCard
+                  key={offer.id}
+                  offer={offer}
+                  onCancel={handleCancelOffer}
+                  isCancelling={cancelOffer.isPending}
+                />
+              ))}
             </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="history" className="mt-4">
+          {transactions.length === 0 ? (
+            <Card>
+              <CardContent className="py-12 text-center text-muted-foreground">
+                <ArrowDownCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                <p className="font-medium">No deposits yet</p>
+                <p className="text-sm mt-1">Deposit crypto to start trading on the <Link to="/marketplace" className="text-primary hover:underline">marketplace</Link>.</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card>
+              <CardContent className="p-4">
+                {transactions.map((tx) => <TransactionCard key={tx.id} tx={tx} />)}
+              </CardContent>
+            </Card>
           )}
         </TabsContent>
       </Tabs>
