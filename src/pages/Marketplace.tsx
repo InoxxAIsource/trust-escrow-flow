@@ -75,7 +75,7 @@ interface OfferRowProps {
   isRecommended: boolean;
 }
 
-const OfferRow = ({ offer, onBuyClick, isRecommended }: OfferRowProps) => {
+const OfferRow = ({ offer, onBuyClick, onSellClick, isRecommended }: OfferRowProps) => {
   const hash = offer.id.charCodeAt(5) ?? 0;
   const showInstant = hash % 3 === 0;
   const showLock = hash % 4 === 0;
