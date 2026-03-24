@@ -381,6 +381,7 @@ const Marketplace = () => {
                 key={offer.id}
                 offer={offer}
                 onBuyClick={handleBuyClick}
+                onSellClick={handleSellToOfferClick}
                 isRecommended={recommendedIds.has(offer.id)}
               />
             ))
