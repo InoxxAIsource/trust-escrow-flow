@@ -1,4 +1,8 @@
-Pricing rules for seed engine offers (P2P marketplace perspective).
+Pricing rules for seed engine offers and platform fee structure.
+
+## Platform Fee
+- Flat 1.2% fee on every trade (both buy and sell)
+- Applied per trade, all coins
 
 ## USDT
 - Buy tab (sell offers from traders): ₹97–₹104 — HIGHER price
