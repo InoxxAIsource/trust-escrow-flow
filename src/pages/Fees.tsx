@@ -7,10 +7,10 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import SEOHead from "@/components/SEOHead";
 
 const fees = [
-  { coin: "USDT", maker: "0.1%", taker: "0.1%", min: "$0.10", withdrawal: "1 USDT" },
-  { coin: "BTC", maker: "0.1%", taker: "0.15%", min: "$0.50", withdrawal: "0.0001 BTC" },
-  { coin: "ETH", maker: "0.1%", taker: "0.15%", min: "$0.50", withdrawal: "0.001 ETH" },
-  { coin: "SOL", maker: "0.1%", taker: "0.15%", min: "$0.25", withdrawal: "0.01 SOL" },
+  { coin: "USDT", fee: "1.2%", withdrawal: "1 USDT" },
+  { coin: "BTC", fee: "1.2%", withdrawal: "0.0001 BTC" },
+  { coin: "ETH", fee: "1.2%", withdrawal: "0.001 ETH" },
+  { coin: "SOL", fee: "1.2%", withdrawal: "0.01 SOL" },
 ];
 
 const benefits = [
@@ -46,9 +46,7 @@ const Fees = () => (
             <TableHeader>
               <TableRow>
                 <TableHead>Coin</TableHead>
-                <TableHead>Maker Fee</TableHead>
-                <TableHead>Taker Fee</TableHead>
-                <TableHead>Min Fee</TableHead>
+                <TableHead>Trading Fee (Buy & Sell)</TableHead>
                 <TableHead>Withdrawal</TableHead>
               </TableRow>
             </TableHeader>
@@ -56,9 +54,7 @@ const Fees = () => (
               {fees.map((fee) => (
                 <TableRow key={fee.coin}>
                   <TableCell className="font-medium">{fee.coin}</TableCell>
-                  <TableCell>{fee.maker}</TableCell>
-                  <TableCell>{fee.taker}</TableCell>
-                  <TableCell>{fee.min}</TableCell>
+                  <TableCell>{fee.fee}</TableCell>
                   <TableCell>{fee.withdrawal}</TableCell>
                 </TableRow>
               ))}
