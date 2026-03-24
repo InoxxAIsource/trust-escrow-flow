@@ -46,9 +46,7 @@ const Fees = () => (
             <TableHeader>
               <TableRow>
                 <TableHead>Coin</TableHead>
-                <TableHead>Maker Fee</TableHead>
-                <TableHead>Taker Fee</TableHead>
-                <TableHead>Min Fee</TableHead>
+                <TableHead>Trading Fee (Buy & Sell)</TableHead>
                 <TableHead>Withdrawal</TableHead>
               </TableRow>
             </TableHeader>
@@ -56,9 +54,7 @@ const Fees = () => (
               {fees.map((fee) => (
                 <TableRow key={fee.coin}>
                   <TableCell className="font-medium">{fee.coin}</TableCell>
-                  <TableCell>{fee.maker}</TableCell>
-                  <TableCell>{fee.taker}</TableCell>
-                  <TableCell>{fee.min}</TableCell>
+                  <TableCell>{fee.fee}</TableCell>
                   <TableCell>{fee.withdrawal}</TableCell>
                 </TableRow>
               ))}
