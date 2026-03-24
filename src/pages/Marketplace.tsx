@@ -199,6 +199,7 @@ const Marketplace = () => {
   const [tradeType, setTradeType] = useState<"all" | "buy" | "sell">("all");
 
   const [buyOffer, setBuyOffer] = useState<SeededOffer | null>(null);
+  const [sellToOffer, setSellToOffer] = useState<SeededOffer | null>(null);
   const [showSell, setShowSell] = useState(false);
 
   const liveInrRate = getSafeInrRate(prices) ?? FALLBACK_USD_INR_RATE;
