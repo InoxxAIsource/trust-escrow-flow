@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./use-auth";
+import { useWallets } from "./use-wallets";
 
 export interface OfferRow {
   id: string;
@@ -24,6 +25,7 @@ export interface OfferRow {
 export function useUserOffers() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { unlockBalance } = useWallets();
 
   const { data: offers = [], isLoading } = useQuery({
     queryKey: ["user-offers", user?.id],
@@ -67,5 +69,35 @@ export function useUserOffers() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["user-offers"] }),
   });
 
-  return { offers, isLoading, createOffer };
+  const cancelOffer = useMutation({
+    mutationFn: async (offerId: string) => {
+      if (!user) throw new Error("Not logged in");
+      // Find the offer
+      const offer = offers.find((o) => o.id === offerId);
+      if (!offer) throw new Error("Offer not found");
+      if (offer.user_id !== user.id) throw new Error("Not your offer");
+      if (offer.status !== "active") throw new Error("Offer is not active");
+
+      // Update offer status to inactive
+      const { error } = await supabase
+        .from("offers")
+        .update({ status: "inactive" as const })
+        .eq("id", offerId);
+      if (error) throw error;
+
+      // Restore locked funds (remaining_amount, not original amount)
+      if (offer.type === "sell" && Number(offer.remaining_amount) > 0) {
+        await unlockBalance.mutateAsync({
+          asset: offer.asset,
+          amount: Number(offer.remaining_amount),
+        });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user-offers"] });
+      queryClient.invalidateQueries({ queryKey: ["wallets"] });
+    },
+  });
+
+  return { offers, isLoading, createOffer, cancelOffer };
 }

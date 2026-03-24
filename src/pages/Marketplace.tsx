@@ -251,9 +251,10 @@ const Marketplace = () => {
     currency: string;
     paymentMethods: string[];
   }) => {
-    // Validate sufficient balance
+    // Validate sufficient available balance (balance - locked)
     const bal = getBalance(data.assetSymbol);
-    if (bal.balance < data.amount) {
+    const available = bal.balance - bal.lockedBalance;
+    if (available < data.amount) {
       toast.error("Insufficient balance. Deposit more first.");
       return;
     }
