@@ -42,6 +42,7 @@ export function useUserTrades() {
     mutationFn: async (trade: {
       offer_id: string;
       seller_id: string;
+      buyer_id?: string;
       asset: string;
       amount: number;
       price: number;
@@ -55,7 +56,7 @@ export function useUserTrades() {
         .from("trades")
         .insert({
           ...trade,
-          buyer_id: user.id,
+          buyer_id: trade.buyer_id ?? user.id,
           status: "locked" as const,
           expires_at: expiresAt,
         })
