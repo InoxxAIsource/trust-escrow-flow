@@ -34,17 +34,19 @@ const OfferDetail = () => {
     );
   }
 
+  const sym = offer.currencySymbol ?? "₹";
+
   return (
     <>
       <SEOHead
         title={`${offer.type === "sell" ? "Buy" : "Sell"} ${offer.asset} from ${offer.username} | TrustP2P`}
-        description={`${offer.type === "sell" ? "Buy" : "Sell"} ${offer.asset} at ₹${offer.price} from ${offer.username}. Escrow-protected P2P trade on TrustP2P.`}
+        description={`${offer.type === "sell" ? "Buy" : "Sell"} ${offer.asset} at ${sym}${offer.price} from ${offer.username}. Escrow-protected P2P trade on TrustP2P.`}
         jsonLd={{
           "@context": "https://schema.org",
           "@type": "Offer",
           name: `${offer.type === "sell" ? "Buy" : "Sell"} ${offer.asset}`,
           price: offer.price,
-          priceCurrency: "INR",
+          priceCurrency: offer.currency ?? "INR",
           seller: { "@type": "Person", name: offer.username },
         }}
       />
@@ -72,11 +74,11 @@ const OfferDetail = () => {
                 <div>
                   <div className="text-sm text-muted-foreground mb-1">Price</div>
                   <div className="font-display text-2xl font-bold text-foreground">
-                    ₹{offer.price.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                    {sym}{offer.price.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                   </div>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="text-xs text-muted-foreground">
-                      Market: ₹{offer.marketPrice.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                      Market: {sym}{offer.marketPrice.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                     </span>
                     <span className="text-xs font-medium flex items-center gap-0.5 text-success">
                       <TrendingUp className="h-3 w-3" />
@@ -87,7 +89,7 @@ const OfferDetail = () => {
                 <div>
                   <div className="text-sm text-muted-foreground mb-1">Trade Limits</div>
                   <div className="font-semibold text-foreground">
-                    ₹{offer.minLimit.toLocaleString()} – ₹{offer.maxLimit.toLocaleString()}
+                    {sym}{offer.minLimit.toLocaleString()} – {sym}{offer.maxLimit.toLocaleString()}
                   </div>
                 </div>
                 <div>
