@@ -161,10 +161,8 @@ const OfferRow = ({ offer, onBuyClick, onSellClick, isRecommended }: OfferRowPro
                 Buy {offer.assetSymbol}
               </Button>
             ) : (
-              <Button size="sm" variant="outline" asChild>
-                <Link to={`/offer/${offer.id}`}>
-                  Sell {offer.assetSymbol}
-                </Link>
+              <Button size="sm" variant="outline" onClick={() => onSellClick(offer)}>
+                Sell {offer.assetSymbol}
               </Button>
             )}
           </div>
