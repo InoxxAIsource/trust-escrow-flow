@@ -234,6 +234,10 @@ const Marketplace = () => {
     requireAuth(() => setBuyOffer(offer));
   };
 
+  const handleSellToOfferClick = (offer: SeededOffer) => {
+    requireAuth(() => setSellToOffer(offer));
+  };
+
   const handleSellClick = () => {
     requireAuth(() => setShowSell(true));
   };
