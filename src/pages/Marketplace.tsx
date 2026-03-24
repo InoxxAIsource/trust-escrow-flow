@@ -122,7 +122,7 @@ const OfferRow = ({ offer, onBuyClick, onSellClick, isRecommended }: OfferRowPro
                 <Link to={`/user/${offer.username}`} className="font-semibold text-foreground hover:text-primary transition-colors">
                   {offer.username}
                 </Link>
-                {offer.isVerified && <Shield className="h-3.5 w-3.5 text-primary" />}
+                {offer.isVerified && <VerificationIcon isVerified className="h-3.5 w-3.5" />}
                 <Circle className={`h-2 w-2 fill-current ${offer.isOnline ? "text-success" : "text-muted-foreground/30"}`} />
               </div>
               <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
