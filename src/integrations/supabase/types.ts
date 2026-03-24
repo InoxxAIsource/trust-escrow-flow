@@ -245,15 +245,7 @@ export type Database = {
           total?: number
           updated_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "trades_offer_id_fkey"
-            columns: ["offer_id"]
-            isOneToOne: false
-            referencedRelation: "offers"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       transactions: {
         Row: {
