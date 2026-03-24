@@ -59,9 +59,12 @@ export default function SellToOfferModal({ offer, open, onClose }: SellToOfferMo
       await lockBalance.mutateAsync({ asset: offer.assetSymbol, amount: cryptoNum });
 
       // Create trade — seller is current user, buyer is the offer creator
+      // For seeded offers, use a deterministic fake buyer UUID
+      const fakeBuyerId = "00000000-0000-4000-a000-000000000001";
       const trade = await createTrade.mutateAsync({
         offer_id: offer.id,
         seller_id: user.id,
+        buyer_id: fakeBuyerId,
         asset: offer.assetSymbol,
         amount: cryptoNum,
         price: offer.price,
