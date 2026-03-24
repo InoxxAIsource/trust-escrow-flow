@@ -31,7 +31,7 @@ const OfferMiniCard = ({ offer }: { offer: SeededOffer }) => (
     </div>
     <div className="flex items-center gap-4">
       <div className="text-right">
-        <div className="font-display font-bold text-foreground text-sm">{offer.price.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
+        <div className="font-display font-bold text-foreground text-sm">{offer.currencySymbol ?? "₹"}{offer.price.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
         <div className="flex items-center gap-1">
           {offer.paymentMethods.map((pm) => (
             <Badge key={pm} variant="secondary" className="text-xs">{pm}</Badge>
