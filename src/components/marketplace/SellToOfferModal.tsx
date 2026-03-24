@@ -38,6 +38,8 @@ export default function SellToOfferModal({ offer, open, onClose }: SellToOfferMo
 
   if (!offer) return null;
 
+  const sym = offer.currencySymbol ?? "₹";
+  const cur = offer.currency ?? "INR";
   const numAmount = parseFloat(amount) || 0;
   const cryptoAmount = numAmount > 0 ? (numAmount / offer.price).toFixed(6) : "0";
   const cryptoNum = parseFloat(cryptoAmount);
@@ -67,7 +69,7 @@ export default function SellToOfferModal({ offer, open, onClose }: SellToOfferMo
         amount: cryptoNum,
         price: offer.price,
         total: numAmount,
-        currency: "INR",
+        currency: cur,
         payment_method: payment,
       });
 
@@ -80,7 +82,7 @@ export default function SellToOfferModal({ offer, open, onClose }: SellToOfferMo
         try {
           await unlockBalance.mutateAsync({ asset: offer.assetSymbol, amount: cryptoNum });
         } catch {
-          // silent rollback failure, primary error toast is shown below
+          // silent rollback failure
         }
       }
       toast.error("Failed to lock deal. Please try again.");
@@ -119,7 +121,7 @@ export default function SellToOfferModal({ offer, open, onClose }: SellToOfferMo
               <div className="rounded-lg border bg-muted/50 p-3">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Buyer's price per {offer.assetSymbol}</span>
-                  <span className="font-bold text-foreground">₹{offer.price.toLocaleString()}</span>
+                  <span className="font-bold text-foreground">{sym}{offer.price.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-sm mt-1">
                   <span className="text-muted-foreground">Margin</span>
@@ -127,7 +129,6 @@ export default function SellToOfferModal({ offer, open, onClose }: SellToOfferMo
                 </div>
               </div>
 
-              {/* Wallet balance */}
               <div className="rounded-lg border p-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-sm">
@@ -144,21 +145,21 @@ export default function SellToOfferModal({ offer, open, onClose }: SellToOfferMo
               </div>
 
               <div>
-                <label className="text-sm font-medium text-foreground mb-1 block">Amount (INR)</label>
+                <label className="text-sm font-medium text-foreground mb-1 block">Amount ({cur})</label>
                 <Input
                   type="number"
-                  placeholder={`Min ₹${offer.minLimit.toLocaleString()} — Max ₹${offer.maxLimit.toLocaleString()}`}
+                  placeholder={`Min ${sym}${offer.minLimit.toLocaleString()} — Max ${sym}${offer.maxLimit.toLocaleString()}`}
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                 />
                 {numAmount > 0 && numAmount < offer.minLimit && (
                   <p className="text-xs text-destructive mt-1">
-                    Minimum amount is ₹{offer.minLimit.toLocaleString()}
+                    Minimum amount is {sym}{offer.minLimit.toLocaleString()}
                   </p>
                 )}
                 {numAmount > offer.maxLimit && (
                   <p className="text-xs text-destructive mt-1">
-                    Maximum amount is ₹{offer.maxLimit.toLocaleString()}
+                    Maximum amount is {sym}{offer.maxLimit.toLocaleString()}
                   </p>
                 )}
                 {isInRange && (
@@ -208,11 +209,11 @@ export default function SellToOfferModal({ offer, open, onClose }: SellToOfferMo
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">You receive</span>
-                  <span className="font-bold text-foreground">₹{numAmount.toLocaleString()}</span>
+                  <span className="font-bold text-foreground">{sym}{numAmount.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Locked price</span>
-                  <span className="font-medium text-foreground">₹{offer.price.toLocaleString()}/{offer.assetSymbol}</span>
+                  <span className="font-medium text-foreground">{sym}{offer.price.toLocaleString()}/{offer.assetSymbol}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Payment via</span>
@@ -258,7 +259,7 @@ export default function SellToOfferModal({ offer, open, onClose }: SellToOfferMo
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">You'll receive</span>
-                  <span className="font-bold text-foreground">₹{numAmount.toLocaleString()}</span>
+                  <span className="font-bold text-foreground">{sym}{numAmount.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-sm items-center">
                   <span className="text-muted-foreground flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> Time remaining</span>
@@ -269,8 +270,8 @@ export default function SellToOfferModal({ offer, open, onClose }: SellToOfferMo
               <div className="rounded-lg border p-3">
                 <p className="text-sm font-medium text-foreground mb-2">Next Steps</p>
                 <div className="text-xs text-muted-foreground space-y-1">
-                  <p>1. Wait for the buyer to send ₹{numAmount.toLocaleString()} via {payment}</p>
-                  <p>2. Verify payment in your bank/UPI app</p>
+                  <p>1. Wait for the buyer to send {sym}{numAmount.toLocaleString()} via {payment}</p>
+                  <p>2. Verify payment in your bank/payment app</p>
                   <p>3. Confirm receipt to release {offer.assetSymbol} to the buyer</p>
                 </div>
               </div>

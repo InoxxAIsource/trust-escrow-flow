@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Star, Shield, Circle, TrendingUp, RefreshCw, Search, Zap, Lock, Flame, Plus, Award, ThumbsUp } from "lucide-react";
+import { Star, Shield, Circle, TrendingUp, RefreshCw, Search, Zap, Lock, Flame, Plus, Award, ThumbsUp, Globe } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -15,11 +15,14 @@ import { useAuth } from "@/hooks/use-auth";
 import { useWallets } from "@/hooks/use-wallets";
 import { useUserTrades } from "@/hooks/use-trades";
 import { useUserOffers } from "@/hooks/use-offers";
-import { generateAllOffers, filterOffers, FALLBACK_USD_INR_RATE, type SeededOffer } from "@/data/seed-engine";
+import {
+  generateAllOffers, filterOffers, FALLBACK_USD_INR_RATE,
+  getAllCountries, getCountryPaymentMethods, getCountryCurrency,
+  type SeededOffer,
+} from "@/data/seed-engine";
 import { toast } from "sonner";
 
 const coinOptions = ["USDT", "Bitcoin", "Ethereum", "Solana"];
-const paymentOptions = ["UPI", "Bank Transfer", "IMPS"];
 
 function toLivePrices(prices?: CryptoPrices) {
   if (!prices) return undefined;
@@ -136,7 +139,7 @@ const OfferRow = ({ offer, onBuyClick, onSellClick, isRecommended }: OfferRowPro
             <div>
               <div className="text-xs text-muted-foreground">Price</div>
               <div className="font-display font-bold text-foreground">
-                ₹{offer.price.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                {offer.currencySymbol}{offer.price.toLocaleString(undefined, { maximumFractionDigits: 2 })}
               </div>
               <div className="text-xs font-medium flex items-center gap-0.5 text-success">
                 <TrendingUp className="h-3 w-3" />
@@ -146,7 +149,7 @@ const OfferRow = ({ offer, onBuyClick, onSellClick, isRecommended }: OfferRowPro
             <div className="hidden sm:block">
               <div className="text-xs text-muted-foreground">Limits</div>
               <div className="text-sm text-foreground">
-                ₹{offer.minLimit.toLocaleString()} – ₹{offer.maxLimit.toLocaleString()}
+                {offer.currencySymbol}{offer.minLimit.toLocaleString()} – {offer.currencySymbol}{offer.maxLimit.toLocaleString()}
               </div>
             </div>
             <div className="hidden sm:block">
@@ -173,7 +176,7 @@ const OfferRow = ({ offer, onBuyClick, onSellClick, isRecommended }: OfferRowPro
             {offer.paymentMethods.map((pm) => (
               <Badge key={pm} variant="secondary" className="text-xs">{pm}</Badge>
             ))}
-            ₹{offer.minLimit.toLocaleString()} – ₹{offer.maxLimit.toLocaleString()}
+            {offer.currencySymbol}{offer.minLimit.toLocaleString()} – {offer.currencySymbol}{offer.maxLimit.toLocaleString()}
           </span>
           {fakeLocks > 10 && (
             <span className="text-xs text-destructive flex items-center gap-0.5">
@@ -194,9 +197,22 @@ const Marketplace = () => {
   const { activeTrades } = useUserTrades();
   const { createOffer } = useUserOffers();
 
+  const allCountries = getAllCountries();
+
   const [coin, setCoin] = useState("all");
+  const [country, setCountry] = useState("India");
   const [payment, setPayment] = useState("all");
   const [tradeType, setTradeType] = useState<"all" | "buy" | "sell">("all");
+
+  // Derive currency and payment methods from country
+  const { code: currencyCode, symbol: currencySymbol } = getCountryCurrency(country);
+  const countryPaymentMethods = getCountryPaymentMethods(country);
+
+  // Reset payment filter when country changes
+  const handleCountryChange = (newCountry: string) => {
+    setCountry(newCountry);
+    setPayment("all"); // reset payment since methods differ by country
+  };
 
   const [buyOffer, setBuyOffer] = useState<SeededOffer | null>(null);
   const [sellToOffer, setSellToOffer] = useState<SeededOffer | null>(null);
@@ -213,13 +229,15 @@ const Marketplace = () => {
     const mappedType = tradeType === "buy" ? "sell" : tradeType === "sell" ? "buy" : undefined;
     return filterOffers(allOffers, {
       asset: coin !== "all" ? coin : undefined,
+      country,
       paymentMethod: payment !== "all" ? payment : undefined,
       type: mappedType,
     });
-  }, [allOffers, coin, payment, tradeType]);
+  }, [allOffers, coin, country, payment, tradeType]);
 
-  const recommendedIds = useMemo(() => getBestSellPriceIds(allOffers), [allOffers]);
+  const recommendedIds = useMemo(() => getBestSellPriceIds(filtered), [filtered]);
   const totalOffers = allOffers.length;
+  const countryOfferCount = useMemo(() => allOffers.filter((o) => o.country === country).length, [allOffers, country]);
 
   const requireAuth = (action: () => void) => {
     if (!user) {
@@ -242,7 +260,6 @@ const Marketplace = () => {
     requireAuth(() => setShowSell(true));
   };
 
-
   const handleCreateOffer = async (data: {
     asset: string;
     assetSymbol: string;
@@ -251,7 +268,6 @@ const Marketplace = () => {
     currency: string;
     paymentMethods: string[];
   }) => {
-    // Validate sufficient available balance (balance - locked)
     const bal = getBalance(data.assetSymbol);
     const available = bal.balance - bal.lockedBalance;
     if (available < data.amount) {
@@ -260,10 +276,7 @@ const Marketplace = () => {
     }
 
     try {
-      // Lock the seller's funds first
       await lockBalance.mutateAsync({ asset: data.assetSymbol, amount: data.amount });
-
-      // Create the offer
       createOffer.mutate({
         type: "sell",
         asset: data.assetSymbol,
@@ -290,7 +303,7 @@ const Marketplace = () => {
     <>
       <SEOHead
         title="P2P Crypto Marketplace — Buy & Sell USDT, BTC, ETH, SOL | TrustP2P"
-        description="Browse escrow-protected P2P crypto listings. Buy and sell USDT, Bitcoin, Ethereum, and Solana with verified traders in India."
+        description="Browse escrow-protected P2P crypto listings. Buy and sell USDT, Bitcoin, Ethereum, and Solana with verified traders worldwide."
       />
 
       <div className="container py-12">
@@ -300,7 +313,7 @@ const Marketplace = () => {
           <div>
             <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground">P2P Marketplace</h1>
             <p className="text-muted-foreground mt-1">
-              {totalOffers} active offers from verified Indian traders.
+              {totalOffers} active offers from verified traders worldwide • {countryOfferCount} in {country}
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -335,6 +348,7 @@ const Marketplace = () => {
           <span>• 12,400+ trades completed</span>
         </div>
 
+        {/* ── Filter Bar ── */}
         <div className="flex flex-wrap gap-3 mb-8">
           <div className="flex rounded-lg border overflow-hidden">
             {(["all", "buy", "sell"] as const).map((t) => (
@@ -356,11 +370,26 @@ const Marketplace = () => {
             </SelectContent>
           </Select>
 
+          <Select value={country} onValueChange={handleCountryChange}>
+            <SelectTrigger className="w-[160px]">
+              <Globe className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
+              <SelectValue placeholder="Country" />
+            </SelectTrigger>
+            <SelectContent>
+              {allCountries.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+            </SelectContent>
+          </Select>
+
+          <div className="flex items-center gap-1.5 rounded-md border bg-card px-3 py-2 text-sm text-muted-foreground">
+            <span className="font-medium text-foreground">{currencySymbol}</span>
+            <span>{currencyCode}</span>
+          </div>
+
           <Select value={payment} onValueChange={setPayment}>
             <SelectTrigger className="w-[160px]"><SelectValue placeholder="Payment" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Methods</SelectItem>
-              {paymentOptions.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+              {countryPaymentMethods.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
             </SelectContent>
           </Select>
         </div>
@@ -368,8 +397,8 @@ const Marketplace = () => {
         <div className="flex items-center gap-2 mb-4">
           <Search className="h-4 w-4 text-primary" />
           <span className="text-sm font-medium text-foreground">
-            {coin !== "all" || payment !== "all"
-              ? `Top offers${coin !== "all" ? ` for ${coin}` : ""}${payment !== "all" ? ` via ${payment}` : ""}`
+            {country !== "all" || coin !== "all" || payment !== "all"
+              ? `Top offers in ${country}${coin !== "all" ? ` for ${coin}` : ""}${payment !== "all" ? ` via ${payment}` : ""}`
               : "Best offers today"}
           </span>
           <span className="text-xs text-muted-foreground">({filtered.length} shown)</span>
