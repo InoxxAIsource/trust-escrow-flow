@@ -52,7 +52,7 @@ const UserProfile = () => {
                 </div>
                 <h1 className="font-display text-xl font-bold text-foreground flex items-center justify-center gap-2">
                   {username}
-                  {user.isVerified && <Shield className="h-4 w-4 text-primary" />}
+                  {user.isVerified && <VerificationBadge status="verified" size="sm" />}
                 </h1>
                 <div className="flex items-center justify-center gap-1 mt-1 text-sm text-muted-foreground">
                   <MapPin className="h-3.5 w-3.5" /> {user.country}
