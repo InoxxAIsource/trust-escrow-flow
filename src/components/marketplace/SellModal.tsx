@@ -5,14 +5,14 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Copy, CheckCircle, Wallet, ArrowRight, AlertTriangle, Shield } from "lucide-react";
+import { Copy, CheckCircle, Wallet, ArrowRight, AlertTriangle, Shield, Lock, Info } from "lucide-react";
 import { toast } from "sonner";
 
 const assetOptions = [
-  { name: "USDT", symbol: "USDT" },
-  { name: "Bitcoin", symbol: "BTC" },
-  { name: "Ethereum", symbol: "ETH" },
-  { name: "Solana", symbol: "SOL" },
+  { name: "USDT", symbol: "USDT", network: "TRC20", minDeposit: 10 },
+  { name: "Bitcoin", symbol: "BTC", network: "Bitcoin Network", minDeposit: 0.0001 },
+  { name: "Ethereum", symbol: "ETH", network: "ERC20", minDeposit: 0.005 },
+  { name: "Solana", symbol: "SOL", network: "Solana", minDeposit: 0.1 },
 ];
 
 const paymentOptions = ["UPI", "Bank Transfer", "PayPal", "Zelle", "Venmo", "IMPS", "SEPA"];
@@ -61,13 +61,18 @@ export default function SellModal({ open, onClose, onDeposit, onCreateOffer, get
 
   const assetInfo = assetOptions.find((a) => a.symbol === asset)!;
   const balance = getBalance(asset);
+  const available = balance.balance - balance.lockedBalance;
   const depositAddr = mockDepositAddresses[asset] ?? "—";
 
   const handleDeposit = () => {
     const amt = parseFloat(depositAmount);
     if (!amt || amt <= 0) return;
+    if (amt < assetInfo.minDeposit) {
+      toast.error(`Minimum deposit is ${assetInfo.minDeposit} ${asset}`);
+      return;
+    }
     onDeposit(asset, amt);
-    toast.success(`${amt} ${asset} credited to demo wallet`);
+    toast.success(`${amt} ${asset} credited — Funds secured for trading`);
     setStep("offer");
   };
 
@@ -75,8 +80,8 @@ export default function SellModal({ open, onClose, onDeposit, onCreateOffer, get
     const amt = parseFloat(offerAmount);
     const price = parseFloat(offerPrice);
     if (!amt || !price || selectedPayments.length === 0) return;
-    if (amt > balance.balance) {
-      toast.error("Insufficient balance. Deposit more first.");
+    if (amt > available) {
+      toast.error("Insufficient available balance. Deposit more first.");
       return;
     }
     onCreateOffer({
@@ -110,39 +115,52 @@ export default function SellModal({ open, onClose, onDeposit, onCreateOffer, get
               <DialogTitle>Sell Crypto</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 mt-2">
+              <div className="flex items-start gap-2 text-xs bg-primary/5 rounded-lg p-3 border border-primary/10">
+                <Info className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                <span className="text-foreground">Crypto required to create sell offer. Deposit funds first, then your balance will be locked for active offers.</span>
+              </div>
+
               <div>
                 <label className="text-sm font-medium text-foreground mb-1 block">Select Asset</label>
                 <Select value={asset} onValueChange={setAsset}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {assetOptions.map((a) => (
-                      <SelectItem key={a.symbol} value={a.symbol}>{a.name} ({a.symbol})</SelectItem>
+                      <SelectItem key={a.symbol} value={a.symbol}>
+                        {a.name} ({a.symbol}) — {a.network}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
-              <div className="rounded-lg border bg-muted/50 p-3">
+              <div className="rounded-lg border bg-muted/50 p-3 space-y-1.5">
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Current balance</span>
-                  <span className="font-bold text-foreground">{balance.balance.toFixed(4)} {asset}</span>
+                  <span className="text-muted-foreground">Total Balance</span>
+                  <span className="font-medium text-foreground">{balance.balance.toFixed(4)} {asset}</span>
                 </div>
                 {balance.lockedBalance > 0 && (
-                  <div className="flex justify-between text-sm mt-1">
-                    <span className="text-muted-foreground">Locked</span>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground flex items-center gap-1"><Lock className="h-3 w-3" /> Locked</span>
                     <span className="text-warning font-medium">{balance.lockedBalance.toFixed(4)} {asset}</span>
                   </div>
                 )}
+                <div className="flex justify-between text-sm border-t pt-1.5">
+                  <span className="text-muted-foreground font-medium">Available</span>
+                  <span className="font-bold text-foreground">{available.toFixed(4)} {asset}</span>
+                </div>
               </div>
 
               <Button onClick={() => setStep("deposit")} className="w-full">
                 <Wallet className="h-4 w-4 mr-1" /> Deposit {asset} <ArrowRight className="h-4 w-4 ml-1" />
               </Button>
 
-              {balance.balance > 0 && (
+              {available > 0 ? (
                 <Button variant="outline" onClick={() => setStep("offer")} className="w-full">
-                  Skip — Create Offer with Existing Balance
+                  Create Offer with Existing Balance ({available.toFixed(4)} {asset})
                 </Button>
+              ) : (
+                <p className="text-xs text-center text-muted-foreground">No available balance — deposit to continue</p>
               )}
             </div>
           </>
@@ -158,11 +176,21 @@ export default function SellModal({ open, onClose, onDeposit, onCreateOffer, get
             </DialogHeader>
             <div className="space-y-4 mt-2">
               <div className="rounded-lg border p-3">
-                <p className="text-xs text-muted-foreground mb-1">Deposit Address ({asset})</p>
+                <div className="flex items-center justify-between mb-1">
+                  <p className="text-xs text-muted-foreground">Deposit Address</p>
+                  <Badge variant="secondary" className="text-xs">{assetInfo.network}</Badge>
+                </div>
                 <div className="flex items-center gap-2">
                   <code className="text-xs bg-muted rounded px-2 py-1 flex-1 break-all text-foreground">{depositAddr}</code>
                   <Button size="sm" variant="ghost" onClick={copyAddress}><Copy className="h-4 w-4" /></Button>
                 </div>
+              </div>
+
+              <div className="rounded-lg border bg-muted/30 p-3 space-y-1 text-xs text-muted-foreground">
+                <p className="font-medium text-foreground">Important</p>
+                <p>• Send only <strong>{asset}</strong> ({assetInfo.network}) to this address. Funds will be credited after confirmation.</p>
+                <p>• Minimum deposit: <strong>{assetInfo.minDeposit} {asset}</strong></p>
+                <p>• Sending other assets or using wrong network may result in loss of funds.</p>
               </div>
 
               <div className="flex items-start gap-2 text-xs text-muted-foreground bg-warning/10 rounded-lg p-3 border border-warning/20">
@@ -174,7 +202,7 @@ export default function SellModal({ open, onClose, onDeposit, onCreateOffer, get
                 <label className="text-sm font-medium text-foreground mb-1 block">Amount to Deposit ({asset})</label>
                 <Input
                   type="number"
-                  placeholder={`e.g. ${asset === "BTC" ? "0.01" : asset === "ETH" ? "0.5" : "100"}`}
+                  placeholder={`Min: ${assetInfo.minDeposit} ${asset}`}
                   value={depositAmount}
                   onChange={(e) => setDepositAmount(e.target.value)}
                 />
@@ -194,62 +222,91 @@ export default function SellModal({ open, onClose, onDeposit, onCreateOffer, get
               <DialogTitle>Create Sell Offer</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 mt-2">
-              <div className="rounded-lg border bg-muted/50 p-3">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Available</span>
-                  <span className="font-bold text-foreground">{balance.balance.toFixed(4)} {asset}</span>
+              {available <= 0 ? (
+                <div className="space-y-3">
+                  <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-center">
+                    <AlertTriangle className="h-8 w-8 text-destructive mx-auto mb-2" />
+                    <p className="font-semibold text-foreground">Insufficient Balance</p>
+                    <p className="text-sm text-muted-foreground mt-1">You need {asset} in your wallet to create a sell offer.</p>
+                  </div>
+                  <Button onClick={() => setStep("deposit")} className="w-full">
+                    <Wallet className="h-4 w-4 mr-1" /> Deposit Crypto to Continue
+                  </Button>
                 </div>
-              </div>
+              ) : (
+                <>
+                  <div className="rounded-lg border bg-muted/50 p-3 space-y-1">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Available for offers</span>
+                      <span className="font-bold text-foreground">{available.toFixed(4)} {asset}</span>
+                    </div>
+                    {balance.lockedBalance > 0 && (
+                      <div className="flex justify-between text-xs">
+                        <span className="text-muted-foreground flex items-center gap-1"><Lock className="h-3 w-3" /> Reserved for active offers</span>
+                        <span className="text-warning">{balance.lockedBalance.toFixed(4)} {asset}</span>
+                      </div>
+                    )}
+                  </div>
 
-              <div>
-                <label className="text-sm font-medium text-foreground mb-1 block">Amount to sell ({asset})</label>
-                <Input
-                  type="number"
-                  placeholder={`Max ${balance.balance.toFixed(4)}`}
-                  value={offerAmount}
-                  onChange={(e) => setOfferAmount(e.target.value)}
-                  max={balance.balance}
-                />
-              </div>
+                  <div>
+                    <label className="text-sm font-medium text-foreground mb-1 block">Amount to sell ({asset})</label>
+                    <Input
+                      type="number"
+                      placeholder={`Max ${available.toFixed(4)}`}
+                      value={offerAmount}
+                      onChange={(e) => setOfferAmount(e.target.value)}
+                      max={available}
+                    />
+                    {parseFloat(offerAmount) > available && (
+                      <p className="text-xs text-destructive mt-1">Amount exceeds available balance</p>
+                    )}
+                  </div>
 
-              <div>
-                <label className="text-sm font-medium text-foreground mb-1 block">Your price (INR per {asset})</label>
-                <Input
-                  type="number"
-                  placeholder="e.g. 93.5"
-                  value={offerPrice}
-                  onChange={(e) => setOfferPrice(e.target.value)}
-                />
-                {suggestedPrice && (
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Suggested: <button className="text-primary underline" onClick={() => setOfferPrice(suggestedPrice.toString())}>{suggestedPrice.toLocaleString()} INR</button>
-                  </p>
-                )}
-              </div>
+                  <div>
+                    <label className="text-sm font-medium text-foreground mb-1 block">Your price (INR per {asset})</label>
+                    <Input
+                      type="number"
+                      placeholder="e.g. 93.5"
+                      value={offerPrice}
+                      onChange={(e) => setOfferPrice(e.target.value)}
+                    />
+                    {suggestedPrice && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Suggested: <button className="text-primary underline" onClick={() => setOfferPrice(suggestedPrice.toString())}>{suggestedPrice.toLocaleString()} INR</button>
+                      </p>
+                    )}
+                  </div>
 
-              <div>
-                <label className="text-sm font-medium text-foreground mb-2 block">Payment Methods</label>
-                <div className="flex flex-wrap gap-2">
-                  {paymentOptions.map((p) => (
-                    <label key={p} className="flex items-center gap-1.5 cursor-pointer">
-                      <Checkbox
-                        checked={selectedPayments.includes(p)}
-                        onCheckedChange={() => togglePayment(p)}
-                      />
-                      <span className="text-sm text-foreground">{p}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
+                  <div>
+                    <label className="text-sm font-medium text-foreground mb-2 block">Payment Methods</label>
+                    <div className="flex flex-wrap gap-2">
+                      {paymentOptions.map((p) => (
+                        <label key={p} className="flex items-center gap-1.5 cursor-pointer">
+                          <Checkbox
+                            checked={selectedPayments.includes(p)}
+                            onCheckedChange={() => togglePayment(p)}
+                          />
+                          <span className="text-sm text-foreground">{p}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
 
-              <Button
-                onClick={handleCreateOffer}
-                disabled={!offerAmount || !offerPrice || selectedPayments.length === 0 || parseFloat(offerAmount) > balance.balance}
-                className="w-full"
-              >
-                Create Sell Offer
-              </Button>
-              <Button variant="ghost" onClick={() => setStep("deposit")} className="w-full text-muted-foreground">Back to Deposit</Button>
+                  <div className="flex items-start gap-2 text-xs text-muted-foreground bg-primary/5 rounded-lg p-2 border border-primary/10">
+                    <Lock className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
+                    <span>Amount will be reserved for active offers. You can cancel anytime to unlock funds.</span>
+                  </div>
+
+                  <Button
+                    onClick={handleCreateOffer}
+                    disabled={!offerAmount || !offerPrice || selectedPayments.length === 0 || parseFloat(offerAmount) > available}
+                    className="w-full"
+                  >
+                    Create Sell Offer — Lock {offerAmount || "0"} {asset}
+                  </Button>
+                  <Button variant="ghost" onClick={() => setStep("deposit")} className="w-full text-muted-foreground">Back to Deposit</Button>
+                </>
+              )}
             </div>
           </>
         )}
@@ -280,9 +337,9 @@ export default function SellModal({ open, onClose, onDeposit, onCreateOffer, get
                 </div>
               </div>
 
-              <div className="flex items-start gap-2 text-xs text-muted-foreground bg-accent/50 rounded-lg p-2">
-                <Shield className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
-                <span>Your offer is now visible in the marketplace. Escrow protection will be available soon.</span>
+              <div className="flex items-start gap-2 text-xs bg-success/5 rounded-lg p-3 border border-success/20">
+                <Shield className="h-3.5 w-3.5 text-success shrink-0 mt-0.5" />
+                <span className="text-foreground"><strong>Funds secured for trading.</strong> Your {asset} is locked and protected by escrow until a trade completes or you cancel the offer.</span>
               </div>
 
               <Button onClick={onClose} className="w-full">Go to Marketplace</Button>
