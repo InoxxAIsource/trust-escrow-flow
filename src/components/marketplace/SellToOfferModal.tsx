@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -22,7 +22,7 @@ export default function SellToOfferModal({ offer, open, onClose }: SellToOfferMo
   const navigate = useNavigate();
   const { user } = useAuth();
   const { createTrade } = useUserTrades();
-  const { getBalance, deposit, lockBalance } = useWallets();
+  const { getBalance, deposit, lockBalance, unlockBalance } = useWallets();
   const [step, setStep] = useState<"form" | "confirm" | "locked">("form");
   const [amount, setAmount] = useState("");
   const [lockedTradeId, setLockedTradeId] = useState<string | null>(null);
@@ -54,17 +54,15 @@ export default function SellToOfferModal({ offer, open, onClose }: SellToOfferMo
 
   const handleLock = async () => {
     if (!user) return;
-    try {
-      // Lock seller's funds
-      await lockBalance.mutateAsync({ asset: offer.assetSymbol, amount: cryptoNum });
 
-      // Create trade — seller is current user, buyer is the offer creator
-      // For seeded offers, use a deterministic fake buyer UUID
-      const fakeBuyerId = "00000000-0000-4000-a000-000000000001";
+    let didLockFunds = false;
+    try {
+      await lockBalance.mutateAsync({ asset: offer.assetSymbol, amount: cryptoNum });
+      didLockFunds = true;
+
       const trade = await createTrade.mutateAsync({
         offer_id: offer.id,
         seller_id: user.id,
-        buyer_id: fakeBuyerId,
         asset: offer.assetSymbol,
         amount: cryptoNum,
         price: offer.price,
@@ -72,11 +70,19 @@ export default function SellToOfferModal({ offer, open, onClose }: SellToOfferMo
         currency: "INR",
         payment_method: payment,
       });
+
       setLockedTradeId(trade.id);
       setLockedExpiresAt(new Date(trade.expires_at!).getTime());
       setStep("locked");
       toast.success("Deal locked! Your crypto is secured in escrow.");
     } catch {
+      if (didLockFunds) {
+        try {
+          await unlockBalance.mutateAsync({ asset: offer.assetSymbol, amount: cryptoNum });
+        } catch {
+          // silent rollback failure, primary error toast is shown below
+        }
+      }
       toast.error("Failed to lock deal. Please try again.");
     }
   };
@@ -105,6 +111,9 @@ export default function SellToOfferModal({ offer, open, onClose }: SellToOfferMo
                 Sell {offer.assetSymbol}
                 <Badge variant="secondary" className="text-xs">to {offer.username}</Badge>
               </DialogTitle>
+              <DialogDescription className="sr-only">
+                Review amount and lock your crypto in escrow to sell against this buyer offer.
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 mt-2">
               <div className="rounded-lg border bg-muted/50 p-3">
@@ -187,6 +196,9 @@ export default function SellToOfferModal({ offer, open, onClose }: SellToOfferMo
                 <Shield className="h-5 w-5 text-primary" />
                 Confirm Sell & Escrow Lock
               </DialogTitle>
+              <DialogDescription className="sr-only">
+                Confirm this sell trade and lock funds in escrow.
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 mt-2">
               <div className="rounded-lg border p-4 space-y-2">
@@ -234,6 +246,9 @@ export default function SellToOfferModal({ offer, open, onClose }: SellToOfferMo
                 <CheckCircle className="h-5 w-5" />
                 Crypto Locked in Escrow!
               </DialogTitle>
+              <DialogDescription className="sr-only">
+                Deal has been locked successfully. You can now continue on the trade page.
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 mt-2">
               <div className="rounded-lg border border-success/30 bg-success/5 p-4 space-y-3">
