@@ -71,6 +71,7 @@ function getBestSellPriceIds(offers: SeededOffer[]): Set<string> {
 interface OfferRowProps {
   offer: SeededOffer;
   onBuyClick: (offer: SeededOffer) => void;
+  onSellClick: (offer: SeededOffer) => void;
   isRecommended: boolean;
 }
 
