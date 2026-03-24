@@ -1,43 +1,54 @@
 
 
-## Fix: Sell Flow from Marketplace
+## Upgrade Sell Flow — Binance-Style Deposit, Balance Checks, and Offer Management
 
-### Problem
-When viewing buy offers on the Sell tab, clicking "Sell USDT" navigates to `/offer/{id}` which just shows a static detail page with no actionable sell flow. The user sees "Offer Not Found" because seeded offer IDs don't always match across re-renders.
-
-### Solution
-Instead of linking to the OfferDetail page, clicking "Sell" on a buy offer should open a **SellToOfferModal** — a modal similar to BuyModal but for selling into an existing buyer's offer.
+### What exists today
+- `SellModal` has a basic deposit + offer creation flow
+- `useWallets` has balance, lock, unlock, deductLocked mutations
+- `useUserOffers` creates offers but has no cancel/update
+- Dashboard shows wallet cards and offers but no cancel button or deposit history
 
 ### Changes
 
-**1. Create `src/components/marketplace/SellToOfferModal.tsx`**
-- A new modal that accepts a buy offer (SeededOffer with type="buy")
-- Step 1 (Form): Enter amount of crypto to sell, confirm payment method from the offer
-- Step 2 (Confirm): Show summary — asset, amount, price, total INR
-- Step 3 (Locked): Create a trade (seller = current user, buyer = offer creator), show countdown timer, link to trade page
-- Validates: amount within offer limits, sufficient wallet balance
-- If insufficient balance, prompt to deposit first
+**1. Upgrade `SellModal.tsx` — Binance-style deposit UX**
+- Add network labels per asset (TRC20, ERC20, Bitcoin Network, Solana)
+- Show minimum deposit amounts per asset
+- Add trust copy: "Send only {ASSET} to this address. Funds will be credited after confirmation."
+- Show available balance as `balance - lockedBalance` everywhere (not raw balance)
+- Strict blocking UI: if available < sell amount, show "Insufficient balance" with "Deposit Crypto to Continue" CTA
+- After deposit: show "Funds secured for trading" confirmation
+- While creating offer: show "Amount reserved for active offers"
 
-**2. Update `src/pages/Marketplace.tsx`**
-- Add `sellToOffer` state (`SeededOffer | null`) for the selected buy offer
-- Change OfferRow: instead of `<Link to={/offer/${id}}>`, call `onSellClick(offer)` which sets `sellToOffer`
-- Pass wallet hooks (getBalance, deposit) to the new modal
-- Render `SellToOfferModal` at the bottom alongside BuyModal and SellModal
+**2. Add offer cancellation to `use-offers.ts`**
+- Add `cancelOffer` mutation: updates offer status to `inactive`, then restores `locked_balance` back to `balance` using `unlockBalance`
+- Validates only the offer owner can cancel
 
-**3. Update OfferRow component**
-- Add `onSellClick` prop alongside `onBuyClick`
-- For buy offers (type="buy"), use a Button with onClick instead of a Link
+**3. Upgrade `Dashboard.tsx`**
+- Add "Cancel Offer" button on active offer cards that calls `cancelOffer` and restores funds
+- Add "Deposit History" section or tab showing transactions from the `transactions` table
+- Show available vs locked balance clearly on wallet cards
+- Add "Deposit" button on wallet cards linking to sell modal
 
-**4. Update `src/pages/OfferDetail.tsx`**
-- Add a functional CTA button that opens BuyModal or SellToOfferModal depending on offer type
-- This fixes the dead-end for users who land on this page directly
+**4. Create `use-transactions.ts` hook**
+- Query `transactions` table for current user, ordered by `created_at` desc
+- Used in Dashboard deposit history
 
-### Flow Summary
-```text
-Sell Tab → Click "Sell USDT" → SellToOfferModal opens
-  → Enter amount + confirm payment
-  → Validate balance (prompt deposit if needed)  
-  → Create trade (status: locked, 3h expiry)
-  → Navigate to /trade/:id
-```
+**5. Minor: update `Marketplace.tsx` `handleCreateOffer`**
+- Use available balance (`balance - lockedBalance`) for validation instead of raw `balance`
+
+### Files
+
+| Action | File |
+|--------|------|
+| Edit | `src/components/marketplace/SellModal.tsx` — Binance-style deposit, trust copy, available balance |
+| Edit | `src/hooks/use-offers.ts` — add cancelOffer mutation |
+| Edit | `src/hooks/use-wallets.ts` — no changes needed, already has unlockBalance |
+| Edit | `src/pages/Dashboard.tsx` — cancel button, deposit history, deposit CTA |
+| Edit | `src/pages/Marketplace.tsx` — use available balance for validation |
+| Create | `src/hooks/use-transactions.ts` — query deposit history |
+
+### Safety
+- Available balance = `balance - lockedBalance` used consistently
+- Cancel restores exact `remaining_amount` (not original amount) to prevent over-restore on partial fills
+- Double-lock prevention: balance check uses available, not raw balance
 
