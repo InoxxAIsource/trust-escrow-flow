@@ -409,6 +409,12 @@ const Marketplace = () => {
         getBalance={getBalance}
         suggestedPrice={suggestedPrice}
       />
+
+      <SellToOfferModal
+        offer={sellToOffer}
+        open={!!sellToOffer}
+        onClose={() => setSellToOffer(null)}
+      />
     </>
   );
 };
