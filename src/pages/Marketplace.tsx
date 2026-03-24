@@ -9,6 +9,7 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import SEOHead from "@/components/SEOHead";
 import BuyModal from "@/components/marketplace/BuyModal";
 import SellModal from "@/components/marketplace/SellModal";
+import SellToOfferModal from "@/components/marketplace/SellToOfferModal";
 import { getSafeInrRate, useCryptoPrices, type CryptoPrices } from "@/hooks/use-crypto-prices";
 import { useAuth } from "@/hooks/use-auth";
 import { useWallets } from "@/hooks/use-wallets";
