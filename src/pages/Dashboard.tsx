@@ -14,6 +14,7 @@ import { useUserTrades, type TradeRow } from "@/hooks/use-trades";
 import { useUserOffers, type OfferRow } from "@/hooks/use-offers";
 import { useTransactions, type TransactionRow } from "@/hooks/use-transactions";
 import { toast } from "sonner";
+import { VerificationBadge } from "@/components/VerificationBadge";
 
 const tradeStatusColors: Record<string, string> = {
   locked: "bg-primary/10 text-primary border-primary/20",
