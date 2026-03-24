@@ -1,5 +1,6 @@
 import { useParams, Link } from "react-router-dom";
-import { Shield, Star, CheckCircle, Clock, MapPin } from "lucide-react";
+import { Star, CheckCircle, Clock, MapPin } from "lucide-react";
+import { VerificationBadge } from "@/components/VerificationBadge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Breadcrumbs from "@/components/Breadcrumbs";

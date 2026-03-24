@@ -211,7 +211,15 @@ const Dashboard = () => {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="font-display text-3xl font-bold text-foreground">Dashboard</h1>
-          <p className="text-muted-foreground mt-1">Welcome, <span className="font-medium text-foreground">{profile?.username ?? "trader"}</span></p>
+          <div className="flex items-center gap-2 mt-1">
+            <p className="text-muted-foreground">Welcome, <span className="font-medium text-foreground">{profile?.username ?? "trader"}</span></p>
+            <VerificationBadge status={profile?.kyc_status ?? "unverified"} />
+          </div>
+          {profile && !profile.is_verified && (
+            <Button variant="outline" size="sm" className="mt-2 text-xs" onClick={() => navigate("/verify")}>
+              Get Verified
+            </Button>
+          )}
         </div>
         <Button size="sm" onClick={() => navigate("/marketplace")}>
           <Plus className="h-3.5 w-3.5 mr-1" /> Create Offer

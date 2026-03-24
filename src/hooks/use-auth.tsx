@@ -11,6 +11,7 @@ interface Profile {
   trades_count: number;
   completion_rate: number;
   is_verified: boolean;
+  kyc_status: "unverified" | "pending" | "verified";
 }
 
 interface AuthContextType {

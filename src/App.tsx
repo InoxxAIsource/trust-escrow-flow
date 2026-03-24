@@ -47,6 +47,7 @@ const App = () => (
                 <Route path="/blog/:slug" element={<BlogPost />} />
                 <Route path="/offer/:id" element={<OfferDetail />} />
                 <Route path="/user/:username" element={<UserProfile />} />
+                <Route path="/verify" element={<Verify />} />
                 {seoSlugs.map((slug) => (
                   <Route key={slug} path={`/${slug}`} element={<SEOLanding />} />
                 ))}
