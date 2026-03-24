@@ -9,6 +9,7 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import SEOHead from "@/components/SEOHead";
 import BuyModal from "@/components/marketplace/BuyModal";
 import SellModal from "@/components/marketplace/SellModal";
+import SellToOfferModal from "@/components/marketplace/SellToOfferModal";
 import { getSafeInrRate, useCryptoPrices, type CryptoPrices } from "@/hooks/use-crypto-prices";
 import { useAuth } from "@/hooks/use-auth";
 import { useWallets } from "@/hooks/use-wallets";
@@ -70,10 +71,11 @@ function getBestSellPriceIds(offers: SeededOffer[]): Set<string> {
 interface OfferRowProps {
   offer: SeededOffer;
   onBuyClick: (offer: SeededOffer) => void;
+  onSellClick: (offer: SeededOffer) => void;
   isRecommended: boolean;
 }
 
-const OfferRow = ({ offer, onBuyClick, isRecommended }: OfferRowProps) => {
+const OfferRow = ({ offer, onBuyClick, onSellClick, isRecommended }: OfferRowProps) => {
   const hash = offer.id.charCodeAt(5) ?? 0;
   const showInstant = hash % 3 === 0;
   const showLock = hash % 4 === 0;
@@ -159,10 +161,8 @@ const OfferRow = ({ offer, onBuyClick, isRecommended }: OfferRowProps) => {
                 Buy {offer.assetSymbol}
               </Button>
             ) : (
-              <Button size="sm" variant="outline" asChild>
-                <Link to={`/offer/${offer.id}`}>
-                  Sell {offer.assetSymbol}
-                </Link>
+              <Button size="sm" variant="outline" onClick={() => onSellClick(offer)}>
+                Sell {offer.assetSymbol}
               </Button>
             )}
           </div>
@@ -199,6 +199,7 @@ const Marketplace = () => {
   const [tradeType, setTradeType] = useState<"all" | "buy" | "sell">("all");
 
   const [buyOffer, setBuyOffer] = useState<SeededOffer | null>(null);
+  const [sellToOffer, setSellToOffer] = useState<SeededOffer | null>(null);
   const [showSell, setShowSell] = useState(false);
 
   const liveInrRate = getSafeInrRate(prices) ?? FALLBACK_USD_INR_RATE;
@@ -231,6 +232,10 @@ const Marketplace = () => {
 
   const handleBuyClick = (offer: SeededOffer) => {
     requireAuth(() => setBuyOffer(offer));
+  };
+
+  const handleSellToOfferClick = (offer: SeededOffer) => {
+    requireAuth(() => setSellToOffer(offer));
   };
 
   const handleSellClick = () => {
@@ -376,6 +381,7 @@ const Marketplace = () => {
                 key={offer.id}
                 offer={offer}
                 onBuyClick={handleBuyClick}
+                onSellClick={handleSellToOfferClick}
                 isRecommended={recommendedIds.has(offer.id)}
               />
             ))
@@ -402,6 +408,12 @@ const Marketplace = () => {
         onCreateOffer={handleCreateOffer}
         getBalance={getBalance}
         suggestedPrice={suggestedPrice}
+      />
+
+      <SellToOfferModal
+        offer={sellToOffer}
+        open={!!sellToOffer}
+        onClose={() => setSellToOffer(null)}
       />
     </>
   );
