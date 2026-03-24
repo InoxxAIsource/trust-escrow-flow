@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Star, Shield, Circle, TrendingUp, RefreshCw, Search, Zap, Lock, Flame, Plus, Award, ThumbsUp, Globe } from "lucide-react";
+import { Star, Circle, TrendingUp, RefreshCw, Search, Zap, Lock, Flame, Plus, Award, ThumbsUp, Globe } from "lucide-react";
+import { VerificationIcon } from "@/components/VerificationBadge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
