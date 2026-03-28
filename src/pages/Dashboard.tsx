@@ -209,16 +209,27 @@ const Dashboard = () => {
       <SEOHead title="Dashboard — TrustP2P" description="View your trades, wallet, and active offers." />
       <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Dashboard", href: "/dashboard" }]} />
 
+      {profile?.is_demo_user && (
+        <div className="flex items-center gap-3 mb-4 p-3 rounded-lg border border-warning/30 bg-warning/5">
+          <Shield className="h-5 w-5 text-warning flex-shrink-0" />
+          <div className="flex-1">
+            <p className="text-sm font-medium text-foreground">Demo Mode — No real funds involved</p>
+            <p className="text-xs text-muted-foreground">Switch to real trading →</p>
+          </div>
+          <Button size="sm" variant="outline" onClick={() => navigate("/verify")}>Verify Account</Button>
+        </div>
+      )}
+
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="font-display text-3xl font-bold text-foreground">Dashboard</h1>
           <div className="flex items-center gap-2 mt-1">
             <p className="text-muted-foreground">Welcome, <span className="font-medium text-foreground">{profile?.username ?? "trader"}</span></p>
-            <VerificationBadge status={profile?.kyc_status ?? "unverified"} />
+            {profile && <KycLevelBadge level={computeKycLevel(profile)} />}
           </div>
-          {profile && !profile.is_verified && (
+          {profile && computeKycLevel(profile) !== "trusted" && (
             <Button variant="outline" size="sm" className="mt-2 text-xs" onClick={() => navigate("/verify")}>
-              Get Verified
+              {computeKycLevel(profile) === "guest" ? "Verify to Start Trading" : computeKycLevel(profile) === "basic" ? "Verify ID for Higher Limits" : "Complete Advanced Verification"}
             </Button>
           )}
         </div>
