@@ -389,7 +389,7 @@ const Verify = () => {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="dob">Date of Birth</Label>
-                    <Input id="dob" type="date" value={dob} onChange={(e) => setDob(e.target.value)} />
+                    <Input id="dob" type="text" placeholder="DD/MM/YYYY" value={dob} onChange={(e) => setDob(e.target.value)} />
                   </div>
                   <div className="space-y-2">
                     <Label>ID Document Type</Label>
