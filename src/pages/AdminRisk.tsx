@@ -68,7 +68,7 @@ export default function AdminRisk() {
     <div className="min-h-screen">
       <SEOHead title="Risk Dashboard — Admin" description="Monitor and manage user risk levels" />
       <div className="container mx-auto px-4 py-8 max-w-6xl">
-        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Admin Risk Dashboard" }]} />
+        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Admin Risk Dashboard", href: "/admin/risk" }]} />
 
         <div className="flex items-center gap-3 mb-6">
           <Shield className="h-6 w-6 text-primary" />
