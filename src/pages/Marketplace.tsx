@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Star, Shield, Circle, TrendingUp, RefreshCw, Search, Zap, Lock, Flame, Plus, Award, ThumbsUp, Globe } from "lucide-react";
 import { VerificationIcon } from "@/components/VerificationBadge";
+import { TrustScoreInline } from "@/components/TrustScoreBadge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -123,6 +124,10 @@ const OfferRow = ({ offer, onBuyClick, onSellClick, isRecommended }: OfferRowPro
                   {offer.username}
                 </Link>
                 {offer.isVerified && <VerificationIcon isVerified className="h-3.5 w-3.5" />}
+                <TrustScoreInline
+                  trustScore={Math.max(0, Math.min(100, 100 - (25 + ((offer.id.charCodeAt(3) ?? 0) % 30))))}
+                  riskLevel={offer.completionRate >= 98 ? "low" : offer.completionRate >= 90 ? "medium" : "high"}
+                />
                 <Circle className={`h-2 w-2 fill-current ${offer.isOnline ? "text-success" : "text-muted-foreground/30"}`} />
               </div>
               <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">

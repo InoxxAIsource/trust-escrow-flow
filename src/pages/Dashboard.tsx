@@ -16,6 +16,8 @@ import { useTransactions, type TransactionRow } from "@/hooks/use-transactions";
 import { toast } from "sonner";
 import { KycLevelBadge, VerificationStepBadges } from "@/components/VerificationBadge";
 import { computeKycLevel, getTradeLimits } from "@/hooks/use-auth";
+import TrustScoreBadge from "@/components/TrustScoreBadge";
+import { useMyRisk } from "@/hooks/use-risk";
 
 const tradeStatusColors: Record<string, string> = {
   locked: "bg-primary/10 text-primary border-primary/20",
@@ -176,6 +178,7 @@ const Dashboard = () => {
   const { wallets } = useWallets();
   const { offers, cancelOffer } = useUserOffers();
   const { transactions } = useTransactions();
+  const { trustScore, level: riskLevel, restrictions } = useMyRisk();
 
   if (!user) {
     return (
@@ -226,6 +229,7 @@ const Dashboard = () => {
           <div className="flex items-center gap-2 mt-1">
             <p className="text-muted-foreground">Welcome, <span className="font-medium text-foreground">{profile?.username ?? "trader"}</span></p>
             {profile && <KycLevelBadge level={computeKycLevel(profile)} />}
+            {profile && <TrustScoreBadge trustScore={trustScore} riskLevel={riskLevel} size="sm" showLabel />}
           </div>
           {profile && computeKycLevel(profile) !== "trusted" && (
             <Button variant="outline" size="sm" className="mt-2 text-xs" onClick={() => navigate("/verify")}>

@@ -20,6 +20,7 @@ import OfferDetail from "./pages/OfferDetail";
 import UserProfile from "./pages/UserProfile";
 import Verify from "./pages/Verify";
 import NotFound from "./pages/NotFound";
+import AdminRisk from "./pages/AdminRisk";
 import { getAllSlugs } from "./data/seo-pages";
 
 const queryClient = new QueryClient();
@@ -48,6 +49,7 @@ const App = () => (
                 <Route path="/offer/:id" element={<OfferDetail />} />
                 <Route path="/user/:username" element={<UserProfile />} />
                 <Route path="/verify" element={<Verify />} />
+                <Route path="/admin/risk" element={<AdminRisk />} />
                 {seoSlugs.map((slug) => (
                   <Route key={slug} path={`/${slug}`} element={<SEOLanding />} />
                 ))}

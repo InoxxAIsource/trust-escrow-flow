@@ -188,6 +188,60 @@ export type Database = {
         }
         Relationships: []
       }
+      risk_events: {
+        Row: {
+          created_at: string
+          details: Json
+          event_type: string
+          id: string
+          score_impact: number
+          severity: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          details?: Json
+          event_type: string
+          id?: string
+          score_impact?: number
+          severity?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          details?: Json
+          event_type?: string
+          id?: string
+          score_impact?: number
+          severity?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      risk_profiles: {
+        Row: {
+          id: string
+          last_updated: string
+          risk_level: string
+          risk_score: number
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          last_updated?: string
+          risk_level?: string
+          risk_score?: number
+          user_id: string
+        }
+        Update: {
+          id?: string
+          last_updated?: string
+          risk_level?: string
+          risk_score?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       trade_messages: {
         Row: {
           created_at: string
@@ -336,7 +390,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      recalculate_risk_score: { Args: { p_user_id: string }; Returns: number }
     }
     Enums: {
       deal_status: "locked" | "expired" | "completed"
