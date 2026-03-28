@@ -229,6 +229,7 @@ const Dashboard = () => {
           <div className="flex items-center gap-2 mt-1">
             <p className="text-muted-foreground">Welcome, <span className="font-medium text-foreground">{profile?.username ?? "trader"}</span></p>
             {profile && <KycLevelBadge level={computeKycLevel(profile)} />}
+            {profile && <TrustScoreBadge trustScore={trustScore} riskLevel={riskLevel} size="sm" showLabel />}
           </div>
           {profile && computeKycLevel(profile) !== "trusted" && (
             <Button variant="outline" size="sm" className="mt-2 text-xs" onClick={() => navigate("/verify")}>
