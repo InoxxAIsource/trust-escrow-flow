@@ -178,6 +178,7 @@ const Dashboard = () => {
   const { wallets } = useWallets();
   const { offers, cancelOffer } = useUserOffers();
   const { transactions } = useTransactions();
+  const { trustScore, level: riskLevel, restrictions } = useMyRisk();
 
   if (!user) {
     return (
