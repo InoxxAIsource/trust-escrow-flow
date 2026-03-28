@@ -105,13 +105,13 @@ export function useRecordRiskEvent() {
     }) => {
       if (!user) throw new Error("Not authenticated");
 
-      const { error: insertError } = await supabase.from("risk_events").insert({
+      const { error: insertError } = await supabase.from("risk_events").insert([{
         user_id: user.id,
         event_type: eventType,
         severity,
         score_impact: scoreImpact,
-        details: details ?? {},
-      });
+        details: (details ?? {}) as any,
+      }]);
       if (insertError) throw insertError;
 
       // Recalculate via DB function
