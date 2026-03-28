@@ -127,12 +127,19 @@ export type Database = {
       }
       profiles: {
         Row: {
+          aml_status: string
           avatar_url: string | null
           completion_rate: number
           created_at: string
           id: string
+          is_demo_user: boolean
+          is_email_verified: boolean
+          is_phone_verified: boolean
           is_verified: boolean
+          kyc_level: string
+          kyc_provider: string | null
           kyc_status: string
+          phone: string | null
           rating: number
           trades_count: number
           updated_at: string
@@ -140,12 +147,19 @@ export type Database = {
           username: string
         }
         Insert: {
+          aml_status?: string
           avatar_url?: string | null
           completion_rate?: number
           created_at?: string
           id?: string
+          is_demo_user?: boolean
+          is_email_verified?: boolean
+          is_phone_verified?: boolean
           is_verified?: boolean
+          kyc_level?: string
+          kyc_provider?: string | null
           kyc_status?: string
+          phone?: string | null
           rating?: number
           trades_count?: number
           updated_at?: string
@@ -153,12 +167,19 @@ export type Database = {
           username: string
         }
         Update: {
+          aml_status?: string
           avatar_url?: string | null
           completion_rate?: number
           created_at?: string
           id?: string
+          is_demo_user?: boolean
+          is_email_verified?: boolean
+          is_phone_verified?: boolean
           is_verified?: boolean
+          kyc_level?: string
+          kyc_provider?: string | null
           kyc_status?: string
+          phone?: string | null
           rating?: number
           trades_count?: number
           updated_at?: string
