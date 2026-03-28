@@ -16,6 +16,8 @@ import { useTransactions, type TransactionRow } from "@/hooks/use-transactions";
 import { toast } from "sonner";
 import { KycLevelBadge, VerificationStepBadges } from "@/components/VerificationBadge";
 import { computeKycLevel, getTradeLimits } from "@/hooks/use-auth";
+import TrustScoreBadge from "@/components/TrustScoreBadge";
+import { useMyRisk } from "@/hooks/use-risk";
 
 const tradeStatusColors: Record<string, string> = {
   locked: "bg-primary/10 text-primary border-primary/20",
