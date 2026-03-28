@@ -20,6 +20,7 @@ import OfferDetail from "./pages/OfferDetail";
 import UserProfile from "./pages/UserProfile";
 import Verify from "./pages/Verify";
 import NotFound from "./pages/NotFound";
+import AdminRisk from "./pages/AdminRisk";
 import { getAllSlugs } from "./data/seo-pages";
 
 const queryClient = new QueryClient();
