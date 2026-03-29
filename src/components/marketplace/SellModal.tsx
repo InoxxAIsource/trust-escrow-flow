@@ -54,7 +54,6 @@ export default function SellModal({ open, onClose, onDeposit, onCreateOffer, get
   const [gateOpen, setGateOpen] = useState(false);
 
   const kycLevel = profile ? computeKycLevel(profile) : "guest";
-  const [selectedPayments, setSelectedPayments] = useState<string[]>([]);
 
   useEffect(() => {
     if (open) {

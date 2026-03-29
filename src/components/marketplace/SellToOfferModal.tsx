@@ -13,7 +13,6 @@ import { toast } from "sonner";
 import { CountdownTimer } from "./BuyModal";
 import VerificationGateDialog from "@/components/VerificationGateDialog";
 import type { KycLevel } from "@/hooks/use-auth";
-import { CountdownTimer } from "./BuyModal";
 
 interface SellToOfferModalProps {
   offer: SeededOffer | null;
