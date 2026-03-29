@@ -74,7 +74,6 @@ export default function SellToOfferModal({ offer, open, onClose }: SellToOfferMo
     }
     setStep("confirm");
   };
-  };
 
   const handleLock = async () => {
     if (!user) return;
