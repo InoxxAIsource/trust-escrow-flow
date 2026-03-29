@@ -123,6 +123,7 @@ export default function BuyModal({ offer, open, onClose }: BuyModalProps) {
   };
 
   return (
+    <>
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="sm:max-w-md">
         {step === "form" && (
