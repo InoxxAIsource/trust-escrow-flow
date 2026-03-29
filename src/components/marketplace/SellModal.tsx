@@ -7,6 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Copy, CheckCircle, Wallet, ArrowRight, AlertTriangle, Shield, Lock, Info } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth, computeKycLevel } from "@/hooks/use-auth";
+import VerificationGateDialog from "@/components/VerificationGateDialog";
+import type { KycLevel } from "@/hooks/use-auth";
 
 const assetOptions = [
   { name: "USDT", symbol: "USDT", network: "TRC20", minDeposit: 10 },
