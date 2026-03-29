@@ -311,5 +311,7 @@ export default function SellToOfferModal({ offer, open, onClose }: SellToOfferMo
         )}
       </DialogContent>
     </Dialog>
+    <VerificationGateDialog open={gateOpen} onClose={() => setGateOpen(false)} requiredLevel={gateLevel} action={gateAction} />
+    </>
   );
 }
