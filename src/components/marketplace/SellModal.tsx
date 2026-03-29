@@ -361,5 +361,7 @@ export default function SellModal({ open, onClose, onDeposit, onCreateOffer, get
         )}
       </DialogContent>
     </Dialog>
+    <VerificationGateDialog open={gateOpen} onClose={() => setGateOpen(false)} requiredLevel="verified" action="Identity verification is required to create sell offers." />
+    </>
   );
 }

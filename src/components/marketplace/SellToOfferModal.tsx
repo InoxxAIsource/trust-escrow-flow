@@ -7,9 +7,12 @@ import { Badge } from "@/components/ui/badge";
 import { Lock, Clock, CheckCircle, Shield, AlertTriangle, Wallet } from "lucide-react";
 import { type SeededOffer } from "@/data/seed-engine";
 import { useUserTrades } from "@/hooks/use-trades";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth, computeKycLevel, getTradeLimits } from "@/hooks/use-auth";
 import { useWallets } from "@/hooks/use-wallets";
 import { toast } from "sonner";
+import { CountdownTimer } from "./BuyModal";
+import VerificationGateDialog from "@/components/VerificationGateDialog";
+import type { KycLevel } from "@/hooks/use-auth";
 import { CountdownTimer } from "./BuyModal";
 
 interface SellToOfferModalProps {
