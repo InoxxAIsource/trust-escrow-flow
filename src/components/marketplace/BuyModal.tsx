@@ -50,6 +50,9 @@ export default function BuyModal({ offer, open, onClose }: BuyModalProps) {
   const [payment, setPayment] = useState("");
   const [lockedTradeId, setLockedTradeId] = useState<string | null>(null);
   const [lockedExpiresAt, setLockedExpiresAt] = useState(0);
+  const [gateOpen, setGateOpen] = useState(false);
+  const [gateLevel, setGateLevel] = useState<KycLevel>("basic");
+  const [gateAction, setGateAction] = useState("");
 
   useEffect(() => {
     if (open && offer) {
