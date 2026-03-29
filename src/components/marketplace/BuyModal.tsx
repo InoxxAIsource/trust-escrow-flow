@@ -8,8 +8,10 @@ import { Badge } from "@/components/ui/badge";
 import { Lock, Clock, CheckCircle, Shield, AlertTriangle } from "lucide-react";
 import { type SeededOffer } from "@/data/seed-engine";
 import { useUserTrades } from "@/hooks/use-trades";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth, computeKycLevel, getTradeLimits } from "@/hooks/use-auth";
 import { toast } from "sonner";
+import VerificationGateDialog from "@/components/VerificationGateDialog";
+import type { KycLevel } from "@/hooks/use-auth";
 
 interface BuyModalProps {
   offer: SeededOffer | null;
@@ -41,13 +43,16 @@ function CountdownTimer({ expiresAt }: { expiresAt: number }) {
 
 export default function BuyModal({ offer, open, onClose }: BuyModalProps) {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { createTrade } = useUserTrades();
   const [step, setStep] = useState<"form" | "confirm" | "locked">("form");
   const [amount, setAmount] = useState("");
   const [payment, setPayment] = useState("");
   const [lockedTradeId, setLockedTradeId] = useState<string | null>(null);
   const [lockedExpiresAt, setLockedExpiresAt] = useState(0);
+  const [gateOpen, setGateOpen] = useState(false);
+  const [gateLevel, setGateLevel] = useState<KycLevel>("basic");
+  const [gateAction, setGateAction] = useState("");
 
   useEffect(() => {
     if (open && offer) {
@@ -65,8 +70,24 @@ export default function BuyModal({ offer, open, onClose }: BuyModalProps) {
   const numAmount = parseFloat(amount) || 0;
   const cryptoAmount = numAmount > 0 ? (numAmount / offer.price).toFixed(6) : "0";
 
+  const kycLevel = profile ? computeKycLevel(profile) : "guest";
+
   const handleConfirm = () => {
     if (numAmount <= 0 || !payment) return;
+    if (kycLevel === "guest") {
+      setGateLevel("basic");
+      setGateAction("You need to verify your email and phone to trade.");
+      setGateOpen(true);
+      return;
+    }
+    const limits = getTradeLimits(kycLevel);
+    if (numAmount > limits.max) {
+      const nextLevel = kycLevel === "basic" ? "verified" : "trusted";
+      setGateLevel(nextLevel as KycLevel);
+      setGateAction(`This trade (₹${numAmount.toLocaleString()}) exceeds your current limit of ${limits.label}.`);
+      setGateOpen(true);
+      return;
+    }
     setStep("confirm");
   };
 
@@ -102,6 +123,7 @@ export default function BuyModal({ offer, open, onClose }: BuyModalProps) {
   };
 
   return (
+    <>
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="sm:max-w-md">
         {step === "form" && (
@@ -272,6 +294,8 @@ export default function BuyModal({ offer, open, onClose }: BuyModalProps) {
         )}
       </DialogContent>
     </Dialog>
+    <VerificationGateDialog open={gateOpen} onClose={() => setGateOpen(false)} requiredLevel={gateLevel} action={gateAction} />
+    </>
   );
 }
 

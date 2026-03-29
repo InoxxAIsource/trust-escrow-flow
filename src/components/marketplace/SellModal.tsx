@@ -7,6 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Copy, CheckCircle, Wallet, ArrowRight, AlertTriangle, Shield, Lock, Info } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth, computeKycLevel } from "@/hooks/use-auth";
+import VerificationGateDialog from "@/components/VerificationGateDialog";
+import type { KycLevel } from "@/hooks/use-auth";
 
 const assetOptions = [
   { name: "USDT", symbol: "USDT", network: "TRC20", minDeposit: 10 },
@@ -41,12 +44,16 @@ interface SellModalProps {
 }
 
 export default function SellModal({ open, onClose, onDeposit, onCreateOffer, getBalance, suggestedPrice }: SellModalProps) {
+  const { profile } = useAuth();
   const [step, setStep] = useState<"asset" | "deposit" | "offer" | "live">("asset");
   const [asset, setAsset] = useState("USDT");
   const [depositAmount, setDepositAmount] = useState("");
   const [offerAmount, setOfferAmount] = useState("");
   const [offerPrice, setOfferPrice] = useState("");
   const [selectedPayments, setSelectedPayments] = useState<string[]>([]);
+  const [gateOpen, setGateOpen] = useState(false);
+
+  const kycLevel = profile ? computeKycLevel(profile) : "guest";
 
   useEffect(() => {
     if (open) {
@@ -77,6 +84,10 @@ export default function SellModal({ open, onClose, onDeposit, onCreateOffer, get
   };
 
   const handleCreateOffer = () => {
+    if (kycLevel === "guest" || kycLevel === "basic") {
+      setGateOpen(true);
+      return;
+    }
     const amt = parseFloat(offerAmount);
     const price = parseFloat(offerPrice);
     if (!amt || !price || selectedPayments.length === 0) return;
@@ -107,6 +118,7 @@ export default function SellModal({ open, onClose, onDeposit, onCreateOffer, get
   };
 
   return (
+    <>
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="sm:max-w-md">
         {step === "asset" && (
@@ -348,5 +360,7 @@ export default function SellModal({ open, onClose, onDeposit, onCreateOffer, get
         )}
       </DialogContent>
     </Dialog>
+    <VerificationGateDialog open={gateOpen} onClose={() => setGateOpen(false)} requiredLevel="verified" action="Identity verification is required to create sell offers." />
+    </>
   );
 }
