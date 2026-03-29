@@ -18,6 +18,7 @@ import { KycLevelBadge, VerificationStepBadges } from "@/components/Verification
 import { computeKycLevel, getTradeLimits } from "@/hooks/use-auth";
 import TrustScoreBadge from "@/components/TrustScoreBadge";
 import { useMyRisk } from "@/hooks/use-risk";
+import VerificationProgressCard from "@/components/VerificationProgressCard";
 
 const tradeStatusColors: Record<string, string> = {
   locked: "bg-primary/10 text-primary border-primary/20",
