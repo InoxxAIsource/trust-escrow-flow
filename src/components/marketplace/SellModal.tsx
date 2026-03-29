@@ -44,11 +44,16 @@ interface SellModalProps {
 }
 
 export default function SellModal({ open, onClose, onDeposit, onCreateOffer, getBalance, suggestedPrice }: SellModalProps) {
+  const { profile } = useAuth();
   const [step, setStep] = useState<"asset" | "deposit" | "offer" | "live">("asset");
   const [asset, setAsset] = useState("USDT");
   const [depositAmount, setDepositAmount] = useState("");
   const [offerAmount, setOfferAmount] = useState("");
   const [offerPrice, setOfferPrice] = useState("");
+  const [selectedPayments, setSelectedPayments] = useState<string[]>([]);
+  const [gateOpen, setGateOpen] = useState(false);
+
+  const kycLevel = profile ? computeKycLevel(profile) : "guest";
   const [selectedPayments, setSelectedPayments] = useState<string[]>([]);
 
   useEffect(() => {
