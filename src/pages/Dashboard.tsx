@@ -224,6 +224,8 @@ const Dashboard = () => {
         </div>
       )}
 
+      <VerificationProgressCard />
+
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="font-display text-3xl font-bold text-foreground">Dashboard</h1>
@@ -232,11 +234,6 @@ const Dashboard = () => {
             {profile && <KycLevelBadge level={computeKycLevel(profile)} />}
             {profile && <TrustScoreBadge trustScore={trustScore} riskLevel={riskLevel} size="sm" showLabel />}
           </div>
-          {profile && computeKycLevel(profile) !== "trusted" && (
-            <Button variant="outline" size="sm" className="mt-2 text-xs" onClick={() => navigate("/verify")}>
-              {computeKycLevel(profile) === "guest" ? "Verify to Start Trading" : computeKycLevel(profile) === "basic" ? "Verify ID for Higher Limits" : "Complete Advanced Verification"}
-            </Button>
-          )}
         </div>
         <Button size="sm" onClick={() => navigate("/marketplace")}>
           <Plus className="h-3.5 w-3.5 mr-1" /> Create Offer
