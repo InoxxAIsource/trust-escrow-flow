@@ -22,13 +22,16 @@ interface SellToOfferModalProps {
 
 export default function SellToOfferModal({ offer, open, onClose }: SellToOfferModalProps) {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { createTrade } = useUserTrades();
   const { getBalance, deposit, lockBalance, unlockBalance } = useWallets();
   const [step, setStep] = useState<"form" | "confirm" | "locked">("form");
   const [amount, setAmount] = useState("");
   const [lockedTradeId, setLockedTradeId] = useState<string | null>(null);
   const [lockedExpiresAt, setLockedExpiresAt] = useState(0);
+  const [gateOpen, setGateOpen] = useState(false);
+  const [gateLevel, setGateLevel] = useState<KycLevel>("basic");
+  const [gateAction, setGateAction] = useState("");
 
   useEffect(() => {
     if (open && offer) {
