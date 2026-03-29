@@ -85,6 +85,10 @@ export default function SellModal({ open, onClose, onDeposit, onCreateOffer, get
   };
 
   const handleCreateOffer = () => {
+    if (kycLevel === "guest" || kycLevel === "basic") {
+      setGateOpen(true);
+      return;
+    }
     const amt = parseFloat(offerAmount);
     const price = parseFloat(offerPrice);
     if (!amt || !price || selectedPayments.length === 0) return;
