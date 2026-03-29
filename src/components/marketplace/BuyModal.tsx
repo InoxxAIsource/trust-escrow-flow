@@ -43,7 +43,7 @@ function CountdownTimer({ expiresAt }: { expiresAt: number }) {
 
 export default function BuyModal({ offer, open, onClose }: BuyModalProps) {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { createTrade } = useUserTrades();
   const [step, setStep] = useState<"form" | "confirm" | "locked">("form");
   const [amount, setAmount] = useState("");
