@@ -8,8 +8,10 @@ import { Badge } from "@/components/ui/badge";
 import { Lock, Clock, CheckCircle, Shield, AlertTriangle } from "lucide-react";
 import { type SeededOffer } from "@/data/seed-engine";
 import { useUserTrades } from "@/hooks/use-trades";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth, computeKycLevel, getTradeLimits } from "@/hooks/use-auth";
 import { toast } from "sonner";
+import VerificationGateDialog from "@/components/VerificationGateDialog";
+import type { KycLevel } from "@/hooks/use-auth";
 
 interface BuyModalProps {
   offer: SeededOffer | null;
