@@ -54,9 +54,26 @@ export default function SellToOfferModal({ offer, open, onClose }: SellToOfferMo
   const isInRange = numAmount >= offer.minLimit && numAmount <= offer.maxLimit;
   const payment = offer.paymentMethods[0] ?? "UPI";
 
+  const kycLevel = profile ? computeKycLevel(profile) : "guest";
+
   const handleConfirm = () => {
     if (!isInRange || !hasEnoughBalance) return;
+    if (kycLevel === "guest") {
+      setGateLevel("basic");
+      setGateAction("You need to verify your email and phone to trade.");
+      setGateOpen(true);
+      return;
+    }
+    const limits = getTradeLimits(kycLevel);
+    if (numAmount > limits.max) {
+      const nextLevel = kycLevel === "basic" ? "verified" : "trusted";
+      setGateLevel(nextLevel as KycLevel);
+      setGateAction(`This trade (₹${numAmount.toLocaleString()}) exceeds your current limit of ${limits.label}.`);
+      setGateOpen(true);
+      return;
+    }
     setStep("confirm");
+  };
   };
 
   const handleLock = async () => {
