@@ -293,6 +293,8 @@ export default function BuyModal({ offer, open, onClose }: BuyModalProps) {
         )}
       </DialogContent>
     </Dialog>
+    <VerificationGateDialog open={gateOpen} onClose={() => setGateOpen(false)} requiredLevel={gateLevel} action={gateAction} />
+    </>
   );
 }
 
