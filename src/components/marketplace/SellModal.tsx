@@ -119,6 +119,7 @@ export default function SellModal({ open, onClose, onDeposit, onCreateOffer, get
   };
 
   return (
+    <>
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="sm:max-w-md">
         {step === "asset" && (
