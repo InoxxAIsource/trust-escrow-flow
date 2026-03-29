@@ -70,10 +70,10 @@ export default function BuyModal({ offer, open, onClose }: BuyModalProps) {
   const numAmount = parseFloat(amount) || 0;
   const cryptoAmount = numAmount > 0 ? (numAmount / offer.price).toFixed(6) : "0";
 
+  const kycLevel = profile ? computeKycLevel(profile) : "guest";
+
   const handleConfirm = () => {
     if (numAmount <= 0 || !payment) return;
-    const { profile } = useAuth as any;
-    // Access profile from hook - we need to get it from the component scope
     if (kycLevel === "guest") {
       setGateLevel("basic");
       setGateAction("You need to verify your email and phone to trade.");
