@@ -126,6 +126,7 @@ export default function SellToOfferModal({ offer, open, onClose }: SellToOfferMo
   };
 
   return (
+    <>
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="sm:max-w-md">
         {step === "form" && (
