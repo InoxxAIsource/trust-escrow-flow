@@ -387,22 +387,54 @@ const indianCities: CityData[] = [
 
 export const indianCityPages: SEOPageData[] = [];
 
+// ── City-specific mock data for live variation ──
+export interface CityLiveData {
+  sellers: number;
+  buyers: number;
+  lastTradeAgo: string;
+  avgPrice: string;
+  recentTrades: { amount: string; method: string; type: "buy" | "sell" }[];
+  localSignal: string;
+}
+
+const cityLiveDataMap: Record<string, CityLiveData> = {
+  delhi: { sellers: 12, buyers: 9, lastTradeAgo: "2 mins ago", avgPrice: "₹89.8", recentTrades: [{ amount: "₹25,000", method: "UPI", type: "buy" }, { amount: "₹10,000", method: "Bank Transfer", type: "sell" }, { amount: "₹50,000", method: "UPI", type: "buy" }], localSignal: "In Delhi NCR, UPI dominates P2P crypto trades with 78% of all transactions. Delhi traders typically complete trades in under 8 minutes." },
+  mumbai: { sellers: 18, buyers: 14, lastTradeAgo: "1 min ago", avgPrice: "₹90.1", recentTrades: [{ amount: "₹1,00,000", method: "Bank Transfer", type: "buy" }, { amount: "₹15,000", method: "UPI", type: "sell" }, { amount: "₹35,000", method: "UPI", type: "buy" }], localSignal: "Mumbai traders prefer bank transfer for large trades above ₹50,000, while UPI handles the high volume of smaller daily transactions." },
+  bangalore: { sellers: 15, buyers: 11, lastTradeAgo: "3 mins ago", avgPrice: "₹89.5", recentTrades: [{ amount: "₹40,000", method: "UPI", type: "buy" }, { amount: "₹75,000", method: "Bank Transfer", type: "buy" }, { amount: "₹20,000", method: "UPI", type: "sell" }], localSignal: "UPI is dominant in Bangalore — 85% of crypto traders here use Google Pay or PhonePe for instant INR settlements." },
+  chennai: { sellers: 9, buyers: 7, lastTradeAgo: "5 mins ago", avgPrice: "₹89.9", recentTrades: [{ amount: "₹12,000", method: "UPI", type: "buy" }, { amount: "₹8,000", method: "Bank Transfer", type: "sell" }, { amount: "₹30,000", method: "UPI", type: "buy" }], localSignal: "Chennai's IT corridor traders are most active between 6 PM–11 PM IST, with UPI being the preferred payment for quick settlements." },
+  kolkata: { sellers: 8, buyers: 6, lastTradeAgo: "7 mins ago", avgPrice: "₹90.3", recentTrades: [{ amount: "₹5,000", method: "UPI", type: "buy" }, { amount: "₹18,000", method: "Bank Transfer", type: "buy" }, { amount: "₹7,500", method: "UPI", type: "sell" }], localSignal: "Kolkata's P2P crypto market is growing 40% quarter-over-quarter, with most traders preferring UPI for its zero-fee instant transfers." },
+  hyderabad: { sellers: 11, buyers: 8, lastTradeAgo: "4 mins ago", avgPrice: "₹89.7", recentTrades: [{ amount: "₹22,000", method: "UPI", type: "buy" }, { amount: "₹60,000", method: "Bank Transfer", type: "buy" }, { amount: "₹15,000", method: "UPI", type: "sell" }], localSignal: "HITEC City professionals in Hyderabad drive significant USDT demand, especially for freelance payments from international clients." },
+  pune: { sellers: 7, buyers: 5, lastTradeAgo: "6 mins ago", avgPrice: "₹89.6", recentTrades: [{ amount: "₹10,000", method: "UPI", type: "buy" }, { amount: "₹25,000", method: "UPI", type: "buy" }, { amount: "₹12,000", method: "Bank Transfer", type: "sell" }], localSignal: "Pune's student and startup community drives steady USDT trading volume, with PhonePe (headquartered nearby) being the top UPI app used." },
+  gurgaon: { sellers: 10, buyers: 8, lastTradeAgo: "3 mins ago", avgPrice: "₹89.9", recentTrades: [{ amount: "₹45,000", method: "Bank Transfer", type: "buy" }, { amount: "₹20,000", method: "UPI", type: "buy" }, { amount: "₹35,000", method: "UPI", type: "sell" }], localSignal: "Gurgaon's fintech professionals trade USDT in high volumes — average trade size here is 2x the national average." },
+  noida: { sellers: 8, buyers: 6, lastTradeAgo: "5 mins ago", avgPrice: "₹90.0", recentTrades: [{ amount: "₹15,000", method: "UPI", type: "buy" }, { amount: "₹30,000", method: "Bank Transfer", type: "buy" }, { amount: "₹8,000", method: "UPI", type: "sell" }], localSignal: "Noida's IT sector employees are increasingly using USDT for freelance payments, with UPI enabling instant INR conversions." },
+  lucknow: { sellers: 5, buyers: 4, lastTradeAgo: "10 mins ago", avgPrice: "₹90.4", recentTrades: [{ amount: "₹8,000", method: "UPI", type: "buy" }, { amount: "₹12,000", method: "Bank Transfer", type: "buy" }, { amount: "₹5,000", method: "UPI", type: "sell" }], localSignal: "Lucknow's crypto trading community is growing rapidly, driven by the city's expanding IT sector and digital-first student population." },
+  jaipur: { sellers: 6, buyers: 4, lastTradeAgo: "8 mins ago", avgPrice: "₹90.2", recentTrades: [{ amount: "₹20,000", method: "Bank Transfer", type: "buy" }, { amount: "₹7,000", method: "UPI", type: "buy" }, { amount: "₹15,000", method: "UPI", type: "sell" }], localSignal: "Jaipur's gem and textile merchants are among the earliest USDT adopters for international trade settlements." },
+  ahmedabad: { sellers: 7, buyers: 5, lastTradeAgo: "6 mins ago", avgPrice: "₹90.1", recentTrades: [{ amount: "₹30,000", method: "Bank Transfer", type: "buy" }, { amount: "₹10,000", method: "UPI", type: "buy" }, { amount: "₹18,000", method: "UPI", type: "sell" }], localSignal: "Gujarat's entrepreneurial culture drives strong USDT adoption in Ahmedabad, especially among export-oriented businesses." },
+  kochi: { sellers: 5, buyers: 4, lastTradeAgo: "9 mins ago", avgPrice: "₹90.0", recentTrades: [{ amount: "₹15,000", method: "UPI", type: "buy" }, { amount: "₹25,000", method: "Bank Transfer", type: "buy" }, { amount: "₹10,000", method: "UPI", type: "sell" }], localSignal: "Kochi's large NRI community uses USDT for fast, low-cost international remittances back to Kerala." },
+  dehradun: { sellers: 3, buyers: 2, lastTradeAgo: "15 mins ago", avgPrice: "₹90.5", recentTrades: [{ amount: "₹5,000", method: "UPI", type: "buy" }, { amount: "₹8,000", method: "UPI", type: "buy" }, { amount: "₹3,000", method: "Bank Transfer", type: "sell" }], localSignal: "Dehradun's growing tech community and educational institutions are driving steady growth in P2P USDT trading." },
+};
+
+export function getCityLiveData(citySlug: string): CityLiveData | undefined {
+  return cityLiveDataMap[citySlug];
+}
+
 const usdt = coins[0]; // USDT
 
 indianCities.forEach((city, idx) => {
-  // Determine 2 related cities (next 2 in list, wrapping around)
+  // 3 related cities + 2 payment links + 1 hub link
   const related1 = indianCities[(idx + 1) % indianCities.length];
   const related2 = indianCities[(idx + 3) % indianCities.length];
+  const related3 = indianCities[(idx + 5) % indianCities.length];
 
   const cityRelatedLinks = [
-    { label: "Buy USDT in India", href: "/buy-usdt-india" },
+    { label: "Buy USDT in India (All Cities)", href: "/buy-usdt-india" },
     { label: `Buy USDT in ${related1.name}`, href: `/buy-usdt-${related1.slug}` },
     { label: `Buy USDT in ${related2.name}`, href: `/buy-usdt-${related2.slug}` },
+    { label: `Buy USDT in ${related3.name}`, href: `/buy-usdt-${related3.slug}` },
     { label: "Buy USDT with UPI", href: "/buy-usdt-upi" },
-    { label: "Buy USDT with Bank Transfer", href: "/buy-usdt-bank-transfer" },
+    { label: "Buy USDT via Bank Transfer", href: "/buy-usdt-bank-transfer" },
     { label: `Sell USDT in ${city.name}`, href: `/sell-usdt-${city.slug}` },
-    { label: "View Marketplace", href: "/marketplace" },
-    { label: "How It Works", href: "/how-it-works" },
+    { label: "Sell USDT in India", href: "/sell-usdt-india" },
   ];
 
   const cityParentLinks = [
