@@ -310,6 +310,7 @@ const Marketplace = () => {
       <SEOHead
         title="P2P Crypto Marketplace — Buy & Sell USDT, BTC, ETH, SOL | TrustP2P"
         description="Browse escrow-protected P2P crypto listings. Buy and sell USDT, Bitcoin, Ethereum, and Solana with verified traders worldwide."
+        canonical="https://buysusdtp2p.com/marketplace"
       />
 
       <div className="container py-12">

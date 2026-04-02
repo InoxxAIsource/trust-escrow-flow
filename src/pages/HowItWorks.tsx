@@ -27,7 +27,7 @@ const fade = { hidden: { opacity: 0, y: 20 }, visible: (i: number) => ({ opacity
 
 const HowItWorks = () => (
   <>
-    <SEOHead title="How TrustP2P Works — Secure P2P Crypto Escrow" description="Learn how TrustP2P's escrow system protects your P2P crypto trades. Step-by-step guide to safe cryptocurrency trading." />
+    <SEOHead title="How TrustP2P Works — Secure P2P Crypto Escrow" description="Learn how TrustP2P's escrow system protects your P2P crypto trades. Step-by-step guide to safe cryptocurrency trading." canonical="https://buysusdtp2p.com/how-it-works" />
 
     <div className="container py-12">
       <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "How It Works", href: "/how-it-works" }]} />
