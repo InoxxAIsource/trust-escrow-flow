@@ -173,6 +173,47 @@ const Index = () => (
       </div>
     </section>
 
+    {/* Buy USDT in Major Indian Cities */}
+    <section className="py-16 md:py-24 bg-muted/30">
+      <div className="container">
+        <div className="text-center mb-10">
+          <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground">Buy USDT in Major Indian Cities</h2>
+          <p className="mt-3 text-muted-foreground">Trade USDT safely with escrow protection in your city. UPI &amp; bank transfer accepted.</p>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3 max-w-5xl mx-auto">
+          {[
+            { name: "Delhi", slug: "delhi" },
+            { name: "Mumbai", slug: "mumbai" },
+            { name: "Bangalore", slug: "bangalore" },
+            { name: "Chennai", slug: "chennai" },
+            { name: "Kolkata", slug: "kolkata" },
+            { name: "Pune", slug: "pune" },
+            { name: "Hyderabad", slug: "hyderabad" },
+            { name: "Gurgaon", slug: "gurgaon" },
+            { name: "Noida", slug: "noida" },
+            { name: "Jaipur", slug: "jaipur" },
+            { name: "Ahmedabad", slug: "ahmedabad" },
+            { name: "Lucknow", slug: "lucknow" },
+            { name: "Kochi", slug: "kochi" },
+            { name: "Dehradun", slug: "dehradun" },
+          ].map((city) => (
+            <Link
+              key={city.slug}
+              to={`/buy-usdt-${city.slug}`}
+              className="flex items-center justify-center rounded-lg border bg-card px-3 py-3 text-sm font-medium text-foreground hover:bg-primary hover:text-primary-foreground transition-colors text-center"
+            >
+              {city.name}
+            </Link>
+          ))}
+        </div>
+        <div className="text-center mt-6">
+          <Button variant="outline" asChild>
+            <Link to="/buy-usdt-india">View All India Offers <ArrowRight className="ml-2 h-4 w-4" /></Link>
+          </Button>
+        </div>
+      </div>
+    </section>
+
     {/* Testimonials */}
     <section className="py-16 md:py-24">
       <div className="container">
