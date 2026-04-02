@@ -359,9 +359,247 @@ topCombos.forEach(({ coin, loc, pm }) => {
 });
 
 // ══════════════════════════════════════════════
+// 5. INDIA CITY PAGES — /buy-usdt-{city}, /sell-usdt-{city}, /buy-usdt-{city}-{payment}
+// ══════════════════════════════════════════════
+interface CityData {
+  name: string;
+  slug: string;
+  tagline: string;
+  localContext: string;
+}
+
+const indianCities: CityData[] = [
+  { name: "Delhi", slug: "delhi", tagline: "India's capital and a major crypto trading hub", localContext: "Delhi's vibrant tech ecosystem and large population of young professionals make it one of the top cities for P2P crypto trading in India. With widespread UPI adoption through apps like Google Pay, PhonePe, and Paytm, Delhi traders enjoy instant INR payments. Major banks like SBI, HDFC, and ICICI have branches across the city, making bank transfers equally convenient." },
+  { name: "Mumbai", slug: "mumbai", tagline: "India's financial capital with the highest crypto trading volume", localContext: "As India's financial hub and home to the Bombay Stock Exchange, Mumbai has a tech-savvy population that embraces crypto trading. UPI transactions in Mumbai are among the highest in India, and the city's well-connected banking infrastructure makes both UPI and bank transfers seamless for USDT trading." },
+  { name: "Bangalore", slug: "bangalore", tagline: "India's Silicon Valley and a tech-driven crypto market", localContext: "Bangalore's massive IT workforce and startup culture make it a natural hotspot for cryptocurrency adoption. Engineers, freelancers, and entrepreneurs in Bangalore actively trade USDT for cross-border payments, freelance income, and investment. UPI is the dominant payment method here, with near-universal adoption among the tech community." },
+  { name: "Chennai", slug: "chennai", tagline: "South India's gateway to crypto trading", localContext: "Chennai's growing IT corridor and manufacturing sector have driven increasing demand for USDT trading. The city's educated workforce is comfortable with digital payments — UPI usage has surged here, and traditional bank transfers through Indian Bank, IOB, and other local institutions remain popular for larger transactions." },
+  { name: "Kolkata", slug: "kolkata", tagline: "Eastern India's emerging crypto trading center", localContext: "Kolkata's evolving fintech landscape has seen rapid growth in P2P crypto adoption. With affordable internet and increasing smartphone penetration, UPI usage in Kolkata has grown exponentially. Local traders appreciate the convenience of instant INR payments for USDT purchases, making it one of the fastest-growing crypto markets in eastern India." },
+  { name: "Hyderabad", slug: "hyderabad", tagline: "The City of Pearls meets digital assets", localContext: "Hyderabad's booming IT sector, anchored by HITEC City, has created a large base of tech professionals who trade USDT regularly. The city's strong banking presence and high UPI adoption rate make it easy for traders to buy and sell USDT quickly. Many Hyderabad traders use crypto for international freelancing payments and remittances." },
+  { name: "Pune", slug: "pune", tagline: "India's Oxford City embraces crypto innovation", localContext: "Pune's unique blend of educational institutions and IT companies has created a young, tech-literate population that actively participates in crypto trading. The city's startup ecosystem drives demand for USDT, and widespread UPI adoption through PhonePe (headquartered nearby) makes instant payments the norm for P2P trades." },
+  { name: "Gurgaon", slug: "gurgaon", tagline: "The Millennium City's fast-paced crypto market", localContext: "Gurgaon (Gurugram) is home to numerous multinational corporations and fintech companies, creating a population that's highly comfortable with digital finance. USDT trading volumes in Gurgaon are among the highest per capita in India. UPI and instant bank transfers through major private banks like HDFC and ICICI are the preferred payment methods." },
+  { name: "Noida", slug: "noida", tagline: "NCR's tech corridor for digital asset trading", localContext: "Noida's IT parks and proximity to Delhi make it a significant hub for crypto traders in the NCR region. The city's young demographic and high internet penetration drive strong demand for USDT. Local traders favor UPI for its speed, while bank transfers through nationalized banks handle larger transactions efficiently." },
+  { name: "Lucknow", slug: "lucknow", tagline: "UP's capital enters the digital asset era", localContext: "Lucknow's rapidly growing digital economy has seen increasing crypto adoption. With government push for digital payments and growing UPI penetration in tier-2 cities, Lucknow traders can now easily buy USDT using familiar payment methods. The city's young student population and emerging IT sector drive consistent trading demand." },
+  { name: "Jaipur", slug: "jaipur", tagline: "The Pink City goes digital with crypto trading", localContext: "Jaipur's entrepreneurial spirit and growing IT presence have fueled crypto adoption in Rajasthan's capital. Local traders — including jewelry merchants, textile exporters, and tech professionals — use USDT for international transactions. UPI adoption is high, and the city's established banking network supports smooth P2P trading." },
+  { name: "Ahmedabad", slug: "ahmedabad", tagline: "Gujarat's commercial hub for crypto exchange", localContext: "Ahmedabad's strong business community and textile industry have driven USDT adoption for international trade settlements. The city's merchants use crypto to streamline cross-border payments. With Gujarat's high digital literacy and widespread UPI usage, buying USDT in Ahmedabad is fast, safe, and convenient." },
+  { name: "Kochi", slug: "kochi", tagline: "Kerala's port city connects to global crypto markets", localContext: "Kochi's status as a major IT hub (InfoPark, SmartCity) and its large NRI population make it a natural market for USDT trading. Many Kochi residents use USDT for remittances and international payments. Kerala's high literacy rate translates to strong digital payment adoption, with UPI being the go-to method for P2P crypto trades." },
+  { name: "Dehradun", slug: "dehradun", tagline: "Uttarakhand's capital embraces P2P crypto", localContext: "Dehradun's growing IT sector and educational institutions have created a small but active crypto trading community. With the city's increasing digital connectivity and UPI adoption, buying USDT in Dehradun is now as easy as in major metros. Local traders appreciate the escrow protection that eliminates the risks of peer-to-peer trading." },
+];
+
+export const indianCityPages: SEOPageData[] = [];
+
+const usdt = coins[0]; // USDT
+
+indianCities.forEach((city, idx) => {
+  // Determine 2 related cities (next 2 in list, wrapping around)
+  const related1 = indianCities[(idx + 1) % indianCities.length];
+  const related2 = indianCities[(idx + 3) % indianCities.length];
+
+  const cityRelatedLinks = [
+    { label: "Buy USDT in India", href: "/buy-usdt-india" },
+    { label: `Buy USDT in ${related1.name}`, href: `/buy-usdt-${related1.slug}` },
+    { label: `Buy USDT in ${related2.name}`, href: `/buy-usdt-${related2.slug}` },
+    { label: "Buy USDT with UPI", href: "/buy-usdt-upi" },
+    { label: "Buy USDT with Bank Transfer", href: "/buy-usdt-bank-transfer" },
+    { label: `Sell USDT in ${city.name}`, href: `/sell-usdt-${city.slug}` },
+    { label: "View Marketplace", href: "/marketplace" },
+    { label: "How It Works", href: "/how-it-works" },
+  ];
+
+  const cityParentLinks = [
+    { label: "Home", href: "/" },
+    { label: "Buy USDT", href: "/buy-usdt" },
+    { label: "Buy USDT in India", href: "/buy-usdt-india" },
+  ];
+
+  const buildCityContent = (action: "buy" | "sell", pm?: string): { sections: { heading: string; text: string }[]; faq: { q: string; a: string }[] } => {
+    const pmText = pm ? ` using ${pm}` : "";
+    const actionWord = action === "buy" ? "Buy" : "Sell";
+
+    const sections: { heading: string; text: string }[] = [
+      {
+        heading: `${actionWord} USDT in ${city.name} — Overview`,
+        text: `${city.name} is ${city.tagline}. TrustP2P makes it easy to ${action} USDT (Tether) in ${city.name}${pmText} with full escrow protection. Whether you're a student, freelancer, business owner, or investor in ${city.name}, you can trade USDT safely and instantly on our platform. All transactions are in INR, and we support popular Indian payment methods including UPI, IMPS, and bank transfer.`,
+      },
+      {
+        heading: `Local Trading in ${city.name}`,
+        text: city.localContext,
+      },
+      {
+        heading: `How to ${actionWord} USDT in ${city.name}${pmText}`,
+        text: `Follow these simple steps to ${action} USDT in ${city.name}:\n\n1. **Create your TrustP2P account** — Sign up with your email and complete basic verification\n2. **Browse ${city.name} offers** — Find verified traders offering the best USDT/INR rates${pm ? ` who accept ${pm}` : ""}\n3. **Start a trade** — Enter the amount of USDT you want to ${action} and confirm the trade\n4. **Escrow protection activates** — The ${action === "buy" ? "seller's USDT is locked" : "USDT is locked"} in our secure escrow wallet\n5. **${action === "buy" ? "Send payment" : "Receive payment"}** — ${action === "buy" ? `Pay the seller via ${pm || "UPI or bank transfer"}` : `The buyer sends payment via ${pm || "UPI or bank transfer"}`}\n6. **${action === "buy" ? "Receive USDT" : "Release USDT"}** — Once ${action === "buy" ? "payment is confirmed, USDT is released to your wallet" : "you confirm payment receipt, USDT is released from escrow"}`,
+      },
+      {
+        heading: `Current USDT Price in ${city.name}`,
+        text: `The USDT price in ${city.name} closely tracks the global USDT/INR rate, typically trading between ₹83–₹88 depending on market demand and supply. P2P platforms like TrustP2P often offer rates that are 1–3% above the global rate due to local demand. Prices on our platform update every 30 seconds to reflect real-time market conditions. Check the live price widget above for the current rate.`,
+      },
+      {
+        heading: `Why Choose TrustP2P for ${city.name}?`,
+        text: `TrustP2P stands out as the safest way to trade USDT in ${city.name}:\n\n- **Escrow protection** — Every trade is secured. No one can run away with your money\n- **Fast release** — Trades complete in 5–15 minutes on average\n- **Verified sellers** — All traders are verified with ratings and trade history visible\n- **Local payment methods** — Pay with UPI, IMPS, or bank transfer in INR\n- **24/7 trading** — Buy or sell USDT any time, day or night\n- **Dispute resolution** — Our team resolves any issues within 24 hours`,
+      },
+    ];
+
+    if (pm) {
+      sections.push({
+        heading: `Using ${pm} for USDT Trading in ${city.name}`,
+        text: `${pm} is one of the most popular payment methods for buying USDT in ${city.name}. ${pm === "UPI" ? "UPI enables instant bank-to-bank transfers 24/7 with zero fees, making it perfect for P2P crypto trades. Simply scan the seller's QR code or enter their UPI ID to send payment instantly." : "Bank transfers in India are reliable and support higher transaction limits. NEFT, RTGS, and IMPS transfers are all accepted by TrustP2P traders, giving you flexibility based on your transfer amount and urgency."} When combined with TrustP2P's escrow protection, ${pm} offers the fastest and safest way to acquire USDT in ${city.name}.`,
+      });
+    }
+
+    sections.push({
+      heading: `USDT Trading Tips for ${city.name} Traders`,
+      text: `Here are tips for a smooth USDT trading experience in ${city.name}:\n\n- **Compare rates** — Check multiple offers to find the best USDT/INR rate\n- **Verify the trader** — Look for the verification badge, high completion rates (95%+), and 100+ trades\n- **Use escrow** — Never trade outside TrustP2P; always use the platform's escrow system\n- **Start small** — Begin with a ₹500–₹1,000 trade to build confidence\n- **Keep payment proof** — Screenshot your UPI/bank transfer confirmation\n- **Stay responsive** — Reply quickly in the trade chat for faster completion`,
+    });
+
+    const faq: { q: string; a: string }[] = [
+      { q: `Is it safe to buy USDT in ${city.name}?`, a: `Yes, absolutely. TrustP2P uses escrow protection on every trade. The seller's USDT is locked before you send payment, and it's only released when both parties confirm. This eliminates fraud risk completely.` },
+      { q: `How fast can I buy USDT in ${city.name}?`, a: `Most trades complete within 5–15 minutes. UPI payments are instant, and sellers typically confirm receipt within minutes. Once confirmed, USDT is released to your wallet immediately.` },
+      { q: `What payment methods can I use in ${city.name}?`, a: `You can use UPI (Google Pay, PhonePe, Paytm), IMPS, NEFT, RTGS, or bank transfer. UPI is the fastest and most popular method for USDT trading in ${city.name}.` },
+      { q: `What is the minimum amount to trade?`, a: `You can start trading with as little as ₹500 worth of USDT. There's no maximum limit for verified traders.` },
+      { q: `Do I need KYC to trade in ${city.name}?`, a: `Basic email verification gets you started. For higher trade limits and access to more features, completing identity verification is recommended.` },
+    ];
+
+    return { sections, faq };
+  };
+
+  // /buy-usdt-{city}
+  const buyContent = buildCityContent("buy");
+  indianCityPages.push({
+    slug: `buy-usdt-${city.slug}`,
+    title: `Buy USDT in ${city.name}`,
+    metaTitle: `Buy USDT in ${city.name} | Instant P2P Crypto Exchange | TrustP2P`,
+    metaDescription: `Buy USDT in ${city.name} using UPI or bank transfer. सुरक्षित और तेज़ crypto trading with escrow protection on TrustP2P.`,
+    h1: `Buy USDT in ${city.name} Safely with Escrow`,
+    intro: `Buy USDT in ${city.name} using secure escrow and local payment methods like UPI and bank transfer. TrustP2P connects you with verified local traders offering the best USDT/INR rates. Fast, safe, and trusted by thousands of traders across India.`,
+    action: "buy",
+    coin: "USDT",
+    coinSymbol: "USDT",
+    location: city.name,
+    contentSections: buyContent.sections,
+    faq: buyContent.faq,
+    relatedLinks: cityRelatedLinks,
+    parentLinks: cityParentLinks,
+    breadcrumbs: [
+      { label: "Home", href: "/" },
+      { label: "Buy USDT", href: "/buy-usdt" },
+      { label: "India", href: "/buy-usdt-india" },
+      { label: city.name, href: `/buy-usdt-${city.slug}` },
+    ],
+    filterConfig: { asset: "USDT", country: "India", type: "buy" },
+  });
+
+  // /sell-usdt-{city}
+  const sellContent = buildCityContent("sell");
+  indianCityPages.push({
+    slug: `sell-usdt-${city.slug}`,
+    title: `Sell USDT in ${city.name}`,
+    metaTitle: `Sell USDT in ${city.name} | Get INR Instantly | TrustP2P`,
+    metaDescription: `Sell USDT in ${city.name} and receive INR via UPI or bank transfer. Fast escrow-protected P2P trades on TrustP2P.`,
+    h1: `Sell USDT in ${city.name} — Get INR Instantly`,
+    intro: `Sell your USDT in ${city.name} and receive INR directly to your bank account or UPI. TrustP2P's escrow protection ensures you get paid safely and quickly. Verified buyers, competitive rates, and instant payouts.`,
+    action: "sell",
+    coin: "USDT",
+    coinSymbol: "USDT",
+    location: city.name,
+    contentSections: sellContent.sections,
+    faq: sellContent.faq,
+    relatedLinks: [
+      { label: "Buy USDT in India", href: "/buy-usdt-india" },
+      { label: `Buy USDT in ${city.name}`, href: `/buy-usdt-${city.slug}` },
+      { label: `Buy USDT in ${related1.name}`, href: `/buy-usdt-${related1.slug}` },
+      { label: "Sell USDT", href: "/sell-usdt" },
+      { label: "View Marketplace", href: "/marketplace" },
+    ],
+    parentLinks: [
+      { label: "Home", href: "/" },
+      { label: "Sell USDT", href: "/sell-usdt" },
+    ],
+    breadcrumbs: [
+      { label: "Home", href: "/" },
+      { label: "Sell USDT", href: "/sell-usdt" },
+      { label: city.name, href: `/sell-usdt-${city.slug}` },
+    ],
+    filterConfig: { asset: "USDT", country: "India", type: "sell" },
+  });
+
+  // /buy-usdt-{city}-upi
+  const upiContent = buildCityContent("buy", "UPI");
+  indianCityPages.push({
+    slug: `buy-usdt-${city.slug}-upi`,
+    title: `Buy USDT in ${city.name} with UPI`,
+    metaTitle: `Buy USDT in ${city.name} with UPI | Instant P2P Trades | TrustP2P`,
+    metaDescription: `Buy USDT in ${city.name} using UPI. Instant INR payment, escrow-protected trades, verified sellers. Best USDT rates in ${city.name}.`,
+    h1: `Buy USDT in ${city.name} with UPI`,
+    intro: `Buy USDT in ${city.name} instantly using UPI — India's fastest payment method. Pay directly from Google Pay, PhonePe, or any UPI app. Every trade is escrow-protected and completes in under 10 minutes.`,
+    action: "buy",
+    coin: "USDT",
+    coinSymbol: "USDT",
+    location: city.name,
+    paymentMethod: "UPI",
+    contentSections: upiContent.sections,
+    faq: upiContent.faq,
+    relatedLinks: [
+      ...cityRelatedLinks.slice(0, 3),
+      { label: `Buy USDT in ${city.name} with Bank Transfer`, href: `/buy-usdt-${city.slug}-bank-transfer` },
+      { label: "Buy USDT with UPI", href: "/buy-usdt-upi" },
+      { label: "View Marketplace", href: "/marketplace" },
+    ],
+    parentLinks: [
+      { label: "Home", href: "/" },
+      { label: "Buy USDT", href: "/buy-usdt" },
+      { label: "Buy USDT in India", href: "/buy-usdt-india" },
+      { label: `Buy USDT in ${city.name}`, href: `/buy-usdt-${city.slug}` },
+    ],
+    breadcrumbs: [
+      { label: "Home", href: "/" },
+      { label: "Buy USDT", href: "/buy-usdt" },
+      { label: city.name, href: `/buy-usdt-${city.slug}` },
+      { label: "UPI", href: `/buy-usdt-${city.slug}-upi` },
+    ],
+    filterConfig: { asset: "USDT", country: "India", paymentMethod: "UPI", type: "buy" },
+  });
+
+  // /buy-usdt-{city}-bank-transfer
+  const btContent = buildCityContent("buy", "Bank Transfer");
+  indianCityPages.push({
+    slug: `buy-usdt-${city.slug}-bank-transfer`,
+    title: `Buy USDT in ${city.name} with Bank Transfer`,
+    metaTitle: `Buy USDT in ${city.name} via Bank Transfer | Secure P2P | TrustP2P`,
+    metaDescription: `Buy USDT in ${city.name} using bank transfer (NEFT/RTGS/IMPS). Escrow-protected P2P trades with verified sellers. Best INR rates.`,
+    h1: `Buy USDT in ${city.name} with Bank Transfer`,
+    intro: `Buy USDT in ${city.name} using NEFT, RTGS, or IMPS bank transfer. Ideal for larger transactions with higher limits. Every trade is protected by TrustP2P's secure escrow system.`,
+    action: "buy",
+    coin: "USDT",
+    coinSymbol: "USDT",
+    location: city.name,
+    paymentMethod: "Bank Transfer",
+    contentSections: btContent.sections,
+    faq: btContent.faq,
+    relatedLinks: [
+      ...cityRelatedLinks.slice(0, 3),
+      { label: `Buy USDT in ${city.name} with UPI`, href: `/buy-usdt-${city.slug}-upi` },
+      { label: "Buy USDT with Bank Transfer", href: "/buy-usdt-bank-transfer" },
+      { label: "View Marketplace", href: "/marketplace" },
+    ],
+    parentLinks: [
+      { label: "Home", href: "/" },
+      { label: "Buy USDT", href: "/buy-usdt" },
+      { label: "Buy USDT in India", href: "/buy-usdt-india" },
+      { label: `Buy USDT in ${city.name}`, href: `/buy-usdt-${city.slug}` },
+    ],
+    breadcrumbs: [
+      { label: "Home", href: "/" },
+      { label: "Buy USDT", href: "/buy-usdt" },
+      { label: city.name, href: `/buy-usdt-${city.slug}` },
+      { label: "Bank Transfer", href: `/buy-usdt-${city.slug}-bank-transfer` },
+    ],
+    filterConfig: { asset: "USDT", country: "India", paymentMethod: "Bank Transfer", type: "buy" },
+  });
+});
+
+// ══════════════════════════════════════════════
 // MASTER EXPORT
 // ══════════════════════════════════════════════
-export const allSEOPages: SEOPageData[] = [...coinPages, ...countryPages, ...paymentPages, ...comboPages];
+export const allSEOPages: SEOPageData[] = [...coinPages, ...countryPages, ...paymentPages, ...comboPages, ...indianCityPages];
 
 const pageMap = new Map<string, SEOPageData>();
 allSEOPages.forEach(p => pageMap.set(p.slug, p));
@@ -381,7 +619,8 @@ export function getPageStats() {
     countryPages: countryPages.length,
     paymentPages: paymentPages.length,
     comboPages: comboPages.length,
+    cityPages: indianCityPages.length,
   };
 }
 
-export { coinPages, countryPages, paymentPages, comboPages, locations, paymentMethods as paymentMethodsList, coins as coinsList };
+export { coinPages, countryPages, paymentPages, comboPages, indianCities, locations, paymentMethods as paymentMethodsList, coins as coinsList };
