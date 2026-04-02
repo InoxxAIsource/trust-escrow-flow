@@ -623,4 +623,4 @@ export function getPageStats() {
   };
 }
 
-export { coinPages, countryPages, paymentPages, comboPages, indianCityPages, indianCities, locations, paymentMethods as paymentMethodsList, coins as coinsList };
+export { coinPages, countryPages, paymentPages, comboPages, indianCities, locations, paymentMethods as paymentMethodsList, coins as coinsList };
