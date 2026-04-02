@@ -1,18 +1,27 @@
 import { useMemo } from "react";
 import { useLocation, Link } from "react-router-dom";
-import { ArrowRight, Shield, Users, Star, TrendingUp, CheckCircle, Clock, Activity, ChevronRight } from "lucide-react";
+import { ArrowRight, Shield, Users, Star, TrendingUp, CheckCircle, Clock, Activity, ChevronRight, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import SEOHead from "@/components/SEOHead";
-import { getSEOPage } from "@/data/seo-pages";
+import { getSEOPage, getCityLiveData } from "@/data/seo-pages";
 import { generateAllOffers, filterOffers, type SeededOffer } from "@/data/seed-engine";
 import { useCryptoPrices, type CryptoPrices } from "@/hooks/use-crypto-prices";
 
 function toLivePrices(prices?: CryptoPrices) {
   if (!prices) return undefined;
   return { USDT: prices.tether.usd, BTC: prices.bitcoin.usd, ETH: prices.ethereum.usd, SOL: prices.solana.usd };
+}
+
+// Extract city slug from page slug (e.g. "buy-usdt-delhi" → "delhi", "buy-usdt-delhi-upi" → "delhi")
+const CITY_SLUGS = ["delhi","mumbai","bangalore","chennai","kolkata","hyderabad","pune","gurgaon","noida","lucknow","jaipur","ahmedabad","kochi","dehradun"];
+function extractCitySlug(slug: string): string | null {
+  for (const city of CITY_SLUGS) {
+    if (slug.includes(city)) return city;
+  }
+  return null;
 }
 
 const LAST_UPDATED = "2026-04-02T10:00:00Z";
@@ -54,6 +63,9 @@ const SEOLanding = () => {
   const page = getSEOPage(slug);
   const { data: prices } = useCryptoPrices();
 
+  const citySlug = extractCitySlug(slug);
+  const cityData = citySlug ? getCityLiveData(citySlug) : undefined;
+
   const relevantOffers = useMemo(() => {
     if (!page) return [];
     const allOffers = generateAllOffers(toLivePrices(prices));
@@ -92,11 +104,6 @@ const SEOLanding = () => {
   };
 
   const now = new Date();
-  const recentActivity = [
-    { action: `${page.coin} trade completed`, time: `${Math.floor(Math.random() * 5) + 1} min ago`, amount: `${(Math.random() * 500 + 50).toFixed(0)} ${page.coinSymbol}` },
-    { action: `New ${page.action} offer posted`, time: `${Math.floor(Math.random() * 10) + 5} min ago`, amount: `${(Math.random() * 1000 + 100).toFixed(0)} ${page.coinSymbol}` },
-    { action: `Escrow released`, time: `${Math.floor(Math.random() * 15) + 10} min ago`, amount: `${(Math.random() * 300 + 25).toFixed(0)} ${page.coinSymbol}` },
-  ];
 
   return (
     <>
@@ -127,6 +134,44 @@ const SEOLanding = () => {
           </div>
         </div>
 
+        {/* City-specific live data stats */}
+        {cityData && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <Card>
+              <CardContent className="py-4 text-center">
+                <div className="font-display text-2xl font-bold text-foreground">{cityData.sellers}</div>
+                <div className="text-xs text-muted-foreground">Active Sellers</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="py-4 text-center">
+                <div className="font-display text-2xl font-bold text-foreground">{cityData.buyers}</div>
+                <div className="text-xs text-muted-foreground">Active Buyers</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="py-4 text-center">
+                <div className="font-display text-2xl font-bold text-primary">{cityData.avgPrice}</div>
+                <div className="text-xs text-muted-foreground">Avg USDT Price</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="py-4 text-center">
+                <div className="font-display text-2xl font-bold text-foreground">{cityData.lastTradeAgo}</div>
+                <div className="text-xs text-muted-foreground">Last Trade</div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Location signal */}
+        {cityData && (
+          <div className="flex items-start gap-2 p-4 rounded-lg bg-primary/5 border border-primary/10 mb-8">
+            <MapPin className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+            <p className="text-sm text-foreground">{cityData.localSignal}</p>
+          </div>
+        )}
+
         {/* Trust indicators + Last Updated */}
         <div className="flex flex-wrap gap-6 mb-6">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -151,7 +196,9 @@ const SEOLanding = () => {
         {prices && (
           <Card className="mb-10">
             <CardContent className="py-5">
-              <h2 className="font-display text-lg font-bold text-foreground mb-3">Live {page.coin} Price</h2>
+              <h2 className="font-display text-lg font-bold text-foreground mb-3">
+                Live {page.coin} Price{page.location ? ` in ${page.location}` : ""}
+              </h2>
               <div className="flex flex-wrap gap-6">
                 <div>
                   <span className="text-sm text-muted-foreground">USD</span>
@@ -171,28 +218,61 @@ const SEOLanding = () => {
                       prices.solana.inr.toLocaleString()}
                   </div>
                 </div>
+                {cityData && (
+                  <div>
+                    <span className="text-sm text-muted-foreground">P2P Avg</span>
+                    <div className="font-display text-2xl font-bold text-primary">{cityData.avgPrice}</div>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
         )}
 
-        {/* Recent Activity */}
+        {/* Recent Activity Feed — City-specific or generic */}
         <Card className="mb-10">
           <CardContent className="py-5">
             <div className="flex items-center gap-2 mb-3">
               <Activity className="h-4 w-4 text-primary" />
-              <h2 className="font-display text-lg font-bold text-foreground">Recent Activity</h2>
+              <h2 className="font-display text-lg font-bold text-foreground">
+                Recent Trades{page.location ? ` in ${page.location}` : ""}
+              </h2>
             </div>
             <div className="space-y-2">
-              {recentActivity.map((item, i) => (
-                <div key={i} className="flex items-center justify-between text-sm py-1.5 border-b last:border-0">
-                  <span className="text-foreground">{item.action}</span>
-                  <div className="flex items-center gap-3">
-                    <span className="font-medium text-foreground">{item.amount}</span>
-                    <span className="text-muted-foreground text-xs">{item.time}</span>
+              {cityData ? (
+                cityData.recentTrades.map((trade, i) => (
+                  <div key={i} className="flex items-center justify-between text-sm py-1.5 border-b last:border-0">
+                    <span className="text-foreground">
+                      {trade.amount} USDT {trade.type === "buy" ? "bought" : "sold"} via {trade.method}
+                    </span>
+                    <span className="text-muted-foreground text-xs">{Math.floor(Math.random() * 20) + 1} min ago</span>
                   </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <>
+                  <div className="flex items-center justify-between text-sm py-1.5 border-b">
+                    <span className="text-foreground">{page.coin} trade completed</span>
+                    <div className="flex items-center gap-3">
+                      <span className="font-medium text-foreground">{(Math.random() * 500 + 50).toFixed(0)} {page.coinSymbol}</span>
+                      <span className="text-muted-foreground text-xs">{Math.floor(Math.random() * 5) + 1} min ago</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between text-sm py-1.5 border-b">
+                    <span className="text-foreground">New {page.action} offer posted</span>
+                    <div className="flex items-center gap-3">
+                      <span className="font-medium text-foreground">{(Math.random() * 1000 + 100).toFixed(0)} {page.coinSymbol}</span>
+                      <span className="text-muted-foreground text-xs">{Math.floor(Math.random() * 10) + 5} min ago</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between text-sm py-1.5">
+                    <span className="text-foreground">Escrow released</span>
+                    <div className="flex items-center gap-3">
+                      <span className="font-medium text-foreground">{(Math.random() * 300 + 25).toFixed(0)} {page.coinSymbol}</span>
+                      <span className="text-muted-foreground text-xs">{Math.floor(Math.random() * 15) + 10} min ago</span>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           </CardContent>
         </Card>
