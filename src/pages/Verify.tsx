@@ -149,7 +149,7 @@ const Verify = () => {
 
   return (
     <div className="container py-12">
-      <SEOHead title="Verify Account — TrustP2P" description="Progressive verification to unlock full trading capabilities." />
+      <SEOHead title="Verify Account — TrustP2P" description="Progressive verification to unlock full trading capabilities." canonical="https://buysusdtp2p.com/verify" />
       <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Dashboard", href: "/dashboard" }, { label: "Verify", href: "/verify" }]} />
 
       <div className="max-w-2xl mx-auto">
