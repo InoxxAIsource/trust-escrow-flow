@@ -23,7 +23,7 @@ const DemoUserContext = createContext<DemoUserContextType>({
 const DEMO_USER: DemoUser = {
   id: "demo-user-001",
   username: "demo_trader",
-  email: "demo@trustp2p.com",
+  email: "demo@buysusdtp2p.com",
 };
 
 const STORAGE_KEY = "trustp2p_demo_user";

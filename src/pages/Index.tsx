@@ -45,7 +45,7 @@ const Index = () => (
         "@context": "https://schema.org",
         "@type": "WebSite",
         name: "TrustP2P",
-        url: "https://trustp2p.com",
+        url: "https://buysusdtp2p.com",
         description: "Secure P2P crypto escrow platform",
       }}
     />

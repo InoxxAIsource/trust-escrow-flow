@@ -20,7 +20,7 @@ const Breadcrumbs = ({ items }: BreadcrumbsProps) => {
       "@type": "ListItem",
       position: index + 1,
       name: item.label,
-      item: `https://trustp2p.com${item.href}`,
+      item: `https://buysusdtp2p.com${item.href}`,
     })),
   };
 

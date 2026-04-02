@@ -77,7 +77,7 @@ const SEOLanding = () => {
           "@type": "WebPage",
           name: page.title,
           description: page.metaDescription,
-          url: `https://trustp2p.com/${page.slug}`,
+          url: `https://buysusdtp2p.com/${page.slug}`,
         }}
       />
 
