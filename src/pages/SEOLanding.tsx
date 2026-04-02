@@ -72,6 +72,7 @@ const SEOLanding = () => {
       <SEOHead
         title={page.metaTitle}
         description={page.metaDescription}
+        canonical={`https://buysusdtp2p.com/${page.slug}`}
         jsonLd={{
           "@context": "https://schema.org",
           "@type": "WebPage",

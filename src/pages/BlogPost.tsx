@@ -22,7 +22,7 @@ const BlogPost = () => {
 
   return (
     <>
-      <SEOHead title={post.metaTitle} description={post.metaDescription} />
+      <SEOHead title={post.metaTitle} description={post.metaDescription} canonical={`https://buysusdtp2p.com/blog/${post.slug}`} />
 
       <div className="container py-12">
         <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Blog", href: "/blog" }, { label: post.title, href: `/blog/${post.slug}` }]} />

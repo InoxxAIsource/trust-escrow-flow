@@ -24,7 +24,7 @@ const benefits = [
 
 const Fees = () => (
   <>
-    <SEOHead title="TrustP2P Fees — Transparent & Low Cost Trading" description="See TrustP2P's simple and transparent fee structure. Low trading fees, zero deposit fees, and free escrow protection." />
+    <SEOHead title="TrustP2P Fees — Transparent & Low Cost Trading" description="See TrustP2P's simple and transparent fee structure. Low trading fees, zero deposit fees, and free escrow protection." canonical="https://buysusdtp2p.com/fees" />
 
     <div className="container py-12">
       <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Fees", href: "/fees" }]} />
