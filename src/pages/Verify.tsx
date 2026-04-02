@@ -48,7 +48,7 @@ const Verify = () => {
   if (!user) {
     return (
       <div className="container py-20 text-center">
-        <SEOHead title="Verify Identity — TrustP2P" description="Complete identity verification to trade on TrustP2P." />
+        <SEOHead title="Verify Identity — TrustP2P" description="Complete identity verification to trade on TrustP2P." canonical="https://buysusdtp2p.com/verify" />
         <Shield className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
         <h1 className="font-display text-2xl font-bold text-foreground mb-2">Sign in to verify your identity</h1>
         <Button onClick={() => navigate("/auth")} size="lg" className="mt-4">Sign In</Button>
