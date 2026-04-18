@@ -62,7 +62,7 @@ const Verify = () => {
   const updateProfile = async (fields: Record<string, unknown>) => {
     const { error } = await supabase
       .from("profiles")
-      .update(fields)
+      .update(fields as never)
       .eq("user_id", user.id);
     if (error) throw error;
     await refreshProfile();
