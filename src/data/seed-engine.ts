@@ -274,11 +274,11 @@ function generateUSDTOffers(country: CountryConfig, usdtPriceLocal: number): See
     });
   }
 
-  // BUY offers: slightly above market
+  // BUY offers (shown on Sell tab): strict band buyMin..buyMax
   for (let i = 0; i < buyCount; i++) {
     const ratio = buyCount > 1 ? i / (buyCount - 1) : 0;
-    const multiplier = 1.01 + ratio * 0.04; // +1% to +5%
-    const price = +(marketPrice * multiplier + randBetween(-0.3, 0.3) * country.fxRate).toFixed(2);
+    const rawPrice = buyMin + ratio * (buyMax - buyMin) + randBetween(-0.3, 0.3) * localScale;
+    const price = +Math.min(buyMax, Math.max(buyMin, rawPrice)).toFixed(2);
     const marginPct = +((price / marketPrice - 1) * 100).toFixed(1);
     const availableAmount = computeAvailableAmount(ratio, country.fxRate);
     const { minLimit, maxLimit } = computeLimits(availableAmount, country.fxRate);
