@@ -225,16 +225,31 @@ function generateTrader(country: CountryConfig) {
 }
 
 // ── USDT Offer Generator (per country) ──
+// STRICT RULE: USDT sell-type offers (shown on Buy tab) MUST be ₹97–₹110.
+// USDT buy-type offers (shown on Sell tab) MUST be ₹92–₹96.
+// For non-INR countries, scale these INR bands by fxRate / INR-rate.
 function generateUSDTOffers(country: CountryConfig, usdtPriceLocal: number): SeededOffer[] {
   const offers: SeededOffer[] = [];
   const marketPrice = usdtPriceLocal;
   const [sellCount, buyCount] = country.offerCount.usdt;
 
-  // SELL offers: above market
+  // INR reference bands
+  const INR_SELL_MIN = 97;
+  const INR_SELL_MAX = 110;
+  const INR_BUY_MIN = 92;
+  const INR_BUY_MAX = 96;
+  // Convert INR band → local currency band using fxRate (local per USD) vs 85.5 (INR per USD baseline)
+  const localScale = country.fxRate / 85.5;
+  const sellMin = INR_SELL_MIN * localScale;
+  const sellMax = INR_SELL_MAX * localScale;
+  const buyMin = INR_BUY_MIN * localScale;
+  const buyMax = INR_BUY_MAX * localScale;
+
+  // SELL offers (shown on Buy tab): strict band sellMin..sellMax
   for (let i = 0; i < sellCount; i++) {
     const ratio = sellCount > 1 ? i / (sellCount - 1) : 0;
-    const multiplier = 1.02 + ratio * 0.10; // +2% to +12%
-    const price = +(marketPrice * multiplier + randBetween(-0.3, 0.3) * country.fxRate).toFixed(2);
+    const rawPrice = sellMin + ratio * (sellMax - sellMin) + randBetween(-0.4, 0.4) * localScale;
+    const price = +Math.min(sellMax, Math.max(sellMin, rawPrice)).toFixed(2);
     const marginPct = +((price / marketPrice - 1) * 100).toFixed(1);
     const availableAmount = computeAvailableAmount(ratio, country.fxRate);
     const { minLimit, maxLimit } = computeLimits(availableAmount, country.fxRate);
