@@ -13,4 +13,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://buysusdtp2p.com/sitemap.xml
+Sitemap: https://p2pxbt.com/sitemap.xml

@@ -8,7 +8,7 @@ import { blogPosts } from "@/data/blog-posts";
 
 const Blog = () => (
   <>
-    <SEOHead title="TrustP2P Blog — Crypto Trading Guides & News" description="Learn about P2P crypto trading, escrow protection, and how to buy and sell cryptocurrency safely. Guides, tips, and industry insights." canonical="https://buysusdtp2p.com/blog" />
+    <SEOHead title="TrustP2P Blog — Crypto Trading Guides & News" description="Learn about P2P crypto trading, escrow protection, and how to buy and sell cryptocurrency safely. Guides, tips, and industry insights." canonical="https://p2pxbt.com/blog" />
 
     <div className="container py-12">
       <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Blog", href: "/blog" }]} />
