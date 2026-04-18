@@ -86,12 +86,12 @@ const SEOLanding = () => {
     "@type": "WebPage",
     name: page.title,
     description: page.metaDescription,
-    url: `https://buysusdtp2p.com/${page.slug}`,
+    url: `https://p2pxbt.com/${page.slug}`,
     dateModified: LAST_UPDATED,
     publisher: {
       "@type": "Organization",
       name: "TrustP2P",
-      url: "https://buysusdtp2p.com",
+      url: "https://p2pxbt.com",
     },
     mainEntity: {
       "@type": "FAQPage",
@@ -110,7 +110,7 @@ const SEOLanding = () => {
       <SEOHead
         title={page.metaTitle}
         description={page.metaDescription}
-        canonical={`https://buysusdtp2p.com/${page.slug}`}
+        canonical={`https://p2pxbt.com/${page.slug}`}
         jsonLd={jsonLd}
       />
 

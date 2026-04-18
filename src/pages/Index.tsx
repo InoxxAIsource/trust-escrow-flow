@@ -41,12 +41,12 @@ const Index = () => (
     <SEOHead
       title="TrustP2P — Trade Crypto Safely with Escrow Protection"
       description="TrustP2P is a secure P2P crypto escrow platform. Buy and sell USDT, BTC, ETH, and SOL safely with escrow protection."
-      canonical="https://buysusdtp2p.com/"
+      canonical="https://p2pxbt.com/"
       jsonLd={{
         "@context": "https://schema.org",
         "@type": "WebSite",
         name: "TrustP2P",
-        url: "https://buysusdtp2p.com",
+        url: "https://p2pxbt.com",
         description: "Secure P2P crypto escrow platform",
       }}
     />
