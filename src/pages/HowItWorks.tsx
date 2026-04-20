@@ -72,7 +72,7 @@ const HowItWorks = () => (
           <Shield className="h-4 w-4" />
           Escrow Protection
         </div>
-        <h1 className="font-display text-3xl md:text-5xl font-bold text-foreground">How TrustP2P Works</h1>
+        <h1 className="font-display text-3xl md:text-5xl font-bold text-foreground">How P2PxBT Works</h1>
         <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
           Our multi-step escrow system ensures every trade is safe, transparent, and fair for both buyers and sellers.
         </p>

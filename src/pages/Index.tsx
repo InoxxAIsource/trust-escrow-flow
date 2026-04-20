@@ -28,7 +28,7 @@ const coins = [
 const testimonials = [
   { name: "Rahul S.", location: "India", text: "Bought USDT with UPI in under 5 minutes. The escrow system gave me complete confidence.", rating: 5 },
   { name: "James M.", location: "USA", text: "Finally a P2P platform where I don't have to worry about scams. The escrow protection is game-changing.", rating: 5 },
-  { name: "Aisha K.", location: "UK", text: "Sold Ethereum through TrustP2P three times now. Always smooth, always safe. Great experience.", rating: 5 },
+  { name: "Aisha K.", location: "UK", text: "Sold Ethereum through P2PxBT three times now. Always smooth, always safe. Great experience.", rating: 5 },
 ];
 
 const fade = {
@@ -233,7 +233,7 @@ const Index = () => (
       <div className="container">
         <div className="text-center mb-10">
           <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground">Trusted by Traders Worldwide</h2>
-          <p className="mt-3 text-muted-foreground">See what our community says about TrustP2P.</p>
+          <p className="mt-3 text-muted-foreground">See what our community says about P2PxBT.</p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
@@ -262,7 +262,7 @@ const Index = () => (
       <div className="container text-center">
         <h2 className="font-display text-3xl md:text-4xl font-bold">Ready to Trade Safely?</h2>
         <p className="mt-3 text-primary-foreground/80 max-w-xl mx-auto">
-          Join thousands of traders who trust TrustP2P for secure P2P crypto trading with escrow protection.
+          Join thousands of traders who trust P2PxBT for secure P2P crypto trading with escrow protection.
         </p>
         <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
           <Button size="lg" variant="secondary" asChild>

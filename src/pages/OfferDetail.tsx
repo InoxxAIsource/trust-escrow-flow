@@ -116,7 +116,7 @@ const OfferDetail = () => {
                   <span className="font-medium text-foreground">Escrow Protected Trade</span>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  This trade is protected by TrustP2P's escrow system. The seller's {offer.asset} will be locked in escrow until you confirm receipt of payment. You can raise a dispute at any time if issues arise.
+                  This trade is protected by P2PxBT's escrow system. The seller's {offer.asset} will be locked in escrow until you confirm receipt of payment. You can raise a dispute at any time if issues arise.
                 </p>
               </CardContent>
             </Card>
