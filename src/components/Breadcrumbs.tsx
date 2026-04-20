@@ -10,26 +10,14 @@ interface BreadcrumbsProps {
   items: BreadcrumbItem[];
 }
 
+// Note: BreadcrumbList JSON-LD is emitted via SEOHead's `jsonLd` prop on each
+// page. Do NOT also emit it from this component — it caused duplicate
+// BreadcrumbList script tags in the DOM.
 const Breadcrumbs = ({ items }: BreadcrumbsProps) => {
   const location = useLocation();
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: items.map((item, index) => ({
-      "@type": "ListItem",
-      position: index + 1,
-      name: item.label,
-      item: `https://p2pxbt.com${item.href}`,
-    })),
-  };
-
   return (
     <nav aria-label="Breadcrumb" className="mb-6">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
       <ol className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
         {items.map((item, index) => (
           <li key={item.href} className="flex items-center gap-1.5">

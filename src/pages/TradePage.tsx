@@ -95,7 +95,7 @@ const TradePage = () => {
 
   return (
     <div className="container py-12 max-w-2xl">
-      <SEOHead title={`Trade #${trade.id.slice(0, 8)} — TrustP2P`} description="View your trade details." />
+      <SEOHead title={`Trade #${trade.id.slice(0, 8)} — P2PxBT`} description="View your trade details." noindex />
       <Breadcrumbs items={[
         { label: "Home", href: "/" },
         { label: "Dashboard", href: "/dashboard" },
