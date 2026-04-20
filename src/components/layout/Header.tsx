@@ -21,7 +21,7 @@ const Header = () => {
       <div className="container flex h-16 items-center justify-between">
         <Link to="/" className="flex items-center gap-2 font-display text-xl font-bold text-foreground">
           <Shield className="h-6 w-6 text-primary" />
-          TrustP2P
+          P2PxBT
         </Link>
 
         <nav className="hidden md:flex items-center gap-6">
