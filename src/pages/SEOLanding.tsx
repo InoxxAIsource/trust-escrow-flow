@@ -81,19 +81,24 @@ const SEOLanding = () => {
     );
   }
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "WebPage",
-    name: page.title,
-    description: page.metaDescription,
-    url: `https://p2pxbt.com/${page.slug}`,
-    dateModified: LAST_UPDATED,
-    publisher: {
-      "@type": "Organization",
-      name: "TrustP2P",
-      url: "https://p2pxbt.com",
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      name: page.h1,
+      description: page.metaDescription,
+      url: `https://p2pxbt.com/${page.slug}`,
+      provider: {
+        "@type": "Organization",
+        name: "P2PxBT",
+        url: "https://p2pxbt.com",
+      },
+      ...(page.location ? { areaServed: page.location } : {}),
+      serviceType: `${page.action === "buy" ? "Buy" : "Sell"} ${page.coin} P2P Escrow`,
+      dateModified: LAST_UPDATED,
     },
-    mainEntity: {
+    {
+      "@context": "https://schema.org",
       "@type": "FAQPage",
       mainEntity: page.faq.map(f => ({
         "@type": "Question",
@@ -101,7 +106,17 @@ const SEOLanding = () => {
         acceptedAnswer: { "@type": "Answer", text: f.a },
       })),
     },
-  };
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: page.breadcrumbs.map((b, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        name: b.label,
+        item: `https://p2pxbt.com${b.href}`,
+      })),
+    },
+  ];
 
   const now = new Date();
 
