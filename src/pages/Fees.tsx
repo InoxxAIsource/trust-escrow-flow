@@ -79,7 +79,7 @@ const Fees = () => (
 
       {/* Benefits */}
       <div className="max-w-2xl mx-auto">
-        <h2 className="font-display text-2xl font-bold text-foreground text-center mb-6">Why Traders Choose TrustP2P</h2>
+        <h2 className="font-display text-2xl font-bold text-foreground text-center mb-6">Why Traders Choose P2PxBT</h2>
         <div className="grid sm:grid-cols-2 gap-3">
           {benefits.map((b) => (
             <div key={b} className="flex items-start gap-2">

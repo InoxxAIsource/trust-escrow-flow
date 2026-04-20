@@ -31,7 +31,7 @@ const Footer = () => (
         <div>
           <Link to="/" className="flex items-center gap-2 font-display text-lg font-bold text-foreground mb-3">
             <Shield className="h-5 w-5 text-primary" />
-            TrustP2P
+            P2PxBT
           </Link>
           <p className="text-sm text-muted-foreground mb-4">
             Trade crypto safely with escrow protection. Trusted by thousands of traders in 20+ countries.
@@ -75,7 +75,7 @@ const Footer = () => (
       {/* Bottom */}
       <div className="mt-8 pt-6 border-t flex flex-col sm:flex-row justify-between items-center gap-4">
         <p className="text-xs text-muted-foreground">
-          © {new Date().getFullYear()} TrustP2P. All rights reserved.
+          © {new Date().getFullYear()} P2PxBT. All rights reserved.
         </p>
         <div className="flex gap-4 text-xs text-muted-foreground">
           <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link>

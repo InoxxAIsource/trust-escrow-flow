@@ -57,7 +57,7 @@ export default function Auth() {
       <div className="container max-w-md py-20">
         <div className="flex items-center justify-center gap-2 mb-8">
           <Shield className="h-8 w-8 text-primary" />
-          <span className="font-display text-2xl font-bold text-foreground">TrustP2P</span>
+          <span className="font-display text-2xl font-bold text-foreground">P2PxBT</span>
         </div>
 
         <Card>
