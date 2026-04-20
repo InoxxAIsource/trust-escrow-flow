@@ -124,15 +124,15 @@ function buildFAQ(coin: typeof coins[0], loc?: typeof locations[0], pm?: typeof 
   return [
     {
       q: `Is it safe to buy ${coin.name}${locText}${pmText}?`,
-      a: `Yes. TrustP2P uses escrow protection on every trade. The seller's ${coin.symbol} is locked in a secure escrow wallet before you send payment. Funds are only released when both parties confirm the trade. This eliminates fraud risk entirely.`,
+      a: `Yes. P2PxBT uses escrow protection on every trade. The seller's ${coin.symbol} is locked in a secure escrow wallet before you send payment. Funds are only released when both parties confirm the trade. This eliminates fraud risk entirely.`,
     },
     {
       q: `How long does it take to buy ${coin.name}${pmText}?`,
       a: `Most trades complete within 5–15 minutes. After you initiate a trade, you send payment via ${pm ? pm.name : "your chosen method"}, the seller confirms receipt, and ${coin.symbol} is released from escrow to your wallet instantly.`,
     },
     {
-      q: `What fees does TrustP2P charge?`,
-      a: `TrustP2P charges a small escrow fee of 0.25% per trade. There are no hidden fees, no deposit fees, and no withdrawal fees. The price you see is the price you pay.`,
+      q: `What fees does P2PxBT charge?`,
+      a: `P2PxBT charges a small escrow fee of 0.25% per trade. There are no hidden fees, no deposit fees, and no withdrawal fees. The price you see is the price you pay.`,
     },
     {
       q: `Do I need KYC to buy ${coin.name}?`,
@@ -140,7 +140,7 @@ function buildFAQ(coin: typeof coins[0], loc?: typeof locations[0], pm?: typeof 
     },
     {
       q: `What happens if there's a dispute?`,
-      a: `If a dispute arises, TrustP2P's support team reviews the evidence from both parties. Since funds are held in escrow, neither party can run away with the money. Disputes are typically resolved within 24 hours.`,
+      a: `If a dispute arises, P2PxBT's support team reviews the evidence from both parties. Since funds are held in escrow, neither party can run away with the money. Disputes are typically resolved within 24 hours.`,
     },
   ];
 }
@@ -157,36 +157,36 @@ function buildContentSections(coin: typeof coins[0], loc?: typeof locations[0], 
 
   sections.push({
     heading: `How to Buy ${coin.name}${locText}${pmText}`,
-    text: `Buying ${coin.fullName}${locText}${pmText} on TrustP2P is simple and secure. Follow these steps:\n\n1. **Create your account** — Sign up with your email and verify your identity for higher trade limits\n2. **Browse offers** — Find the best ${coin.symbol} rates from verified traders${loc ? ` in ${loc.name}` : ""}${pm ? ` who accept ${pm.name}` : ""}\n3. **Start the trade** — Select an offer and enter the amount you want to buy in ${loc ? loc.currency : "your local currency"}\n4. **Funds locked in escrow** — The seller's ${coin.symbol} is locked in TrustP2P's secure escrow wallet automatically\n5. **Make payment** — Send payment via ${pm ? pm.name : "your preferred method"} to the seller's details\n6. **Receive ${coin.symbol}** — Once the seller confirms your payment, ${coin.symbol} is released to your TrustP2P wallet instantly`,
+    text: `Buying ${coin.fullName}${locText}${pmText} on P2PxBT is simple and secure. Follow these steps:\n\n1. **Create your account** — Sign up with your email and verify your identity for higher trade limits\n2. **Browse offers** — Find the best ${coin.symbol} rates from verified traders${loc ? ` in ${loc.name}` : ""}${pm ? ` who accept ${pm.name}` : ""}\n3. **Start the trade** — Select an offer and enter the amount you want to buy in ${loc ? loc.currency : "your local currency"}\n4. **Funds locked in escrow** — The seller's ${coin.symbol} is locked in P2PxBT's secure escrow wallet automatically\n5. **Make payment** — Send payment via ${pm ? pm.name : "your preferred method"} to the seller's details\n6. **Receive ${coin.symbol}** — Once the seller confirms your payment, ${coin.symbol} is released to your P2PxBT wallet instantly`,
   });
 
   if (pm) {
     sections.push({
       heading: `Why Use ${pm.name} to Buy ${coin.name}?`,
-      text: `${pm.name} is ${pm.desc}. It offers fast settlement times, widespread availability, and convenience for P2P crypto trading. When you buy ${coin.name} with ${pm.name} on TrustP2P, your payment is processed quickly and the seller can verify it in real-time. Combined with TrustP2P's escrow protection, ${pm.name} provides one of the safest and most seamless ways to acquire cryptocurrency.`,
+      text: `${pm.name} is ${pm.desc}. It offers fast settlement times, widespread availability, and convenience for P2P crypto trading. When you buy ${coin.name} with ${pm.name} on P2PxBT, your payment is processed quickly and the seller can verify it in real-time. Combined with P2PxBT's escrow protection, ${pm.name} provides one of the safest and most seamless ways to acquire cryptocurrency.`,
     });
   }
 
   if (loc) {
     sections.push({
       heading: `P2P Crypto Trading in ${loc.name}`,
-      text: `${loc.name} is one of the fastest-growing markets for peer-to-peer cryptocurrency trading. With increasing adoption and a tech-savvy population, demand for ${coin.name} continues to rise. Popular payment methods in ${loc.name} include ${loc.payments.join(", ")}. TrustP2P offers competitive rates in ${loc.currency}, connects you with local verified traders, and provides escrow protection on every single trade. Whether you're buying for investment, remittances, or daily use, TrustP2P makes crypto accessible to everyone in ${loc.name}.`,
+      text: `${loc.name} is one of the fastest-growing markets for peer-to-peer cryptocurrency trading. With increasing adoption and a tech-savvy population, demand for ${coin.name} continues to rise. Popular payment methods in ${loc.name} include ${loc.payments.join(", ")}. P2PxBT offers competitive rates in ${loc.currency}, connects you with local verified traders, and provides escrow protection on every single trade. Whether you're buying for investment, remittances, or daily use, P2PxBT makes crypto accessible to everyone in ${loc.name}.`,
     });
   }
 
   sections.push({
     heading: "Why Escrow Protection Matters",
-    text: `Escrow protection is the gold standard for safe P2P crypto trading. When you trade on TrustP2P, here's how it works: the seller's cryptocurrency is locked in a secure, non-custodial escrow wallet before any payment is made. The buyer then sends payment directly to the seller using the agreed payment method. Once the seller confirms receipt, the crypto is released from escrow to the buyer's wallet. If there's any disagreement, TrustP2P's dispute resolution team steps in. This system completely eliminates the risk of being scammed — your money and crypto are always protected.`,
+    text: `Escrow protection is the gold standard for safe P2P crypto trading. When you trade on P2PxBT, here's how it works: the seller's cryptocurrency is locked in a secure, non-custodial escrow wallet before any payment is made. The buyer then sends payment directly to the seller using the agreed payment method. Once the seller confirms receipt, the crypto is released from escrow to the buyer's wallet. If there's any disagreement, P2PxBT's dispute resolution team steps in. This system completely eliminates the risk of being scammed — your money and crypto are always protected.`,
   });
 
   sections.push({
     heading: "Verified Traders & Best Rates",
-    text: `TrustP2P connects you with a network of verified traders offering competitive ${coin.name} rates${locText}. Every trader on the platform has a public profile showing their completion rate, average response time, total trade volume, and user rating. We recommend choosing traders with a 4.5+ star rating and 100+ completed trades for the best experience. Our platform also highlights "Recommended" traders who consistently deliver fast, reliable service.`,
+    text: `P2PxBT connects you with a network of verified traders offering competitive ${coin.name} rates${locText}. Every trader on the platform has a public profile showing their completion rate, average response time, total trade volume, and user rating. We recommend choosing traders with a 4.5+ star rating and 100+ completed trades for the best experience. Our platform also highlights "Recommended" traders who consistently deliver fast, reliable service.`,
   });
 
   sections.push({
     heading: `${coin.name} Trading Tips`,
-    text: `Here are tips for a smooth ${coin.name} trading experience:\n\n- **Compare rates** — Check multiple offers to get the best ${coin.symbol} price${locText}\n- **Verify the trader** — Look for the verification badge and high completion rates\n- **Use escrow** — Never trade outside the platform; always use TrustP2P's escrow\n- **Start small** — If you're new, begin with a smaller trade to build confidence\n- **Stay in chat** — Use the in-trade chat to communicate with your trading partner\n- **Keep records** — Save payment confirmations and trade receipts for your records`,
+    text: `Here are tips for a smooth ${coin.name} trading experience:\n\n- **Compare rates** — Check multiple offers to get the best ${coin.symbol} price${locText}\n- **Verify the trader** — Look for the verification badge and high completion rates\n- **Use escrow** — Never trade outside the platform; always use P2PxBT's escrow\n- **Start small** — If you're new, begin with a smaller trade to build confidence\n- **Stay in chat** — Use the in-trade chat to communicate with your trading partner\n- **Keep records** — Save payment confirmations and trade receipts for your records`,
   });
 
   return sections;
@@ -199,10 +199,10 @@ const coinPages: SEOPageData[] = coins.flatMap((coin) =>
   (["buy", "sell"] as const).map((action) => ({
     slug: `${action}-${coin.slug}`,
     title: `${action === "buy" ? "Buy" : "Sell"} ${coin.name}`,
-    metaTitle: `${action === "buy" ? "Buy" : "Sell"} ${coin.name} Safely with Escrow | Best P2P Rates | TrustP2P`,
-    metaDescription: `${action === "buy" ? "Buy" : "Sell"} ${coin.fullName} securely on TrustP2P with escrow protection. Multiple payment methods, verified traders, and the best P2P rates.`,
+    metaTitle: `${action === "buy" ? "Buy" : "Sell"} ${coin.name} Safely with Escrow | Best P2P Rates | P2PxBT`,
+    metaDescription: `${action === "buy" ? "Buy" : "Sell"} ${coin.fullName} securely on P2PxBT with escrow protection. Multiple payment methods, verified traders, and the best P2P rates.`,
     h1: `${action === "buy" ? "Buy" : "Sell"} ${coin.name} with Escrow Protection`,
-    intro: `${action === "buy" ? "Buy" : "Sell"} ${coin.fullName} safely on TrustP2P. Our escrow system locks funds until both parties confirm, ensuring zero risk of fraud. Choose from verified traders across 15+ countries, pick your preferred payment method, and trade in minutes. Over 12,000 trades completed securely.`,
+    intro: `${action === "buy" ? "Buy" : "Sell"} ${coin.fullName} safely on P2PxBT. Our escrow system locks funds until both parties confirm, ensuring zero risk of fraud. Choose from verified traders across 15+ countries, pick your preferred payment method, and trade in minutes. Over 12,000 trades completed securely.`,
     action,
     coin: coin.name,
     coinSymbol: coin.symbol,
@@ -222,10 +222,10 @@ const countryPages: SEOPageData[] = coins.flatMap((coin) =>
   locations.map((loc) => ({
     slug: `buy-${coin.slug}-${loc.slug}`,
     title: `Buy ${coin.name} in ${loc.name}`,
-    metaTitle: `Buy ${coin.name} in ${loc.name} | Best P2P Rates in ${loc.currency} | TrustP2P`,
+    metaTitle: `Buy ${coin.name} in ${loc.name} | Best P2P Rates in ${loc.currency} | P2PxBT`,
     metaDescription: `Buy ${coin.fullName} in ${loc.name} using ${loc.payments.slice(0, 2).join(", ")}. Secure escrow-protected P2P trades with verified traders. Best rates in ${loc.currency}.`,
     h1: `Buy ${coin.name} in ${loc.name}`,
-    intro: `Purchase ${coin.fullName} in ${loc.name} using popular payment methods like ${loc.payments.slice(0, 3).join(", ")}. TrustP2P's escrow protection ensures your funds are safe throughout the entire transaction. Get the best ${coin.symbol}/${loc.currency} rates from verified local traders.`,
+    intro: `Purchase ${coin.fullName} in ${loc.name} using popular payment methods like ${loc.payments.slice(0, 3).join(", ")}. P2PxBT's escrow protection ensures your funds are safe throughout the entire transaction. Get the best ${coin.symbol}/${loc.currency} rates from verified local traders.`,
     action: "buy" as const,
     coin: coin.name,
     coinSymbol: coin.symbol,
@@ -246,10 +246,10 @@ const paymentPages: SEOPageData[] = coins.flatMap((coin) =>
   paymentMethods.map((pm) => ({
     slug: `buy-${coin.slug}-${pm.slug}`,
     title: `Buy ${coin.name} with ${pm.name}`,
-    metaTitle: `Buy ${coin.name} with ${pm.name} | Instant P2P Trades | TrustP2P`,
-    metaDescription: `Buy ${coin.fullName} instantly with ${pm.name} on TrustP2P. Secure escrow-protected P2P trades with verified traders accepting ${pm.name}.`,
+    metaTitle: `Buy ${coin.name} with ${pm.name} | Instant P2P Trades | P2PxBT`,
+    metaDescription: `Buy ${coin.fullName} instantly with ${pm.name} on P2PxBT. Secure escrow-protected P2P trades with verified traders accepting ${pm.name}.`,
     h1: `Buy ${coin.name} with ${pm.name}`,
-    intro: `Buy ${coin.fullName} using ${pm.name} on TrustP2P. ${pm.name} is ${pm.desc}. All trades are protected by our secure escrow system, ensuring safe and instant transactions with verified traders.`,
+    intro: `Buy ${coin.fullName} using ${pm.name} on P2PxBT. ${pm.name} is ${pm.desc}. All trades are protected by our secure escrow system, ensuring safe and instant transactions with verified traders.`,
     action: "buy" as const,
     coin: coin.name,
     coinSymbol: coin.symbol,
@@ -335,10 +335,10 @@ topCombos.forEach(({ coin, loc, pm }) => {
   comboPages.push({
     slug,
     title: `Buy ${coin.name} in ${loc.name} with ${pm}`,
-    metaTitle: `Buy ${coin.name} in ${loc.name} with ${pm} | Best P2P Rates | TrustP2P`,
-    metaDescription: `Buy ${coin.fullName} in ${loc.name} using ${pm}. Escrow-protected P2P trades, verified traders, best rates in ${loc.currency}. Trade safely on TrustP2P.`,
+    metaTitle: `Buy ${coin.name} in ${loc.name} with ${pm} | Best P2P Rates | P2PxBT`,
+    metaDescription: `Buy ${coin.fullName} in ${loc.name} using ${pm}. Escrow-protected P2P trades, verified traders, best rates in ${loc.currency}. Trade safely on P2PxBT.`,
     h1: `Buy ${coin.name} in ${loc.name} with ${pm}`,
-    intro: `Buy ${coin.fullName} in ${loc.name} using ${pm} on TrustP2P. Get the best ${coin.symbol}/${loc.currency} rates from verified local traders. Every trade is protected by our secure escrow system — your funds are always safe.`,
+    intro: `Buy ${coin.fullName} in ${loc.name} using ${pm} on P2PxBT. Get the best ${coin.symbol}/${loc.currency} rates from verified local traders. Every trade is protected by our secure escrow system — your funds are always safe.`,
     action: "buy",
     coin: coin.name,
     coinSymbol: coin.symbol,
@@ -450,7 +450,7 @@ indianCities.forEach((city, idx) => {
     const sections: { heading: string; text: string }[] = [
       {
         heading: `${actionWord} USDT in ${city.name} — Overview`,
-        text: `${city.name} is ${city.tagline}. TrustP2P makes it easy to ${action} USDT (Tether) in ${city.name}${pmText} with full escrow protection. Whether you're a student, freelancer, business owner, or investor in ${city.name}, you can trade USDT safely and instantly on our platform. All transactions are in INR, and we support popular Indian payment methods including UPI, IMPS, and bank transfer.`,
+        text: `${city.name} is ${city.tagline}. P2PxBT makes it easy to ${action} USDT (Tether) in ${city.name}${pmText} with full escrow protection. Whether you're a student, freelancer, business owner, or investor in ${city.name}, you can trade USDT safely and instantly on our platform. All transactions are in INR, and we support popular Indian payment methods including UPI, IMPS, and bank transfer.`,
       },
       {
         heading: `Local Trading in ${city.name}`,
@@ -458,32 +458,32 @@ indianCities.forEach((city, idx) => {
       },
       {
         heading: `How to ${actionWord} USDT in ${city.name}${pmText}`,
-        text: `Follow these simple steps to ${action} USDT in ${city.name}:\n\n1. **Create your TrustP2P account** — Sign up with your email and complete basic verification\n2. **Browse ${city.name} offers** — Find verified traders offering the best USDT/INR rates${pm ? ` who accept ${pm}` : ""}\n3. **Start a trade** — Enter the amount of USDT you want to ${action} and confirm the trade\n4. **Escrow protection activates** — The ${action === "buy" ? "seller's USDT is locked" : "USDT is locked"} in our secure escrow wallet\n5. **${action === "buy" ? "Send payment" : "Receive payment"}** — ${action === "buy" ? `Pay the seller via ${pm || "UPI or bank transfer"}` : `The buyer sends payment via ${pm || "UPI or bank transfer"}`}\n6. **${action === "buy" ? "Receive USDT" : "Release USDT"}** — Once ${action === "buy" ? "payment is confirmed, USDT is released to your wallet" : "you confirm payment receipt, USDT is released from escrow"}`,
+        text: `Follow these simple steps to ${action} USDT in ${city.name}:\n\n1. **Create your P2PxBT account** — Sign up with your email and complete basic verification\n2. **Browse ${city.name} offers** — Find verified traders offering the best USDT/INR rates${pm ? ` who accept ${pm}` : ""}\n3. **Start a trade** — Enter the amount of USDT you want to ${action} and confirm the trade\n4. **Escrow protection activates** — The ${action === "buy" ? "seller's USDT is locked" : "USDT is locked"} in our secure escrow wallet\n5. **${action === "buy" ? "Send payment" : "Receive payment"}** — ${action === "buy" ? `Pay the seller via ${pm || "UPI or bank transfer"}` : `The buyer sends payment via ${pm || "UPI or bank transfer"}`}\n6. **${action === "buy" ? "Receive USDT" : "Release USDT"}** — Once ${action === "buy" ? "payment is confirmed, USDT is released to your wallet" : "you confirm payment receipt, USDT is released from escrow"}`,
       },
       {
         heading: `Current USDT Price in ${city.name}`,
-        text: `The USDT price in ${city.name} closely tracks the global USDT/INR rate, typically trading between ₹83–₹88 depending on market demand and supply. P2P platforms like TrustP2P often offer rates that are 1–3% above the global rate due to local demand. Prices on our platform update every 30 seconds to reflect real-time market conditions. Check the live price widget above for the current rate.`,
+        text: `The USDT price in ${city.name} closely tracks the global USDT/INR rate, typically trading between ₹83–₹88 depending on market demand and supply. P2P platforms like P2PxBT often offer rates that are 1–3% above the global rate due to local demand. Prices on our platform update every 30 seconds to reflect real-time market conditions. Check the live price widget above for the current rate.`,
       },
       {
-        heading: `Why Choose TrustP2P for ${city.name}?`,
-        text: `TrustP2P stands out as the safest way to trade USDT in ${city.name}:\n\n- **Escrow protection** — Every trade is secured. No one can run away with your money\n- **Fast release** — Trades complete in 5–15 minutes on average\n- **Verified sellers** — All traders are verified with ratings and trade history visible\n- **Local payment methods** — Pay with UPI, IMPS, or bank transfer in INR\n- **24/7 trading** — Buy or sell USDT any time, day or night\n- **Dispute resolution** — Our team resolves any issues within 24 hours`,
+        heading: `Why Choose P2PxBT for ${city.name}?`,
+        text: `P2PxBT stands out as the safest way to trade USDT in ${city.name}:\n\n- **Escrow protection** — Every trade is secured. No one can run away with your money\n- **Fast release** — Trades complete in 5–15 minutes on average\n- **Verified sellers** — All traders are verified with ratings and trade history visible\n- **Local payment methods** — Pay with UPI, IMPS, or bank transfer in INR\n- **24/7 trading** — Buy or sell USDT any time, day or night\n- **Dispute resolution** — Our team resolves any issues within 24 hours`,
       },
     ];
 
     if (pm) {
       sections.push({
         heading: `Using ${pm} for USDT Trading in ${city.name}`,
-        text: `${pm} is one of the most popular payment methods for buying USDT in ${city.name}. ${pm === "UPI" ? "UPI enables instant bank-to-bank transfers 24/7 with zero fees, making it perfect for P2P crypto trades. Simply scan the seller's QR code or enter their UPI ID to send payment instantly." : "Bank transfers in India are reliable and support higher transaction limits. NEFT, RTGS, and IMPS transfers are all accepted by TrustP2P traders, giving you flexibility based on your transfer amount and urgency."} When combined with TrustP2P's escrow protection, ${pm} offers the fastest and safest way to acquire USDT in ${city.name}.`,
+        text: `${pm} is one of the most popular payment methods for buying USDT in ${city.name}. ${pm === "UPI" ? "UPI enables instant bank-to-bank transfers 24/7 with zero fees, making it perfect for P2P crypto trades. Simply scan the seller's QR code or enter their UPI ID to send payment instantly." : "Bank transfers in India are reliable and support higher transaction limits. NEFT, RTGS, and IMPS transfers are all accepted by P2PxBT traders, giving you flexibility based on your transfer amount and urgency."} When combined with P2PxBT's escrow protection, ${pm} offers the fastest and safest way to acquire USDT in ${city.name}.`,
       });
     }
 
     sections.push({
       heading: `USDT Trading Tips for ${city.name} Traders`,
-      text: `Here are tips for a smooth USDT trading experience in ${city.name}:\n\n- **Compare rates** — Check multiple offers to find the best USDT/INR rate\n- **Verify the trader** — Look for the verification badge, high completion rates (95%+), and 100+ trades\n- **Use escrow** — Never trade outside TrustP2P; always use the platform's escrow system\n- **Start small** — Begin with a ₹500–₹1,000 trade to build confidence\n- **Keep payment proof** — Screenshot your UPI/bank transfer confirmation\n- **Stay responsive** — Reply quickly in the trade chat for faster completion`,
+      text: `Here are tips for a smooth USDT trading experience in ${city.name}:\n\n- **Compare rates** — Check multiple offers to find the best USDT/INR rate\n- **Verify the trader** — Look for the verification badge, high completion rates (95%+), and 100+ trades\n- **Use escrow** — Never trade outside P2PxBT; always use the platform's escrow system\n- **Start small** — Begin with a ₹500–₹1,000 trade to build confidence\n- **Keep payment proof** — Screenshot your UPI/bank transfer confirmation\n- **Stay responsive** — Reply quickly in the trade chat for faster completion`,
     });
 
     const faq: { q: string; a: string }[] = [
-      { q: `Is it safe to buy USDT in ${city.name}?`, a: `Yes, absolutely. TrustP2P uses escrow protection on every trade. The seller's USDT is locked before you send payment, and it's only released when both parties confirm. This eliminates fraud risk completely.` },
+      { q: `Is it safe to buy USDT in ${city.name}?`, a: `Yes, absolutely. P2PxBT uses escrow protection on every trade. The seller's USDT is locked before you send payment, and it's only released when both parties confirm. This eliminates fraud risk completely.` },
       { q: `How fast can I buy USDT in ${city.name}?`, a: `Most trades complete within 5–15 minutes. UPI payments are instant, and sellers typically confirm receipt within minutes. Once confirmed, USDT is released to your wallet immediately.` },
       { q: `What payment methods can I use in ${city.name}?`, a: `You can use UPI (Google Pay, PhonePe, Paytm), IMPS, NEFT, RTGS, or bank transfer. UPI is the fastest and most popular method for USDT trading in ${city.name}.` },
       { q: `What is the minimum amount to trade?`, a: `You can start trading with as little as ₹500 worth of USDT. There's no maximum limit for verified traders.` },
@@ -498,10 +498,10 @@ indianCities.forEach((city, idx) => {
   indianCityPages.push({
     slug: `buy-usdt-${city.slug}`,
     title: `Buy USDT in ${city.name}`,
-    metaTitle: `Buy USDT in ${city.name} | Instant P2P Crypto Exchange | TrustP2P`,
-    metaDescription: `Buy USDT in ${city.name} using UPI or bank transfer. सुरक्षित और तेज़ crypto trading with escrow protection on TrustP2P.`,
+    metaTitle: `Buy USDT in ${city.name} | Instant P2P Crypto Exchange | P2PxBT`,
+    metaDescription: `Buy USDT in ${city.name} using UPI or bank transfer. सुरक्षित और तेज़ crypto trading with escrow protection on P2PxBT.`,
     h1: `Buy USDT in ${city.name} Safely with Escrow`,
-    intro: `Buy USDT in ${city.name} using secure escrow and local payment methods like UPI and bank transfer. TrustP2P connects you with verified local traders offering the best USDT/INR rates. Fast, safe, and trusted by thousands of traders across India.`,
+    intro: `Buy USDT in ${city.name} using secure escrow and local payment methods like UPI and bank transfer. P2PxBT connects you with verified local traders offering the best USDT/INR rates. Fast, safe, and trusted by thousands of traders across India.`,
     action: "buy",
     coin: "USDT",
     coinSymbol: "USDT",
@@ -524,10 +524,10 @@ indianCities.forEach((city, idx) => {
   indianCityPages.push({
     slug: `sell-usdt-${city.slug}`,
     title: `Sell USDT in ${city.name}`,
-    metaTitle: `Sell USDT in ${city.name} | Get INR Instantly | TrustP2P`,
-    metaDescription: `Sell USDT in ${city.name} and receive INR via UPI or bank transfer. Fast escrow-protected P2P trades on TrustP2P.`,
+    metaTitle: `Sell USDT in ${city.name} | Get INR Instantly | P2PxBT`,
+    metaDescription: `Sell USDT in ${city.name} and receive INR via UPI or bank transfer. Fast escrow-protected P2P trades on P2PxBT.`,
     h1: `Sell USDT in ${city.name} — Get INR Instantly`,
-    intro: `Sell your USDT in ${city.name} and receive INR directly to your bank account or UPI. TrustP2P's escrow protection ensures you get paid safely and quickly. Verified buyers, competitive rates, and instant payouts.`,
+    intro: `Sell your USDT in ${city.name} and receive INR directly to your bank account or UPI. P2PxBT's escrow protection ensures you get paid safely and quickly. Verified buyers, competitive rates, and instant payouts.`,
     action: "sell",
     coin: "USDT",
     coinSymbol: "USDT",
@@ -558,7 +558,7 @@ indianCities.forEach((city, idx) => {
   indianCityPages.push({
     slug: `buy-usdt-${city.slug}-upi`,
     title: `Buy USDT in ${city.name} with UPI`,
-    metaTitle: `Buy USDT in ${city.name} with UPI | Instant P2P Trades | TrustP2P`,
+    metaTitle: `Buy USDT in ${city.name} with UPI | Instant P2P Trades | P2PxBT`,
     metaDescription: `Buy USDT in ${city.name} using UPI. Instant INR payment, escrow-protected trades, verified sellers. Best USDT rates in ${city.name}.`,
     h1: `Buy USDT in ${city.name} with UPI`,
     intro: `Buy USDT in ${city.name} instantly using UPI — India's fastest payment method. Pay directly from Google Pay, PhonePe, or any UPI app. Every trade is escrow-protected and completes in under 10 minutes.`,
@@ -595,10 +595,10 @@ indianCities.forEach((city, idx) => {
   indianCityPages.push({
     slug: `buy-usdt-${city.slug}-bank-transfer`,
     title: `Buy USDT in ${city.name} with Bank Transfer`,
-    metaTitle: `Buy USDT in ${city.name} via Bank Transfer | Secure P2P | TrustP2P`,
+    metaTitle: `Buy USDT in ${city.name} via Bank Transfer | Secure P2P | P2PxBT`,
     metaDescription: `Buy USDT in ${city.name} using bank transfer (NEFT/RTGS/IMPS). Escrow-protected P2P trades with verified sellers. Best INR rates.`,
     h1: `Buy USDT in ${city.name} with Bank Transfer`,
-    intro: `Buy USDT in ${city.name} using NEFT, RTGS, or IMPS bank transfer. Ideal for larger transactions with higher limits. Every trade is protected by TrustP2P's secure escrow system.`,
+    intro: `Buy USDT in ${city.name} using NEFT, RTGS, or IMPS bank transfer. Ideal for larger transactions with higher limits. Every trade is protected by P2PxBT's secure escrow system.`,
     action: "buy",
     coin: "USDT",
     coinSymbol: "USDT",
@@ -637,10 +637,10 @@ const hubPages: SEOPageData[] = [];
 const buyUsdtIndiaHub: SEOPageData = {
   slug: "buy-usdt-india",
   title: "Buy USDT in India",
-  metaTitle: "Buy USDT in India | P2P Crypto Exchange in All Major Cities | TrustP2P",
+  metaTitle: "Buy USDT in India | P2P Crypto Exchange in All Major Cities | P2PxBT",
   metaDescription: "Buy USDT in India using UPI or bank transfer. Trade in Delhi, Mumbai, Bangalore, Chennai, Kolkata, Hyderabad, Pune & more. Escrow-protected P2P trades.",
   h1: "Buy USDT in India — All Major Cities",
-  intro: "Buy USDT safely across India using UPI, IMPS, or bank transfer. TrustP2P connects you with verified local traders in 14 major cities. Every trade is escrow-protected — your funds are always safe. Choose your city below to find the best USDT/INR rates from traders near you.",
+  intro: "Buy USDT safely across India using UPI, IMPS, or bank transfer. P2PxBT connects you with verified local traders in 14 major cities. Every trade is escrow-protected — your funds are always safe. Choose your city below to find the best USDT/INR rates from traders near you.",
   action: "buy",
   coin: "USDT",
   coinSymbol: "USDT",
@@ -654,20 +654,20 @@ const buyUsdtIndiaHub: SEOPageData = {
       }).join("\n"),
     },
     {
-      heading: "Why Buy USDT in India on TrustP2P?",
-      text: "India is one of the world's largest and fastest-growing markets for peer-to-peer cryptocurrency trading. With over 300 million UPI users and a tech-savvy population, buying USDT has never been easier. TrustP2P offers escrow-protected trades in INR, verified traders with public ratings, and support for all major Indian payment methods including UPI, IMPS, NEFT, RTGS, and bank transfer. Whether you're in Delhi, Mumbai, Bangalore, or any other city, you can buy USDT in minutes.",
+      heading: "Why Buy USDT in India on P2PxBT?",
+      text: "India is one of the world's largest and fastest-growing markets for peer-to-peer cryptocurrency trading. With over 300 million UPI users and a tech-savvy population, buying USDT has never been easier. P2PxBT offers escrow-protected trades in INR, verified traders with public ratings, and support for all major Indian payment methods including UPI, IMPS, NEFT, RTGS, and bank transfer. Whether you're in Delhi, Mumbai, Bangalore, or any other city, you can buy USDT in minutes.",
     },
     {
       heading: "Supported Payment Methods",
-      text: "TrustP2P supports all popular Indian payment methods for USDT trading:\n\n- **UPI** — Instant payments via Google Pay, PhonePe, Paytm, and any UPI app. Zero fees, 24/7 availability.\n- **IMPS** — Immediate Payment Service for instant bank-to-bank transfers up to ₹5 lakh.\n- **Bank Transfer (NEFT/RTGS)** — For larger transactions. NEFT settles in batches, RTGS is real-time for amounts above ₹2 lakh.\n- **Google Pay / PhonePe** — Popular UPI apps with wide merchant and P2P acceptance.",
+      text: "P2PxBT supports all popular Indian payment methods for USDT trading:\n\n- **UPI** — Instant payments via Google Pay, PhonePe, Paytm, and any UPI app. Zero fees, 24/7 availability.\n- **IMPS** — Immediate Payment Service for instant bank-to-bank transfers up to ₹5 lakh.\n- **Bank Transfer (NEFT/RTGS)** — For larger transactions. NEFT settles in batches, RTGS is real-time for amounts above ₹2 lakh.\n- **Google Pay / PhonePe** — Popular UPI apps with wide merchant and P2P acceptance.",
     },
     {
       heading: "How Escrow Protection Works",
-      text: "Every USDT trade on TrustP2P is protected by our escrow system. Here's how it works: when a trade starts, the seller's USDT is locked in a secure escrow wallet. The buyer then sends INR payment via their preferred method (UPI, bank transfer, etc.). Once the seller confirms receipt of payment, the USDT is released from escrow to the buyer's wallet. If there's any dispute, TrustP2P's support team reviews the evidence and resolves it fairly. This system eliminates the risk of fraud completely.",
+      text: "Every USDT trade on P2PxBT is protected by our escrow system. Here's how it works: when a trade starts, the seller's USDT is locked in a secure escrow wallet. The buyer then sends INR payment via their preferred method (UPI, bank transfer, etc.). Once the seller confirms receipt of payment, the USDT is released from escrow to the buyer's wallet. If there's any dispute, P2PxBT's support team reviews the evidence and resolves it fairly. This system eliminates the risk of fraud completely.",
     },
     {
       heading: "USDT Trading Tips for Indian Traders",
-      text: "Here are tips for safe and successful USDT trading in India:\n\n- **Compare rates** — Check offers from multiple traders to find the best USDT/INR rate\n- **Verify the trader** — Choose traders with 95%+ completion rates and 100+ trades\n- **Use UPI for speed** — UPI payments are instant and free, making them ideal for quick trades\n- **Start with small amounts** — Build trust with a ₹500–₹1,000 first trade\n- **Keep payment proof** — Always screenshot your payment confirmation\n- **Never trade off-platform** — Always use TrustP2P's escrow for protection",
+      text: "Here are tips for safe and successful USDT trading in India:\n\n- **Compare rates** — Check offers from multiple traders to find the best USDT/INR rate\n- **Verify the trader** — Choose traders with 95%+ completion rates and 100+ trades\n- **Use UPI for speed** — UPI payments are instant and free, making them ideal for quick trades\n- **Start with small amounts** — Build trust with a ₹500–₹1,000 first trade\n- **Keep payment proof** — Always screenshot your payment confirmation\n- **Never trade off-platform** — Always use P2PxBT's escrow for protection",
     },
   ],
   faq: [
@@ -675,7 +675,7 @@ const buyUsdtIndiaHub: SEOPageData = {
     { q: "What is the best payment method for buying USDT in India?", a: "UPI is the fastest and most popular method. It's instant, free, and available 24/7. For larger trades (above ₹50,000), many traders prefer bank transfer via NEFT or RTGS." },
     { q: "How much USDT can I buy at once?", a: "There's no platform limit. The amount depends on the trader's available balance. Most traders offer between ₹500 and ₹10,00,000 per trade." },
     { q: "How long does a USDT trade take in India?", a: "Most UPI trades complete in 5–10 minutes. Bank transfer trades may take 15–30 minutes depending on the transfer method (IMPS is fastest, NEFT takes longer)." },
-    { q: "Is TrustP2P safe for Indian traders?", a: "Absolutely. Every trade uses escrow protection, all traders are verified, and our dispute resolution team handles any issues. Over 12,000 trades have been completed safely on TrustP2P." },
+    { q: "Is P2PxBT safe for Indian traders?", a: "Absolutely. Every trade uses escrow protection, all traders are verified, and our dispute resolution team handles any issues. Over 12,000 trades have been completed safely on P2PxBT." },
   ],
   relatedLinks: [
     ...indianCities.slice(0, 7).map(c => ({ label: `Buy USDT in ${c.name}`, href: `/buy-usdt-${c.slug}` })),
@@ -701,10 +701,10 @@ if (existingIndiaIdx >= 0) {
 const buyUsdtUpiHub: SEOPageData = {
   slug: "buy-usdt-upi",
   title: "Buy USDT with UPI",
-  metaTitle: "Buy USDT with UPI | Instant P2P Trades in India | TrustP2P",
+  metaTitle: "Buy USDT with UPI | Instant P2P Trades in India | P2PxBT",
   metaDescription: "Buy USDT instantly using UPI — Google Pay, PhonePe, Paytm. Escrow-protected P2P trades across all major Indian cities. Best USDT/INR rates.",
   h1: "Buy USDT with UPI — Instant P2P Trades",
-  intro: "Buy USDT instantly using any UPI app — Google Pay, PhonePe, Paytm, or your bank's UPI. Payments are instant, free, and available 24/7. All trades are escrow-protected on TrustP2P. Choose your city for the best local rates.",
+  intro: "Buy USDT instantly using any UPI app — Google Pay, PhonePe, Paytm, or your bank's UPI. Payments are instant, free, and available 24/7. All trades are escrow-protected on P2PxBT. Choose your city for the best local rates.",
   action: "buy",
   coin: "USDT",
   coinSymbol: "USDT",
@@ -719,15 +719,15 @@ const buyUsdtUpiHub: SEOPageData = {
     },
     {
       heading: "Why UPI is the Best Way to Buy USDT",
-      text: "UPI (Unified Payments Interface) has revolutionized payments in India with 300M+ active users. Here's why it's perfect for USDT trading:\n\n- **Instant** — Payments settle in seconds, not minutes or hours\n- **Free** — Zero transaction fees on UPI transfers\n- **24/7** — Available round the clock, including weekends and holidays\n- **Secure** — Protected by your UPI PIN and bank's security layer\n- **Universal** — Works with all major banks and payment apps\n\nWhen combined with TrustP2P's escrow protection, UPI provides the fastest and safest way to buy USDT in India.",
+      text: "UPI (Unified Payments Interface) has revolutionized payments in India with 300M+ active users. Here's why it's perfect for USDT trading:\n\n- **Instant** — Payments settle in seconds, not minutes or hours\n- **Free** — Zero transaction fees on UPI transfers\n- **24/7** — Available round the clock, including weekends and holidays\n- **Secure** — Protected by your UPI PIN and bank's security layer\n- **Universal** — Works with all major banks and payment apps\n\nWhen combined with P2PxBT's escrow protection, UPI provides the fastest and safest way to buy USDT in India.",
     },
     {
       heading: "How to Buy USDT with UPI",
-      text: "Follow these steps to buy USDT using UPI:\n\n1. **Sign up on TrustP2P** — Create your free account and verify your email\n2. **Browse UPI offers** — Filter offers by UPI payment method to find the best rates\n3. **Start a trade** — Select an offer and enter your desired USDT amount\n4. **Escrow locks** — The seller's USDT is automatically locked in escrow\n5. **Pay via UPI** — Open Google Pay, PhonePe, or any UPI app and send the INR amount\n6. **Confirm & receive** — Once the seller verifies your payment, USDT is released to your wallet",
+      text: "Follow these steps to buy USDT using UPI:\n\n1. **Sign up on P2PxBT** — Create your free account and verify your email\n2. **Browse UPI offers** — Filter offers by UPI payment method to find the best rates\n3. **Start a trade** — Select an offer and enter your desired USDT amount\n4. **Escrow locks** — The seller's USDT is automatically locked in escrow\n5. **Pay via UPI** — Open Google Pay, PhonePe, or any UPI app and send the INR amount\n6. **Confirm & receive** — Once the seller verifies your payment, USDT is released to your wallet",
     },
     {
       heading: "Supported UPI Apps",
-      text: "TrustP2P traders accept payments from all UPI apps:\n\n- **Google Pay (GPay)** — Most popular UPI app with seamless scan-and-pay\n- **PhonePe** — Widely used with cashback offers and bill payments\n- **Paytm** — India's super app with UPI, wallet, and banking\n- **BHIM** — Government's official UPI app with multi-language support\n- **Amazon Pay** — Integrated UPI for Amazon users\n- **Bank apps** — SBI YONO, HDFC, ICICI, Kotak, and all bank UPI apps",
+      text: "P2PxBT traders accept payments from all UPI apps:\n\n- **Google Pay (GPay)** — Most popular UPI app with seamless scan-and-pay\n- **PhonePe** — Widely used with cashback offers and bill payments\n- **Paytm** — India's super app with UPI, wallet, and banking\n- **BHIM** — Government's official UPI app with multi-language support\n- **Amazon Pay** — Integrated UPI for Amazon users\n- **Bank apps** — SBI YONO, HDFC, ICICI, Kotak, and all bank UPI apps",
     },
     {
       heading: "UPI Transaction Limits for Crypto Trading",
@@ -735,11 +735,11 @@ const buyUsdtUpiHub: SEOPageData = {
     },
   ],
   faq: [
-    { q: "Can I buy USDT using Google Pay?", a: "Yes! Google Pay uses UPI, which is fully supported on TrustP2P. Simply scan the seller's QR code or enter their UPI ID to pay instantly." },
-    { q: "Is there a fee for UPI payments?", a: "No, UPI transfers are completely free — no transaction fees for sending or receiving money. TrustP2P charges only a small 0.25% escrow fee." },
+    { q: "Can I buy USDT using Google Pay?", a: "Yes! Google Pay uses UPI, which is fully supported on P2PxBT. Simply scan the seller's QR code or enter their UPI ID to pay instantly." },
+    { q: "Is there a fee for UPI payments?", a: "No, UPI transfers are completely free — no transaction fees for sending or receiving money. P2PxBT charges only a small 0.25% escrow fee." },
     { q: "What is the UPI transaction limit for USDT?", a: "Most banks allow up to ₹1,00,000 per UPI transaction. For larger USDT purchases, you can split into multiple payments or use bank transfer." },
     { q: "How fast is a UPI USDT trade?", a: "UPI payments are instant. Most USDT trades via UPI complete within 5–10 minutes from start to finish, including escrow release." },
-    { q: "Can I use UPI at night to buy USDT?", a: "Yes, UPI works 24/7 including weekends and holidays. You can buy USDT any time on TrustP2P." },
+    { q: "Can I use UPI at night to buy USDT?", a: "Yes, UPI works 24/7 including weekends and holidays. You can buy USDT any time on P2PxBT." },
   ],
   relatedLinks: [
     ...indianCities.slice(0, 7).map(c => ({ label: `Buy USDT in ${c.name} with UPI`, href: `/buy-usdt-${c.slug}-upi` })),
@@ -764,10 +764,10 @@ if (existingUpiIdx >= 0) {
 hubPages.push({
   slug: "sell-usdt-india",
   title: "Sell USDT in India",
-  metaTitle: "Sell USDT in India | Get INR Instantly via UPI/Bank | TrustP2P",
+  metaTitle: "Sell USDT in India | Get INR Instantly via UPI/Bank | P2PxBT",
   metaDescription: "Sell USDT in India and receive INR instantly via UPI or bank transfer. Escrow-protected P2P trades in Delhi, Mumbai, Bangalore & 11 more cities.",
   h1: "Sell USDT in India — Get INR Instantly",
-  intro: "Sell your USDT in India and receive INR directly via UPI or bank transfer. TrustP2P connects you with verified buyers in 14 major Indian cities. Every trade is escrow-protected — you always get paid. Choose your city below to start selling.",
+  intro: "Sell your USDT in India and receive INR directly via UPI or bank transfer. P2PxBT connects you with verified buyers in 14 major Indian cities. Every trade is escrow-protected — you always get paid. Choose your city below to start selling.",
   action: "sell",
   coin: "USDT",
   coinSymbol: "USDT",
@@ -782,11 +782,11 @@ hubPages.push({
     },
     {
       heading: "How to Sell USDT for INR",
-      text: "Selling USDT on TrustP2P is simple and safe:\n\n1. **List your offer** — Set your USDT amount and INR price\n2. **Buyer starts trade** — A buyer locks in your offer\n3. **USDT goes to escrow** — Your USDT is secured in escrow\n4. **Receive INR** — Buyer sends INR via UPI or bank transfer\n5. **Confirm & release** — Verify payment and release USDT from escrow\n\nThe entire process takes 5–15 minutes. You're always protected by escrow.",
+      text: "Selling USDT on P2PxBT is simple and safe:\n\n1. **List your offer** — Set your USDT amount and INR price\n2. **Buyer starts trade** — A buyer locks in your offer\n3. **USDT goes to escrow** — Your USDT is secured in escrow\n4. **Receive INR** — Buyer sends INR via UPI or bank transfer\n5. **Confirm & release** — Verify payment and release USDT from escrow\n\nThe entire process takes 5–15 minutes. You're always protected by escrow.",
     },
     {
-      heading: "Why Sell on TrustP2P?",
-      text: "TrustP2P is the safest platform to sell USDT in India:\n\n- **Escrow protection** — Your USDT is safe until you confirm payment receipt\n- **Instant INR** — Receive money via UPI (instant) or bank transfer\n- **Set your own price** — You control the USDT/INR rate and margins\n- **Verified buyers** — Trade with rated, verified buyers only\n- **No withdrawal fees** — Your INR goes directly to your bank account",
+      heading: "Why Sell on P2PxBT?",
+      text: "P2PxBT is the safest platform to sell USDT in India:\n\n- **Escrow protection** — Your USDT is safe until you confirm payment receipt\n- **Instant INR** — Receive money via UPI (instant) or bank transfer\n- **Set your own price** — You control the USDT/INR rate and margins\n- **Verified buyers** — Trade with rated, verified buyers only\n- **No withdrawal fees** — Your INR goes directly to your bank account",
     },
     {
       heading: "Best Time to Sell USDT",
@@ -798,7 +798,7 @@ hubPages.push({
     { q: "How long does it take to sell USDT?", a: "Most trades complete in 5–15 minutes. UPI payments are received instantly, while bank transfers may take 15–30 minutes." },
     { q: "Is there a minimum amount to sell?", a: "You can sell USDT worth as little as ₹500. There's no maximum limit for verified traders." },
     { q: "What if the buyer doesn't pay?", a: "Your USDT stays safely in escrow. If the buyer doesn't send payment within the time limit, the trade is cancelled and your USDT is returned." },
-    { q: "What fees does TrustP2P charge sellers?", a: "TrustP2P charges a small 0.25% escrow fee per trade. There are no listing fees or monthly charges." },
+    { q: "What fees does P2PxBT charge sellers?", a: "P2PxBT charges a small 0.25% escrow fee per trade. There are no listing fees or monthly charges." },
   ],
   relatedLinks: [
     ...indianCities.slice(0, 7).map(c => ({ label: `Sell USDT in ${c.name}`, href: `/sell-usdt-${c.slug}` })),
