@@ -184,7 +184,7 @@ const Dashboard = () => {
   if (!user) {
     return (
       <div className="container py-12">
-        <SEOHead title="Dashboard — TrustP2P" description="View your trades, wallet, and active offers." />
+        <SEOHead title="Dashboard — P2PxBT" description="View your trades, wallet, and active offers." canonical="https://p2pxbt.com/dashboard" noindex />
         <div className="max-w-md mx-auto text-center py-20">
           <Lock className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
           <h1 className="font-display text-2xl font-bold text-foreground mb-2">Sign in to view your dashboard</h1>
@@ -210,7 +210,7 @@ const Dashboard = () => {
 
   return (
     <div className="container py-12">
-      <SEOHead title="Dashboard — TrustP2P" description="View your trades, wallet, and active offers." />
+      <SEOHead title="Dashboard — P2PxBT" description="View your trades, wallet, and active offers." canonical="https://p2pxbt.com/dashboard" noindex />
       <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Dashboard", href: "/dashboard" }]} />
 
       {profile?.is_demo_user && (

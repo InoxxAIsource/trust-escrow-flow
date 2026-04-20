@@ -39,8 +39,10 @@ const OfferDetail = () => {
   return (
     <>
       <SEOHead
-        title={`${offer.type === "sell" ? "Buy" : "Sell"} ${offer.asset} from ${offer.username} | TrustP2P`}
-        description={`${offer.type === "sell" ? "Buy" : "Sell"} ${offer.asset} at ${sym}${offer.price} from ${offer.username}. Escrow-protected P2P trade on TrustP2P.`}
+        title={`${offer.type === "sell" ? "Buy" : "Sell"} ${offer.asset} from ${offer.username} | P2PxBT`}
+        description={`${offer.type === "sell" ? "Buy" : "Sell"} ${offer.asset} at ${sym}${offer.price} from ${offer.username}. Escrow-protected P2P trade on P2PxBT.`}
+        canonical={`https://p2pxbt.com/offer/${offer.id}`}
+        noindex
         jsonLd={{
           "@context": "https://schema.org",
           "@type": "Offer",

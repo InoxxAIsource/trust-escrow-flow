@@ -37,8 +37,10 @@ const UserProfile = () => {
   return (
     <>
       <SEOHead
-        title={`${username} — Trader Profile | TrustP2P`}
-        description={`View ${username}'s trader profile on TrustP2P. ${user.trades.toLocaleString()} completed trades, ${user.rating}/5 rating.`}
+        title={`${username} — Trader Profile | P2PxBT`}
+        description={`View ${username}'s trader profile on P2PxBT. ${user.trades.toLocaleString()} completed trades, ${user.rating}/5 rating.`}
+        canonical={`https://p2pxbt.com/user/${username}`}
+        noindex
       />
 
       <div className="container py-12">

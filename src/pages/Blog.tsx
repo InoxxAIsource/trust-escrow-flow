@@ -8,13 +8,39 @@ import { blogPosts } from "@/data/blog-posts";
 
 const Blog = () => (
   <>
-    <SEOHead title="TrustP2P Blog — Crypto Trading Guides & News" description="Learn about P2P crypto trading, escrow protection, and how to buy and sell cryptocurrency safely. Guides, tips, and industry insights." canonical="https://p2pxbt.com/blog" />
+    <SEOHead
+      title="P2PxBT Blog — Crypto P2P Guides, Safety Tips, Market Analysis"
+      description="Learn about P2P crypto trading, escrow protection, and how to buy and sell cryptocurrency safely. Guides, tips, and industry insights from P2PxBT."
+      canonical="https://p2pxbt.com/blog"
+      jsonLd={[
+        {
+          "@context": "https://schema.org",
+          "@type": "Blog",
+          name: "P2PxBT Blog",
+          url: "https://p2pxbt.com/blog",
+          blogPost: blogPosts.map((p) => ({
+            "@type": "BlogPosting",
+            headline: p.title,
+            url: `https://p2pxbt.com/blog/${p.slug}`,
+            datePublished: p.date,
+          })),
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Home", item: "https://p2pxbt.com/" },
+            { "@type": "ListItem", position: 2, name: "Blog", item: "https://p2pxbt.com/blog" },
+          ],
+        },
+      ]}
+    />
 
     <div className="container py-12">
       <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Blog", href: "/blog" }]} />
 
       <div className="text-center mb-12">
-        <h1 className="font-display text-3xl md:text-5xl font-bold text-foreground">TrustP2P Blog</h1>
+        <h1 className="font-display text-3xl md:text-5xl font-bold text-foreground">P2PxBT Blog</h1>
         <p className="mt-4 text-lg text-muted-foreground max-w-xl mx-auto">Guides, tips, and insights for safe P2P crypto trading.</p>
       </div>
 

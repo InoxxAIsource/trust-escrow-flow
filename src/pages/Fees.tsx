@@ -24,7 +24,21 @@ const benefits = [
 
 const Fees = () => (
   <>
-    <SEOHead title="TrustP2P Fees — Transparent & Low Cost Trading" description="See TrustP2P's simple and transparent fee structure. Low trading fees, zero deposit fees, and free escrow protection." canonical="https://p2pxbt.com/fees" />
+    <SEOHead
+      title="P2PxBT Fees — Transparent P2P Escrow Pricing"
+      description="See P2PxBT's simple and transparent fee structure. Flat 1.2% trading fee, zero deposit fees, and free escrow protection on every P2P crypto trade."
+      canonical="https://p2pxbt.com/fees"
+      jsonLd={[
+        {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Home", item: "https://p2pxbt.com/" },
+            { "@type": "ListItem", position: 2, name: "Fees", item: "https://p2pxbt.com/fees" },
+          ],
+        },
+      ]}
+    />
 
     <div className="container py-12">
       <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Fees", href: "/fees" }]} />
