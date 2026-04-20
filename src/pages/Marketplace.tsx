@@ -308,9 +308,26 @@ const Marketplace = () => {
   return (
     <>
       <SEOHead
-        title="P2P Crypto Marketplace — Buy & Sell USDT, BTC, ETH, SOL | TrustP2P"
-        description="Browse escrow-protected P2P crypto listings. Buy and sell USDT, Bitcoin, Ethereum, and Solana with verified traders worldwide."
+        title="P2P Crypto Marketplace — Browse Live USDT, BTC, ETH, SOL Offers"
+        description="Browse escrow-protected P2P crypto listings. Buy and sell USDT, Bitcoin, Ethereum, and Solana with verified traders worldwide on P2PxBT."
         canonical="https://p2pxbt.com/marketplace"
+        jsonLd={[
+          {
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            name: "P2P Crypto Marketplace",
+            url: "https://p2pxbt.com/marketplace",
+            description: "Live P2P offers for USDT, BTC, ETH, SOL with escrow protection.",
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Home", item: "https://p2pxbt.com/" },
+              { "@type": "ListItem", position: 2, name: "Marketplace", item: "https://p2pxbt.com/marketplace" },
+            ],
+          },
+        ]}
       />
 
       <div className="container py-12">

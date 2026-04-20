@@ -22,7 +22,34 @@ const BlogPost = () => {
 
   return (
     <>
-      <SEOHead title={post.metaTitle} description={post.metaDescription} canonical={`https://p2pxbt.com/blog/${post.slug}`} />
+      <SEOHead
+        title={post.metaTitle}
+        description={post.metaDescription}
+        canonical={`https://p2pxbt.com/blog/${post.slug}`}
+        ogType="article"
+        jsonLd={[
+          {
+            "@context": "https://schema.org",
+            "@type": "BlogPosting",
+            headline: post.title,
+            description: post.metaDescription,
+            datePublished: post.date,
+            dateModified: post.date,
+            author: { "@type": "Organization", name: "P2PxBT" },
+            publisher: { "@type": "Organization", name: "P2PxBT", logo: { "@type": "ImageObject", url: "https://p2pxbt.com/favicon.ico" } },
+            mainEntityOfPage: `https://p2pxbt.com/blog/${post.slug}`,
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Home", item: "https://p2pxbt.com/" },
+              { "@type": "ListItem", position: 2, name: "Blog", item: "https://p2pxbt.com/blog" },
+              { "@type": "ListItem", position: 3, name: post.title, item: `https://p2pxbt.com/blog/${post.slug}` },
+            ],
+          },
+        ]}
+      />
 
       <div className="container py-12">
         <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Blog", href: "/blog" }, { label: post.title, href: `/blog/${post.slug}` }]} />

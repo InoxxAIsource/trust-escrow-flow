@@ -39,16 +39,30 @@ const fade = {
 const Index = () => (
   <>
     <SEOHead
-      title="TrustP2P — Trade Crypto Safely with Escrow Protection"
-      description="TrustP2P is a secure P2P crypto escrow platform. Buy and sell USDT, BTC, ETH, and SOL safely with escrow protection."
+      title="P2PxBT — Safe P2P Crypto Escrow for USDT, BTC, ETH, SOL"
+      description="P2PxBT is a secure peer-to-peer crypto escrow platform. Buy and sell USDT, BTC, ETH, and SOL worldwide with built-in escrow protection and verified traders."
       canonical="https://p2pxbt.com/"
-      jsonLd={{
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        name: "TrustP2P",
-        url: "https://p2pxbt.com",
-        description: "Secure P2P crypto escrow platform",
-      }}
+      jsonLd={[
+        {
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "P2PxBT",
+          url: "https://p2pxbt.com",
+          logo: "https://p2pxbt.com/favicon.ico",
+          sameAs: [],
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "P2PxBT",
+          url: "https://p2pxbt.com",
+          potentialAction: {
+            "@type": "SearchAction",
+            target: "https://p2pxbt.com/marketplace?q={search_term_string}",
+            "query-input": "required name=search_term_string",
+          },
+        },
+      ]}
     />
 
     {/* Hero */}

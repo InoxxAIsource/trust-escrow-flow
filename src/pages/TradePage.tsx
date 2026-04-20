@@ -30,7 +30,7 @@ const TradePage = () => {
   if (!user) {
     return (
       <div className="container py-12 text-center">
-        <SEOHead title="Trade — TrustP2P" description="View your trade details." />
+        <SEOHead title="Trade — P2PxBT" description="View your trade details." noindex />
         <Lock className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
         <h1 className="font-display text-2xl font-bold text-foreground mb-2">Sign in to view this trade</h1>
         <Button onClick={() => navigate("/auth")} size="lg">Sign In</Button>
@@ -41,7 +41,7 @@ const TradePage = () => {
   if (isLoading) {
     return (
       <div className="container py-12 text-center">
-        <SEOHead title="Trade — TrustP2P" description="Loading trade..." />
+        <SEOHead title="Trade — P2PxBT" description="Loading trade..." noindex />
         <p className="text-muted-foreground">Loading trade…</p>
       </div>
     );
@@ -50,7 +50,7 @@ const TradePage = () => {
   if (!trade) {
     return (
       <div className="container py-12 text-center">
-        <SEOHead title="Trade Not Found — TrustP2P" description="Trade not found." />
+        <SEOHead title="Trade Not Found — P2PxBT" description="Trade not found." noindex />
         <h1 className="font-display text-2xl font-bold text-foreground mb-2">Trade not found</h1>
         <Button onClick={() => navigate("/dashboard")} variant="outline">Go to Dashboard</Button>
       </div>

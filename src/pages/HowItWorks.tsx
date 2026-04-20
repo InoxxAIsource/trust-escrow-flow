@@ -27,7 +27,42 @@ const fade = { hidden: { opacity: 0, y: 20 }, visible: (i: number) => ({ opacity
 
 const HowItWorks = () => (
   <>
-    <SEOHead title="How TrustP2P Works — Secure P2P Crypto Escrow" description="Learn how TrustP2P's escrow system protects your P2P crypto trades. Step-by-step guide to safe cryptocurrency trading." canonical="https://p2pxbt.com/how-it-works" />
+    <SEOHead
+      title="How P2PxBT Escrow Works — Step by Step Guide"
+      description="Learn how P2PxBT's escrow system protects your P2P crypto trades. Step-by-step guide to safe cryptocurrency trading with built-in dispute resolution."
+      canonical="https://p2pxbt.com/how-it-works"
+      jsonLd={[
+        {
+          "@context": "https://schema.org",
+          "@type": "HowTo",
+          name: "How P2PxBT Escrow Works",
+          description: "Step-by-step guide to trading crypto safely with escrow.",
+          step: steps.map((s, i) => ({
+            "@type": "HowToStep",
+            position: i + 1,
+            name: s.title,
+            text: s.desc,
+          })),
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: faqs.map((f) => ({
+            "@type": "Question",
+            name: f.q,
+            acceptedAnswer: { "@type": "Answer", text: f.a },
+          })),
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Home", item: "https://p2pxbt.com/" },
+            { "@type": "ListItem", position: 2, name: "How It Works", item: "https://p2pxbt.com/how-it-works" },
+          ],
+        },
+      ]}
+    />
 
     <div className="container py-12">
       <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "How It Works", href: "/how-it-works" }]} />
