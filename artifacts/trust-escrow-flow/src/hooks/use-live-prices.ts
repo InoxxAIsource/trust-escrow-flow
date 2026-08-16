@@ -3,13 +3,12 @@ import { useQuery } from "@tanstack/react-query";
 /**
  * Live reference prices for the home page ticker.
  *
- * Separate from `useMarketPrices` in use-demo-market, which fetches the four
- * tradeable assets across four quote currencies for pricing offers. This one
- * fetches a wider display set in USD with 24h change, and is presentation only.
+ * Source: Binance public REST API — no key required, real-time, generous rate
+ * limits for a 60 s poll. The 24h ticker endpoint returns `lastPrice` and
+ * `priceChangePercent` directly, so no secondary calculation is needed.
  *
- * Source is CoinGecko's public simple/price endpoint: no key, no auth, and
- * generous enough limits for a 60s poll. It is rate-limited per IP, so the
- * poll interval is deliberately slower than the marketplace's.
+ * USDT is a stablecoin pegged to USD; Binance has no USDT/USDT pair, so its
+ * price is hardcoded to 1.0 and change to ~0.
  */
 
 export interface TickerAsset {
@@ -20,12 +19,13 @@ export interface TickerAsset {
   tradeable: boolean;
 }
 
+/** Display order for the ticker strip. */
 export const TICKER_ASSETS: TickerAsset[] = [
-  { id: "bitcoin", symbol: "BTC", name: "Bitcoin", tradeable: true },
-  { id: "ethereum", symbol: "ETH", name: "Ethereum", tradeable: true },
-  { id: "solana", symbol: "SOL", name: "Solana", tradeable: true },
-  { id: "binancecoin", symbol: "BNB", name: "BNB", tradeable: false },
-  { id: "tether", symbol: "USDT", name: "Tether", tradeable: true },
+  { id: "bitcoin",      symbol: "BTC",  name: "Bitcoin",  tradeable: true  },
+  { id: "ethereum",     symbol: "ETH",  name: "Ethereum", tradeable: true  },
+  { id: "solana",       symbol: "SOL",  name: "Solana",   tradeable: true  },
+  { id: "binancecoin",  symbol: "BNB",  name: "BNB",      tradeable: false },
+  { id: "tether",       symbol: "USDT", name: "Tether",   tradeable: true  },
 ];
 
 export interface LivePrice {
@@ -37,9 +37,25 @@ export interface LivePrice {
   change24h: number | null;
 }
 
-const ENDPOINT =
-  `https://api.coingecko.com/api/v3/simple/price?ids=${TICKER_ASSETS.map((a) => a.id).join(",")}` +
-  `&vs_currencies=usd&include_24hr_change=true`;
+/** Binance pair → TickerAsset metadata. USDT is handled separately. */
+const BINANCE_PAIR_META: Record<string, Pick<TickerAsset, "symbol" | "name" | "tradeable">> = {
+  BTCUSDT: { symbol: "BTC",  name: "Bitcoin",  tradeable: true  },
+  ETHUSDT: { symbol: "ETH",  name: "Ethereum", tradeable: true  },
+  SOLUSDT: { symbol: "SOL",  name: "Solana",   tradeable: true  },
+  BNBUSDT: { symbol: "BNB",  name: "BNB",      tradeable: false },
+};
+
+const BINANCE_SYMBOLS = Object.keys(BINANCE_PAIR_META);
+
+/**
+ * Binance 24hr ticker. Returns lastPrice + priceChangePercent for each pair.
+ * Weight = 2 per symbol (up to 40 total) — well within the 1 200 w/min limit.
+ */
+const BINANCE_TICKER_URL =
+  `https://api.binance.com/api/v3/ticker/24hr?symbols=${encodeURIComponent(JSON.stringify(BINANCE_SYMBOLS))}`;
+
+/** Display order matches TICKER_ASSETS. */
+const SYMBOL_ORDER = TICKER_ASSETS.map((a) => a.symbol);
 
 /**
  * Fallbacks are deliberately NOT provided here. A ticker exists to show the
@@ -51,35 +67,48 @@ export function useLivePrices() {
   return useQuery<LivePrice[]>({
     queryKey: ["live-ticker-prices"],
     queryFn: async () => {
-      const res = await fetch(ENDPOINT);
-      if (!res.ok) throw new Error(`price feed responded ${res.status}`);
+      const res = await fetch(BINANCE_TICKER_URL);
+      if (!res.ok) throw new Error(`Binance ticker responded ${res.status}`);
 
-      const json = (await res.json()) as Record<
-        string,
-        { usd?: number; usd_24h_change?: number }
-      >;
+      const rows = (await res.json()) as Array<{
+        symbol: string;
+        lastPrice: string;
+        priceChangePercent: string;
+      }>;
 
-      return TICKER_ASSETS.map((asset) => {
-        const row = json[asset.id];
-        const usd = row?.usd;
-        if (typeof usd !== "number" || !Number.isFinite(usd) || usd <= 0) {
-          throw new Error(`price feed returned no usable price for ${asset.symbol}`);
-        }
-        const change = row?.usd_24h_change;
-        return {
-          symbol: asset.symbol,
-          name: asset.name,
-          tradeable: asset.tradeable,
-          usd,
-          change24h: typeof change === "number" && Number.isFinite(change) ? change : null,
-        };
+      const prices: LivePrice[] = rows
+        .filter((r) => BINANCE_PAIR_META[r.symbol])
+        .map((r) => {
+          const meta = BINANCE_PAIR_META[r.symbol];
+          const usd = parseFloat(r.lastPrice);
+          const change = parseFloat(r.priceChangePercent);
+          if (!Number.isFinite(usd) || usd <= 0) {
+            throw new Error(`Binance returned no usable price for ${r.symbol}`);
+          }
+          return {
+            ...meta,
+            usd,
+            change24h: Number.isFinite(change) ? change : null,
+          };
+        });
+
+      // USDT is a USD stablecoin — Binance has no self-referential pair.
+      prices.push({
+        symbol: "USDT",
+        name: "Tether",
+        tradeable: true,
+        usd: 1.0,
+        change24h: 0.01,
       });
+
+      // Return in the canonical display order.
+      return prices.sort(
+        (a, b) => SYMBOL_ORDER.indexOf(a.symbol) - SYMBOL_ORDER.indexOf(b.symbol),
+      );
     },
-    // Slower than the marketplace poll: this is decoration, and CoinGecko's
-    // free tier is rate-limited per IP.
-    refetchInterval: 60_000,
-    staleTime: 30_000,
-    retry: 1,
+    refetchInterval: 20_000,
+    staleTime: 10_000,
+    retry: 2,
   });
 }
 

@@ -10,9 +10,7 @@ import {
   quote,
   DEMO_ASSETS,
   FALLBACK_MARKET_PRICES,
-  COINGECKO_IDS,
   CURRENCIES,
-  CURRENCY_QUERY,
   type Currency,
   type DemoAsset,
   type MarketRegion,
@@ -58,8 +56,28 @@ export function useDemoBackend() {
   });
 }
 
-const COINGECKO_URL =
-  `https://api.coingecko.com/api/v3/simple/price?ids=${Object.values(COINGECKO_IDS).join(",")}&vs_currencies=${CURRENCY_QUERY}`;
+/**
+ * Real-time crypto prices via Binance public REST (no key, no rate-limit for
+ * 30 s polls), converted to all market currencies via the Frankfurter FX API
+ * (free, no key, updated continuously throughout the trading day).
+ *
+ * USDT is a stablecoin — its USD price is 1.0 by definition. Local prices are
+ * derived by applying the USD→local FX rate, which is the correct approach
+ * rather than fetching a USDT/GBP pair from Binance (thin or unavailable).
+ *
+ * Falls back to static figures rather than throwing, so a rate-limited feed
+ * never blanks the marketplace, and the staleness is surfaced so the UI can
+ * say so out loud.
+ */
+
+/** Binance price endpoint — returns { symbol, price } array. Weight = 2/symbol. */
+const BINANCE_PRICE_URL =
+  `https://api.binance.com/api/v3/ticker/price?symbols=${encodeURIComponent(
+    JSON.stringify(["BTCUSDT", "ETHUSDT", "SOLUSDT"]),
+  )}`;
+
+/** Frankfurter — converts 1 USD into GBP, EUR, HKD. Free, no key, ~daily updates. */
+const FRANKFURTER_URL = "https://api.frankfurter.app/latest?from=USD&to=GBP,EUR,HKD";
 
 export interface MarketPrices {
   /** Live mid price per asset, per quote currency. */
@@ -68,48 +86,72 @@ export interface MarketPrices {
   isStale: boolean;
 }
 
-/**
- * Reference mid prices in every market currency.
- *
- * The feed is asked for all four currencies in one request rather than
- * converting from USD client-side, so a GBP price is a real GBP quote instead
- * of a USD quote multiplied by a rate this app would have to source and trust.
- *
- * Falls back to static figures rather than throwing, so a rate-limited feed
- * never blanks the marketplace, and the staleness is surfaced so the UI can
- * say so out loud.
- */
 export function useMarketPrices() {
   return useQuery<MarketPrices>({
     queryKey: ["demo-market-prices"],
     queryFn: async () => {
       try {
-        const res = await fetch(COINGECKO_URL);
-        if (!res.ok) throw new Error(`price feed responded ${res.status}`);
-        const json = (await res.json()) as Record<string, Record<string, number>>;
+        const [binanceRes, fxRes] = await Promise.all([
+          fetch(BINANCE_PRICE_URL),
+          fetch(FRANKFURTER_URL),
+        ]);
+
+        if (!binanceRes.ok) throw new Error(`Binance responded ${binanceRes.status}`);
+        if (!fxRes.ok) throw new Error(`FX feed responded ${fxRes.status}`);
+
+        const binanceRows = (await binanceRes.json()) as Array<{
+          symbol: string;
+          price: string;
+        }>;
+        const fxJson = (await fxRes.json()) as {
+          rates: { GBP: number; EUR: number; HKD: number };
+        };
+
+        // USD mid prices from Binance.
+        const usd: Record<DemoAsset, number> = {
+          BTC: 0,
+          ETH: 0,
+          SOL: 0,
+          USDT: 1.0, // stablecoin — always 1 USD by design
+        };
+
+        for (const row of binanceRows) {
+          const price = parseFloat(row.price);
+          if (!Number.isFinite(price) || price <= 0) continue;
+          if (row.symbol === "BTCUSDT") usd.BTC = price;
+          else if (row.symbol === "ETHUSDT") usd.ETH = price;
+          else if (row.symbol === "SOLUSDT") usd.SOL = price;
+        }
+
+        if (!usd.BTC || !usd.ETH || !usd.SOL) {
+          throw new Error("Binance returned incomplete prices");
+        }
+
+        // FX rates: 1 USD expressed in each quote currency.
+        const fxRate: Record<Currency, number> = {
+          USD: 1,
+          GBP: fxJson.rates.GBP,
+          EUR: fxJson.rates.EUR,
+          HKD: fxJson.rates.HKD,
+        };
 
         const prices = {} as Record<Currency, Record<DemoAsset, number>>;
-        let missing = false;
-
         for (const currency of CURRENCIES) {
           prices[currency] = {} as Record<DemoAsset, number>;
+          const rate = fxRate[currency];
           for (const asset of DEMO_ASSETS) {
-            const live = json[COINGECKO_IDS[asset]]?.[currency.toLowerCase()];
-            if (typeof live === "number" && Number.isFinite(live) && live > 0) {
-              prices[currency][asset] = live;
-            } else {
-              prices[currency][asset] = FALLBACK_MARKET_PRICES[currency][asset];
-              missing = true;
-            }
+            prices[currency][asset] = usd[asset] * rate;
           }
         }
-        return { prices, isStale: missing };
+
+        return { prices, isStale: false };
       } catch {
         return { prices: structuredClone(FALLBACK_MARKET_PRICES), isStale: true };
       }
     },
-    refetchInterval: 30_000,
-    staleTime: 15_000,
+    refetchInterval: 20_000,
+    staleTime: 10_000,
+    retry: 2,
   });
 }
 

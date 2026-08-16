@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, Building2, CheckCircle2, Loader2, Send, ShieldAlert } from "lucide-react";
+import { ArrowLeft, Building2, CheckCircle2, Loader2, Pencil, Send, ShieldAlert, X } from "lucide-react";
 import { toast } from "sonner";
 import SEOHead from "@/components/SEOHead";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,6 +19,7 @@ import { TradeStateBadge } from "@/components/demo/DemoIndicators";
 import { TradeTimeline } from "@/components/trade/TradeTimeline";
 import { DemoTradeChat } from "@/components/trade/DemoTradeChat";
 import { SellerMirrorDialog } from "./AdminConsole";
+import { PaymentInstructionsEditor } from "@/components/admin/PaymentInstructionsEditor";
 import {
   useConfirmPayment,
   useIsAdmin,
@@ -52,6 +53,7 @@ export default function AdminTradeDetail() {
   const [showMirror, setShowMirror] = useState(false);
   const [confirmSend, setConfirmSend] = useState(false);
   const [confirmComplete, setConfirmComplete] = useState(false);
+  const [editingDetails, setEditingDetails] = useState(false);
 
   // Record that an operator viewed this trade — appears on the buyer's
   // timeline as "Operator opened the trade", which is part of the demo story.
@@ -97,6 +99,12 @@ export default function AdminTradeDetail() {
   const matchingInstruction = instructions.find((i) => i.method === trade.payment_method);
   const canSendDetails = canTransition(state, "PAYMENT_DETAILS_SENT");
   const canComplete = canTransition(state, "COMPLETED");
+
+  // Build a counterparty slice that only exposes the current trade's payment
+  // method, so the editor shows a single focused tab rather than all rails.
+  const editorCounterparty = trade.counterparty
+    ? { ...trade.counterparty, payment_methods: [trade.payment_method] }
+    : null;
 
   const handleSend = async () => {
     try {
@@ -153,31 +161,84 @@ export default function AdminTradeDetail() {
                     is waiting. Review the mirror's stored details, then send them into the chat.
                   </p>
                   {matchingInstruction ? (
-                    <div className="rounded-lg border border-amber-500/30 bg-amber-500/[0.05] p-3">
-                      <div className="mb-2 flex items-center gap-2">
-                        <Building2 className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
-                        <span className="text-xs font-medium text-foreground">
-                          {matchingInstruction.method}
-                        </span>
-                        
-                      </div>
-                      <dl className="space-y-0.5 font-mono text-xs text-muted-foreground">
-                        {PAYMENT_FIELD_ORDER.filter((k) => matchingInstruction.fields[k]).map((k) => (
-                          <div key={k} className="flex gap-2">
-                            <dt className="text-foreground/60">{PAYMENT_FIELD_LABELS[k]}:</dt>
-                            <dd>{matchingInstruction.fields[k]}</dd>
+                    <>
+                      {/* Read-only preview */}
+                      <div className="rounded-lg border border-amber-500/30 bg-amber-500/[0.05] p-3">
+                        <div className="mb-2 flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <Building2 className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+                            <span className="text-xs font-medium text-foreground">
+                              {matchingInstruction.method}
+                            </span>
                           </div>
-                        ))}
-                        <div className="flex gap-2">
-                          <dt className="text-foreground/60">Payment Reference:</dt>
-                          <dd>{trade.trade_ref}</dd>
+                          {editorCounterparty && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 px-2 text-xs"
+                              onClick={() => setEditingDetails((v) => !v)}
+                            >
+                              {editingDetails ? (
+                                <>
+                                  <X className="mr-1 h-3 w-3" />
+                                  Close editor
+                                </>
+                              ) : (
+                                <>
+                                  <Pencil className="mr-1 h-3 w-3" />
+                                  Edit details
+                                </>
+                              )}
+                            </Button>
+                          )}
                         </div>
-                      </dl>
-                    </div>
+                        <dl className="space-y-0.5 font-mono text-xs text-muted-foreground">
+                          {PAYMENT_FIELD_ORDER.filter((k) => matchingInstruction.fields[k]).map((k) => (
+                            <div key={k} className="flex gap-2">
+                              <dt className="text-foreground/60">{PAYMENT_FIELD_LABELS[k]}:</dt>
+                              <dd>{matchingInstruction.fields[k]}</dd>
+                            </div>
+                          ))}
+                          <div className="flex gap-2">
+                            <dt className="text-foreground/60">Payment Reference:</dt>
+                            <dd>{trade.trade_ref}</dd>
+                          </div>
+                        </dl>
+                      </div>
+
+                      {/* Inline editor — shown when operator clicks Edit */}
+                      {editingDetails && editorCounterparty && (
+                        <div className="rounded-lg border border-border bg-muted/20 p-4">
+                          <p className="mb-3 text-xs font-medium text-foreground">
+                            Edit {trade.payment_method} details
+                          </p>
+                          <PaymentInstructionsEditor
+                            counterparty={editorCounterparty}
+                            instructions={instructions}
+                          />
+                        </div>
+                      )}
+                    </>
                   ) : (
-                    <p className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
-                      No stored instructions for {trade.payment_method} on this counterparty.
-                    </p>
+                    <>
+                      <p className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+                        No stored instructions for {trade.payment_method} on this counterparty.
+                        Add them below before sending.
+                      </p>
+
+                      {/* Editor for adding missing instructions */}
+                      {editorCounterparty && (
+                        <div className="rounded-lg border border-border bg-muted/20 p-4">
+                          <p className="mb-3 text-xs font-medium text-foreground">
+                            Add {trade.payment_method} details
+                          </p>
+                          <PaymentInstructionsEditor
+                            counterparty={editorCounterparty}
+                            instructions={instructions}
+                          />
+                        </div>
+                      )}
+                    </>
                   )}
                   <Button
                     onClick={() => setConfirmSend(true)}
