@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ExternalLink, Shield } from "lucide-react";
+import { Shield } from "lucide-react";
 
 const tradeLinks = [
   { label: "Buy Bitcoin (BTC)", href: "/buy-bitcoin" },
@@ -29,11 +29,11 @@ const legalLinks = [
   { label: "Privacy Policy", href: "/privacy" },
 ];
 
-const externalLinks = [
-  { label: "CoinGecko — Live Prices", href: "https://www.coingecko.com" },
-  { label: "What is Bitcoin?", href: "https://en.wikipedia.org/wiki/Bitcoin" },
-  { label: "What is USDT?", href: "https://en.wikipedia.org/wiki/Tether_(cryptocurrency)" },
-  { label: "SWIFT Wire Transfers", href: "https://www.swift.com/your-needs/financial-crime-cyber-security/fraud/payment-controls" },
+const learnLinks = [
+  { label: "Live Crypto Prices", href: "/crypto-prices" },
+  { label: "What is Bitcoin?", href: "/what-is-bitcoin" },
+  { label: "What is USDT?", href: "/what-is-usdt" },
+  { label: "Wire Transfer Guide", href: "/wire-transfer-guide" },
 ];
 
 const Footer = () => (
@@ -115,19 +115,16 @@ const Footer = () => (
               </li>
             ))}
           </ul>
-          <h4 className="font-display font-semibold text-foreground mt-5 mb-3 text-sm">External</h4>
+          <h4 className="font-display font-semibold text-foreground mt-5 mb-3 text-sm">Learn</h4>
           <ul className="space-y-2">
-            {externalLinks.map((link) => (
+            {learnLinks.map((link) => (
               <li key={link.href}>
-                <a
-                  href={link.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                <Link
+                  to={link.href}
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >
                   {link.label}
-                  <ExternalLink className="h-3 w-3 flex-shrink-0" />
-                </a>
+                </Link>
               </li>
             ))}
           </ul>

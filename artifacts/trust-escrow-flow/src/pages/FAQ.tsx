@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import SEOHead from "@/components/SEOHead";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { cn } from "@/lib/utils";
@@ -75,32 +75,33 @@ const faqs: FAQCategory[] = [
       {
         question: "How do I open my first trade?",
         answer: (
-          <>
-            <ol className="list-decimal space-y-1.5 pl-4 text-sm">
-              <li>
-                <Link to="/auth?tab=signup" className="text-primary underline underline-offset-2">
-                  Create an account
-                </Link>{" "}
-                with your email address.
-              </li>
-              <li>
-                Complete{" "}
-                <Link to="/verify" className="text-primary underline underline-offset-2">
-                  identity verification
-                </Link>{" "}
-                — required before your first trade.
-              </li>
-              <li>
-                Browse the{" "}
-                <Link to="/marketplace" className="text-primary underline underline-offset-2">
-                  marketplace
-                </Link>
-                , pick a counterparty, enter an amount and choose a payment method.
-              </li>
-              <li>Click <strong>Open trade</strong>. Payment details arrive in the trade chat from a P2PxBT operator.</li>
-              <li>Send payment, upload your receipt, and mark it as sent. The operator confirms and releases the crypto.</li>
-            </ol>
-          </>
+          <ol className="list-decimal space-y-1.5 pl-4 text-sm">
+            <li>
+              <Link to="/auth?tab=signup" className="text-primary underline underline-offset-2">
+                Create an account
+              </Link>{" "}
+              with your email address.
+            </li>
+            <li>
+              Complete{" "}
+              <Link to="/verify" className="text-primary underline underline-offset-2">
+                identity verification
+              </Link>{" "}
+              — required before your first trade.
+            </li>
+            <li>
+              Browse the{" "}
+              <Link to="/marketplace" className="text-primary underline underline-offset-2">
+                marketplace
+              </Link>
+              , pick a counterparty, enter an amount and choose a payment method.
+            </li>
+            <li>
+              Click <strong>Open trade</strong>. Payment details arrive in the trade chat from a
+              P2PxBT operator.
+            </li>
+            <li>Send payment, upload your receipt, and mark it as sent. The operator confirms and releases the crypto.</li>
+          </ol>
         ),
       },
       {
@@ -118,9 +119,9 @@ const faqs: FAQCategory[] = [
         question: "Why is identity verification required?",
         answer: (
           <>
-            Verification helps protect buyers, sellers and the platform from fraud and
-            misuse. An operator reviews your submitted document before your first trade is
-            allowed to proceed. See the{" "}
+            Verification helps protect buyers, sellers and the platform from fraud and misuse. An
+            operator reviews your submitted document before your first trade is allowed to proceed.
+            See the{" "}
             <Link to="/verify" className="text-primary underline underline-offset-2">
               verification page
             </Link>{" "}
@@ -138,8 +139,8 @@ const faqs: FAQCategory[] = [
         answer: (
           <>
             After your trade opens, a P2PxBT operator sends the counterparty's payment details
-            directly into the trade chat — they are never displayed in advance. Only send
-            payment to details delivered inside the secure trade chat.
+            directly into the trade chat — they are never displayed in advance. Only send payment
+            to details delivered inside the secure trade chat.
           </>
         ),
       },
@@ -147,9 +148,13 @@ const faqs: FAQCategory[] = [
         question: "Can I send payment through a third-party service or online transfer?",
         answer: (
           <>
-            No. Payment must be made via <strong>physical wire transfer only</strong>. Do not
-            use third-party payment apps or online-only transfers. Once payment is sent, upload
-            your receipt in the Documents tab of your trade.
+            No. Payment must be made via <strong>physical wire transfer only</strong>. Do not use
+            third-party payment apps or online-only transfers. Once payment is sent, upload your
+            receipt in the Documents tab of your trade. See our full{" "}
+            <Link to="/wire-transfer-guide" className="text-primary underline underline-offset-2">
+              wire transfer guide
+            </Link>
+            .
           </>
         ),
       },
@@ -157,9 +162,9 @@ const faqs: FAQCategory[] = [
         question: "What happens after I mark payment as sent?",
         answer: (
           <>
-            The operator verifies your receipt against the payment reference. Once confirmed,
-            they mark the trade as complete and the asset is credited to your P2PxBT wallet.
-            You can check the status at any time on your{" "}
+            The operator verifies your receipt against the payment reference. Once confirmed, they
+            mark the trade as complete and the asset is credited to your P2PxBT wallet. You can
+            check the status at any time on your{" "}
             <Link to="/dashboard" className="text-primary underline underline-offset-2">
               dashboard
             </Link>
@@ -182,8 +187,8 @@ const faqs: FAQCategory[] = [
         answer: (
           <>
             Yes — you can cancel at any point before you mark payment as sent, using the{" "}
-            <strong>Cancel trade</strong> button on your trade page. Once payment has been
-            marked, cancellation requires a dispute to be raised.
+            <strong>Cancel trade</strong> button on your trade page. Once payment has been marked,
+            cancellation requires a dispute to be raised.
           </>
         ),
       },
@@ -209,17 +214,13 @@ const faqs: FAQCategory[] = [
         question: "Where do cryptocurrency prices come from?",
         answer: (
           <>
-            Reference prices are sourced from a third-party market data feed (
-            <a
-              href="https://www.coingecko.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-0.5 text-primary underline underline-offset-2"
-            >
-              CoinGecko <ExternalLink className="h-3 w-3" />
-            </a>
-            ). Prices may be delayed or differ from other sources. Nothing shown is financial
-            advice.
+            Reference prices are sourced from an aggregate market data feed and refreshed every
+            30 seconds. Prices may be delayed or differ from other sources. Nothing shown is
+            financial advice. See our{" "}
+            <Link to="/crypto-prices" className="text-primary underline underline-offset-2">
+              live crypto prices page
+            </Link>{" "}
+            for the latest BTC, ETH, SOL and USDT rates.
           </>
         ),
       },
@@ -271,8 +272,8 @@ const faqs: FAQCategory[] = [
             >
               support@p2pxbt.com
             </a>{" "}
-            from your registered address and we will delete your account and associated data.
-            See our{" "}
+            from your registered address and we will delete your account and associated data. See
+            our{" "}
             <Link to="/terms" className="text-primary underline underline-offset-2">
               Terms of Service
             </Link>{" "}
@@ -294,6 +295,19 @@ const faqs: FAQCategory[] = [
       },
     ],
   },
+];
+
+const usefulLinks = [
+  { label: "How It Works", href: "/how-it-works" },
+  { label: "Fees", href: "/fees" },
+  { label: "Marketplace", href: "/marketplace" },
+  { label: "Terms of Service", href: "/terms" },
+  { label: "Privacy Policy", href: "/privacy" },
+  { label: "Start verification", href: "/verify" },
+  { label: "Live Crypto Prices", href: "/crypto-prices" },
+  { label: "What is Bitcoin?", href: "/what-is-bitcoin" },
+  { label: "What is USDT?", href: "/what-is-usdt" },
+  { label: "Wire Transfer Guide", href: "/wire-transfer-guide" },
 ];
 
 function FAQAccordion({ item }: { item: FAQItem }) {
@@ -367,51 +381,20 @@ export default function FAQ() {
           ))}
         </div>
 
-        {/* Related links */}
+        {/* Useful links */}
         <div className="mt-12 rounded-lg border border-border bg-muted/40 p-5">
           <h3 className="mb-3 font-display text-sm font-semibold text-foreground">Useful links</h3>
           <ul className="grid grid-cols-2 gap-2 text-sm">
-            {[
-              { label: "How It Works", href: "/how-it-works", external: false },
-              { label: "Fees", href: "/fees", external: false },
-              { label: "Marketplace", href: "/marketplace", external: false },
-              { label: "Terms of Service", href: "/terms", external: false },
-              { label: "Privacy Policy", href: "/privacy", external: false },
-              { label: "Start verification", href: "/verify", external: false },
-              {
-                label: "CoinGecko (live prices)",
-                href: "https://www.coingecko.com",
-                external: true,
-              },
-              {
-                label: "What is Bitcoin?",
-                href: "https://en.wikipedia.org/wiki/Bitcoin",
-                external: true,
-              },
-            ].map((l) =>
-              l.external ? (
-                <li key={l.href}>
-                  <a
-                    href={l.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {l.label}
-                    <ExternalLink className="h-3 w-3" />
-                  </a>
-                </li>
-              ) : (
-                <li key={l.href}>
-                  <Link
-                    to={l.href}
-                    className="text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {l.label}
-                  </Link>
-                </li>
-              ),
-            )}
+            {usefulLinks.map((l) => (
+              <li key={l.href}>
+                <Link
+                  to={l.href}
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {l.label}
+                </Link>
+              </li>
+            ))}
           </ul>
         </div>
       </div>

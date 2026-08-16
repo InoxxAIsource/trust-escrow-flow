@@ -24,6 +24,10 @@ import Verify from "./pages/Verify";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import FAQ from "./pages/FAQ";
+import WhatIsBitcoin from "./pages/WhatIsBitcoin";
+import WhatIsUSDT from "./pages/WhatIsUSDT";
+import WireTransferGuide from "./pages/WireTransferGuide";
+import CryptoPrices from "./pages/CryptoPrices";
 import AdminRisk from "./pages/AdminRisk";
 import { getAllSlugs } from "./data/seo-pages";
 
@@ -56,6 +60,10 @@ const App = () => (
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/faq" element={<FAQ />} />
+                <Route path="/what-is-bitcoin" element={<WhatIsBitcoin />} />
+                <Route path="/what-is-usdt" element={<WhatIsUSDT />} />
+                <Route path="/wire-transfer-guide" element={<WireTransferGuide />} />
+                <Route path="/crypto-prices" element={<CryptoPrices />} />
                 <Route path="/admin" element={<AdminConsole />} />
                 <Route path="/admin/trade/:id" element={<AdminTradeDetail />} />
                 <Route path="/admin/risk" element={<AdminRisk />} />
