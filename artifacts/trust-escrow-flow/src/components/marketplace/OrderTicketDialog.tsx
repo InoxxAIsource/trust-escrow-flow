@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Loader2, ShieldAlert } from "lucide-react";
+import { Clock, Loader2, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -163,6 +163,16 @@ export function OrderTicketDialog({
             <p className="text-xs text-muted-foreground">
               Payment details are issued by a P2PxBT operator in the trade chat after the trade
               opens — they are never shown up front.
+            </p>
+          </div>
+
+          {/* 4-hour payment window notice */}
+          <div className="flex gap-2.5 rounded-md border border-amber-500/30 bg-amber-500/[0.06] px-3 py-2.5">
+            <Clock className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-600 dark:text-amber-400" />
+            <p className="text-xs text-amber-800 dark:text-amber-300">
+              <span className="font-semibold">4-hour payment window.</span> Once the trade opens,
+              you have 4 hours to complete your payment and upload your receipt. The trade
+              expires automatically if payment is not confirmed in time.
             </p>
           </div>
 
