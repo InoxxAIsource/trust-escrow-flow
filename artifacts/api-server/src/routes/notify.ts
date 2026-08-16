@@ -4,10 +4,12 @@ import { logger } from "../lib/logger";
 
 const notifyRouter = Router();
 
-const ADMIN_EMAIL = "chainlayer650@gmail.com";
-// Use a verified sender domain in production. Resend allows onboarding@resend.dev
-// for initial testing but you should verify a custom domain at resend.com/domains.
-const FROM_EMAIL = "P2PxBT <onboarding@resend.dev>";
+// ADMIN_EMAIL: set this env var to override. Without a verified Resend sending
+// domain, Resend only delivers to the account-owner's address. Once you verify
+// a domain at resend.com/domains you can set this to any address you like.
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "inoxxprotocol@gmail.com";
+// FROM_EMAIL: must use a verified domain once you move beyond Resend test mode.
+const FROM_EMAIL = process.env.FROM_EMAIL ?? "P2PxBT <onboarding@resend.dev>";
 
 interface ChatPayload {
   type: "chat";
