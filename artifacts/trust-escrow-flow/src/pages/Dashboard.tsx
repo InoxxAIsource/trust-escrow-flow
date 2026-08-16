@@ -1,10 +1,19 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Clock, Lock, Wallet, TrendingUp, AlertCircle, CheckCircle, Package, Eye, MousePointer, CreditCard, XCircle, ArrowDownCircle, Plus, Shield } from "lucide-react";
+import { ArrowUpRight, Clock, Lock, Wallet, TrendingUp, AlertCircle, CheckCircle, Package, Eye, MousePointer, CreditCard, XCircle, ArrowDownCircle, Plus, Shield } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import SEOHead from "@/components/SEOHead";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { CountdownTimer } from "@/components/CountdownTimer";
@@ -14,6 +23,7 @@ import { useWallets } from "@/hooks/use-wallets";
 import { useUserTrades, type TradeRow } from "@/hooks/use-trades";
 import { useUserOffers, type OfferRow } from "@/hooks/use-offers";
 import { useTransactions, type TransactionRow } from "@/hooks/use-transactions";
+import { useMyDemoTrades } from "@/hooks/use-demo-trade";
 import { toast } from "sonner";
 import { KycLevelBadge, VerificationStepBadges } from "@/components/VerificationBadge";
 import { computeKycLevel, getTradeLimits } from "@/hooks/use-auth";
@@ -183,6 +193,45 @@ const Dashboard = () => {
   const { offers, cancelOffer } = useUserOffers();
   const { transactions } = useTransactions();
   const { trustScore, level: riskLevel, restrictions } = useMyRisk();
+  const { data: demoTrades = [] } = useMyDemoTrades();
+  const [withdrawAsset, setWithdrawAsset] = useState<string | null>(null);
+  const [withdrawAddr, setWithdrawAddr] = useState("");
+  const [withdrawBusy, setWithdrawBusy] = useState(false);
+
+  // Aggregate completed demo trades into per-asset holdings.
+  const demoHoldings = demoTrades
+    .filter((t) => t.demo_state === "COMPLETED" && t.side === "BUY")
+    .reduce<Record<string, { amount: number; totalPaid: number; currency: string; trades: number }>>(
+      (acc, t) => {
+        const key = t.asset;
+        const prev = acc[key] ?? { amount: 0, totalPaid: 0, currency: t.currency, trades: 0 };
+        return {
+          ...acc,
+          [key]: {
+            amount: prev.amount + Number(t.amount),
+            totalPaid: prev.totalPaid + Number(t.total),
+            currency: t.currency,
+            trades: prev.trades + 1,
+          },
+        };
+      },
+      {},
+    );
+  const demoAssets = Object.keys(demoHoldings);
+
+  const handleDemoWithdraw = async () => {
+    if (!withdrawAddr.trim() || !withdrawAsset) return;
+    setWithdrawBusy(true);
+    await new Promise((r) => setTimeout(r, 1200));
+    setWithdrawBusy(false);
+    const amount = demoHoldings[withdrawAsset]?.amount ?? 0;
+    toast.success(
+      `Withdrawal of ${amount.toFixed(6)} ${withdrawAsset} initiated. ` +
+        "In a live environment, this would be sent to the on-chain address provided.",
+    );
+    setWithdrawAsset(null);
+    setWithdrawAddr("");
+  };
 
   if (!user) {
     return (
@@ -276,6 +325,50 @@ const Dashboard = () => {
         })}
       </div>
 
+      {/* Demo P2P Holdings — aggregated from completed demo trades */}
+      {demoAssets.length > 0 && (
+        <div className="mb-8">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="font-display text-sm font-semibold text-foreground">
+              Demo P2P Holdings
+            </h2>
+            <span className="text-xs text-muted-foreground">
+              From completed peer-to-peer trades · demo only
+            </span>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {demoAssets.map((asset) => {
+              const h = demoHoldings[asset]!;
+              return (
+                <Card key={asset} className="border-primary/20 bg-primary/[0.02]">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Wallet className="h-4 w-4 text-primary" />
+                      <span className="text-sm font-medium text-foreground">{asset}</span>
+                    </div>
+                    <p className="font-display font-bold text-lg text-foreground">
+                      {h.amount.toFixed(6)}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      from {h.trades} trade{h.trades !== 1 ? "s" : ""}
+                    </p>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="mt-3 w-full h-7 text-xs"
+                      onClick={() => setWithdrawAsset(asset)}
+                    >
+                      <ArrowUpRight className="mr-1 h-3.5 w-3.5" />
+                      Withdraw
+                    </Button>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       <Tabs defaultValue="trades">
         <TabsList>
           <TabsTrigger value="trades" className="flex items-center gap-1">
@@ -355,6 +448,78 @@ const Dashboard = () => {
           )}
         </TabsContent>
       </Tabs>
+
+      {/* Demo withdraw dialog */}
+      <Dialog open={!!withdrawAsset} onOpenChange={(open) => { if (!open) { setWithdrawAsset(null); setWithdrawAddr(""); } }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ArrowUpRight className="h-5 w-5" />
+              Withdraw {withdrawAsset}
+            </DialogTitle>
+            <DialogDescription>
+              Enter the on-chain address for your {withdrawAsset} withdrawal.
+              This is a demo — no funds will move.
+            </DialogDescription>
+          </DialogHeader>
+
+          {withdrawAsset && demoHoldings[withdrawAsset] && (
+            <div className="space-y-4">
+              <div className="rounded-md border border-border bg-muted/30 p-3">
+                <p className="font-mono text-sm font-semibold text-foreground">
+                  {demoHoldings[withdrawAsset]!.amount.toFixed(6)} {withdrawAsset}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  from {demoHoldings[withdrawAsset]!.trades} completed trade
+                  {demoHoldings[withdrawAsset]!.trades !== 1 ? "s" : ""}
+                </p>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="dash-withdraw-addr" className="text-sm">
+                  {withdrawAsset} wallet address
+                </Label>
+                <Input
+                  id="dash-withdraw-addr"
+                  value={withdrawAddr}
+                  onChange={(e) => setWithdrawAddr(e.target.value)}
+                  placeholder={
+                    withdrawAsset === "BTC" ? "bc1q… or 1… or 3…" :
+                    withdrawAsset === "ETH" ? "0x…" :
+                    withdrawAsset === "SOL" ? "…pubkey (base58)" :
+                    "Wallet address"
+                  }
+                  className="font-mono text-sm"
+                />
+              </div>
+
+              <div className="rounded-md border border-amber-500/20 bg-amber-500/[0.04] px-3 py-2">
+                <p className="text-xs text-muted-foreground">
+                  <span className="font-medium text-amber-700 dark:text-amber-400">Demo mode:</span>{" "}
+                  No actual blockchain transaction will be created.
+                </p>
+              </div>
+
+              <div className="flex gap-2">
+                <Button variant="outline" className="flex-1" onClick={() => { setWithdrawAsset(null); setWithdrawAddr(""); }}>
+                  Cancel
+                </Button>
+                <Button
+                  className="flex-1"
+                  onClick={handleDemoWithdraw}
+                  disabled={!withdrawAddr.trim() || withdrawBusy}
+                >
+                  {withdrawBusy ? (
+                    <><span className="mr-1.5 h-4 w-4 animate-spin">⟳</span>Initiating…</>
+                  ) : (
+                    <><ArrowUpRight className="mr-1.5 h-4 w-4" />Withdraw</>
+                  )}
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

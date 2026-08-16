@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Loader2, Lock, Save } from "lucide-react";
+import { Loader2, Save } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,20 +13,42 @@ import {
   type PaymentInstruction,
 } from "@/integrations/supabase/demo";
 
+/** All fields that can appear on any rail, in display order. */
+const ALL_RAIL_FIELDS: Record<string, string[]> = {
+  US_WIRE: ["bank_name", "account_name", "account_number", "routing_number", "swift", "bank_address"],
+  US_ACH:  ["bank_name", "account_name", "account_number", "routing_number"],
+  UK:      ["bank_name", "account_name", "account_number", "sort_code"],
+  EU:      ["bank_name", "account_name", "account_number", "iban", "swift"],
+  HK:      ["bank_name", "account_name", "account_number", "bank_code"],
+};
+
+import { railShapeFor } from "@/integrations/supabase/demo";
+
 const PLACEHOLDERS: Record<string, string> = {
-  bank_name: "Northgate Bank UK",
-  account_name: "Sophie Brooks",
-  account_number: "40218837",
-  bank_address: "1200 Market Street, Wilmington, DE 19801",
+  bank_name:      "Northgate Trust",
+  account_name:   "Robert Shaw",
+  account_number: "45863098",
+  routing_number: "021000021",
+  swift:          "NORZZ00",
+  sort_code:      "20-00-00",
+  iban:           "DE89370400440532013000",
+  bank_code:      "004",
+  bank_address:   "1200 Market Street, Wilmington, DE 19801",
+};
+
+const MAX_LENGTH: Record<string, number> = {
+  bank_name: 80, account_name: 80, account_number: 24,
+  routing_number: 20, swift: 16, sort_code: 10,
+  iban: 34, bank_code: 10, bank_address: 160,
 };
 
 /**
  * Per-rail editor for a counterparty's stored payment instructions.
  *
- * One tab per method the counterparty actually quotes, so a US seller never
- * sees a sort-code field and a UK seller never sees a routing number. The
- * routing identifiers are rendered read-only because the RPC derives them —
- * they are not fields this form can submit.
+ * Every field — including routing identifiers like Routing Number and
+ * SWIFT / BIC — is editable here. On a real platform these are derived
+ * from verified counterparty data; in the demo the operator sets them
+ * manually so they match whatever test scenario is being run.
  */
 export function PaymentInstructionsEditor({
   counterparty,
@@ -82,81 +104,67 @@ function MethodForm({
   current?: PaymentInstruction;
 }) {
   const save = useSavePaymentInstructions();
-  const { editable, locked, accountLabel, accountHint } = fieldSetFor(method, region);
+
+  // Determine which fields apply to this rail.
+  const shape = railShapeFor(method, region);
+  const { accountLabel, accountHint } = fieldSetFor(method, region);
+  const allFields = ALL_RAIL_FIELDS[shape] ?? ["bank_name", "account_name", "account_number"];
 
   const [values, setValues] = useState<Record<string, string>>({});
 
-  // Re-seed the inputs whenever the underlying record changes — switching
-  // counterparty or saving both replace `current`.
+  // Seed inputs from the stored record whenever it changes (save or switch).
   useEffect(() => {
-    setValues({
-      bank_name: current?.fields.bank_name ?? "",
-      account_name: current?.fields.account_name ?? "",
-      account_number: current?.fields.account_number ?? "",
-      bank_address: current?.fields.bank_address ?? "",
-    });
+    const seeded: Record<string, string> = {};
+    for (const f of allFields) {
+      seeded[f] = current?.fields[f] ?? "";
+    }
+    setValues(seeded);
+    // allFields is derived from method/region which are stable props.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [current]);
 
   const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setValues((v) => ({ ...v, [k]: e.target.value }));
 
   const handleSave = async () => {
+    // Build a clean fields object with only non-empty values.
+    const fields: Record<string, string> = {};
+    for (const f of allFields) {
+      const v = values[f]?.trim();
+      if (v) fields[f] = v;
+    }
+
     try {
-      await save.mutateAsync({
-        counterpartyId,
-        method,
-        bankName: values.bank_name ?? "",
-        accountName: values.account_name ?? "",
-        accountNumber: values.account_number ?? "",
-        bankAddress: editable.includes("bank_address") ? values.bank_address : undefined,
-      });
+      await save.mutateAsync({ counterpartyId, method, fields });
       toast.success(`${method} details saved.`);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Save failed.";
-      toast.error(message.replace(/^INVALID:\s*/, "").replace(/^NOT_FOUND:\s*/, ""));
+      toast.error(message.replace(/^(INVALID|NOT_FOUND):\s*/, ""));
     }
   };
 
+  const label = (f: string) => f === "account_number" ? accountLabel : PAYMENT_FIELD_LABELS[f] ?? f;
+
   return (
     <div className="space-y-3">
-      {editable.map((f) => (
+      {allFields.map((f) => (
         <div key={f} className="space-y-1">
           <Label htmlFor={`${method}-${f}`} className="text-xs">
-            {f === "account_number" ? accountLabel : PAYMENT_FIELD_LABELS[f]}
+            {label(f)}
           </Label>
           <Input
             id={`${method}-${f}`}
             value={values[f] ?? ""}
             onChange={set(f)}
-            placeholder={PLACEHOLDERS[f]}
-            maxLength={f === "account_number" ? 24 : f === "bank_address" ? 160 : 80}
+            placeholder={PLACEHOLDERS[f] ?? ""}
+            maxLength={MAX_LENGTH[f] ?? 80}
+            className="font-mono text-sm"
           />
           {f === "account_number" && accountHint && (
             <p className="text-[11px] text-muted-foreground">{accountHint}</p>
           )}
         </div>
       ))}
-
-      {locked.length > 0 && (
-        <div className="rounded-md border border-border bg-muted/40 p-3">
-          <div className="mb-2 flex items-center gap-1.5">
-            <Lock className="h-3 w-3 text-muted-foreground" />
-            <span className="text-xs font-medium text-foreground">Set automatically</span>
-          </div>
-          <dl className="space-y-0.5 font-mono text-xs text-muted-foreground">
-            {locked.map((f) => (
-              <div key={f} className="flex gap-2">
-                <dt className="text-foreground/60">{PAYMENT_FIELD_LABELS[f]}:</dt>
-                <dd>{current?.fields[f] ?? "—"}</dd>
-              </div>
-            ))}
-          </dl>
-          <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
-            Derived from the counterparty's country when you save. These are reserved values that
-            no payment scheme accepts, so nothing sent to this record can settle.
-          </p>
-        </div>
-      )}
 
       <Button size="sm" onClick={handleSave} disabled={save.isPending}>
         {save.isPending ? (

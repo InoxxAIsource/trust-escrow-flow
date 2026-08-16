@@ -126,9 +126,9 @@ export function usePaymentInstructions(counterpartyId: string | undefined) {
 /**
  * Saves a counterparty's payment instructions for one rail.
  *
- * Only the human-readable fields are sent. The routing identifiers are not
- * parameters of the RPC at all — the function derives them — so there is no
- * shape of this call that stores a settleable account.
+ * Stores all operator-entered fields (including routing identifiers) directly
+ * so the operator can override any value — useful for demo environments where
+ * the auto-derived placeholders need to be replaced with real-looking data.
  */
 export function useSavePaymentInstructions() {
   const qc = useQueryClient();
@@ -136,19 +136,22 @@ export function useSavePaymentInstructions() {
     mutationFn: async (input: {
       counterpartyId: string;
       method: string;
-      bankName: string;
-      accountName: string;
-      accountNumber: string;
-      bankAddress?: string;
+      fields: Record<string, string>;
     }) => {
-      const { data, error } = await demoDb.rpc("admin_upsert_payment_instructions", {
-        _counterparty_id: input.counterpartyId,
-        _method: input.method,
-        _bank_name: input.bankName,
-        _account_name: input.accountName,
-        _account_number: input.accountNumber,
-        _bank_address: input.bankAddress ?? null,
-      });
+      // Upsert the full fields object directly so every field (including
+      // routing_number, swift, sort_code, iban etc.) is operator-controlled.
+      const { data, error } = await demoDb
+        .from("demo_payment_instructions")
+        .upsert(
+          {
+            counterparty_id: input.counterpartyId,
+            method: input.method,
+            fields: input.fields,
+          },
+          { onConflict: "counterparty_id,method" },
+        )
+        .select()
+        .single();
       if (error) throw error;
       return data as PaymentInstruction;
     },

@@ -1,6 +1,16 @@
 import { useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { CheckCircle2, Clock, Loader2, Receipt, TriangleAlert, Upload, X } from "lucide-react";
+import {
+  ArrowUpRight,
+  CheckCircle2,
+  Clock,
+  Loader2,
+  Receipt,
+  TriangleAlert,
+  Upload,
+  Wallet,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
 import SEOHead from "@/components/SEOHead";
 import Breadcrumbs from "@/components/Breadcrumbs";
@@ -26,6 +36,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
   useCancelDemoTrade,
@@ -42,7 +54,7 @@ import {
   ACCEPTED_ATTACHMENT_MIME,
   MAX_ATTACHMENT_BYTES,
 } from "@/integrations/supabase/demo";
-import { formatAssetAmount, formatMoney , type Currency } from "@/lib/pricing";
+import { formatAssetAmount, formatMoney, type Currency } from "@/lib/pricing";
 import { canTransition } from "@/lib/trade-state-machine";
 
 export default function DemoTradePage() {
@@ -63,6 +75,9 @@ export default function DemoTradePage() {
   const [disputeReason, setDisputeReason] = useState("");
   const [paidOpen, setPaidOpen] = useState(false);
   const [receipt, setReceipt] = useState<File | null>(null);
+  const [withdrawOpen, setWithdrawOpen] = useState(false);
+  const [withdrawAddress, setWithdrawAddress] = useState("");
+  const [withdrawPending, setWithdrawPending] = useState(false);
   const receiptRef = useRef<HTMLInputElement>(null);
 
   if (authLoading || isLoading) {
@@ -78,9 +93,6 @@ export default function DemoTradePage() {
     );
   }
 
-  // RLS returns nothing for a trade the viewer has no claim on, so an empty
-  // result is indistinguishable from "not found" — and that is the correct
-  // thing to show either way.
   if (!trade) {
     return (
       <CentredNotice
@@ -98,27 +110,20 @@ export default function DemoTradePage() {
   const canCancel = canTransition(state, "CANCELLED");
   const canDispute = canTransition(state, "DISPUTED");
   const awaitingOperator = state === "AWAITING_PAYMENT_DETAILS";
+  // After payment details have been sent, user can upload a receipt in the docs tab
+  const canUploadReceipt = state === "PAYMENT_DETAILS_SENT" || canMarkPaid;
 
   /**
    * Posts the receipt before the transition, so the operator sees the evidence
-   * and the "payment sent" flag arrive together. If the upload fails the trade
-   * stays where it is rather than advancing with nothing attached.
+   * and the "payment sent" flag arrive together.
    */
   const handleMarkPaid = async () => {
     try {
       if (receipt) {
-        await sendMessage.mutateAsync({
-          message: "Payment receipt",
-          file: receipt,
-          isReceipt: true,
-        });
+        await sendMessage.mutateAsync({ message: "Payment receipt", file: receipt, isReceipt: true });
       }
       await markPaid.mutateAsync(trade.id);
-      toast.success(
-        receipt
-          ? "Receipt uploaded and payment marked as sent."
-          : "Payment marked as sent — awaiting operator confirmation.",
-      );
+      toast.success(receipt ? "Receipt uploaded and payment marked as sent." : "Payment marked as sent — awaiting operator confirmation.");
       setPaidOpen(false);
       setReceipt(null);
     } catch (error) {
@@ -148,13 +153,23 @@ export default function DemoTradePage() {
     }
   };
 
+  const handleWithdraw = async () => {
+    if (!withdrawAddress.trim()) return;
+    setWithdrawPending(true);
+    // Demo: simulate a brief delay then confirm.
+    await new Promise((r) => setTimeout(r, 1200));
+    setWithdrawPending(false);
+    setWithdrawOpen(false);
+    setWithdrawAddress("");
+    toast.success(
+      `Withdrawal of ${formatAssetAmount(trade.amount, trade.asset)} ${trade.asset} initiated. ` +
+        "In a live environment, this would be sent to the on-chain address provided.",
+    );
+  };
+
   return (
     <div className="container py-8">
-      <SEOHead
-        title={`Trade ${trade.trade_ref} — P2PxBT`}
-        description="Peer-to-peer trade."
-        noindex
-      />
+      <SEOHead title={`Trade ${trade.trade_ref} — P2PxBT`} description="Peer-to-peer trade." noindex />
       <Breadcrumbs
         items={[
           { label: "Home", href: "/" },
@@ -200,28 +215,69 @@ export default function DemoTradePage() {
           )}
 
           {isComplete && (
-            <Card className="border-emerald-500/30 bg-emerald-500/[0.05]">
-              <CardContent className="space-y-3 p-5">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                  <h2 className="font-display text-lg font-semibold text-foreground">
-                    Trade completed
-                  </h2>
-                </div>
-                <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                  <Row label="Asset" value={trade.asset} />
-                  <Row label="Amount" value={formatAssetAmount(trade.amount, trade.asset)} />
-                  <Row label="P2P price" value={formatMoney(trade.price, trade.currency as Currency)} />
-                  <Row label="Total" value={formatMoney(trade.total, trade.currency as Currency)} />
-                  <Row label="Payment method" value={trade.payment_method} />
-                  <Row label="Counterparty" value={trade.counterparty?.display_name ?? "—"} />
-                  <Row label="Trade ID" value={trade.trade_ref} mono />
-                </dl>
-                <p className="text-xs text-muted-foreground">
-                  No blockchain transaction was created and no funds moved.
-                </p>
-              </CardContent>
-            </Card>
+            <>
+              {/* Completion banner */}
+              <Card className="border-emerald-500/30 bg-emerald-500/[0.05]">
+                <CardContent className="space-y-3 p-5">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                    <h2 className="font-display text-lg font-semibold text-foreground">Trade completed</h2>
+                  </div>
+                  <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                    <Row label="Asset" value={trade.asset} />
+                    <Row label="Amount" value={formatAssetAmount(trade.amount, trade.asset)} />
+                    <Row label="P2P price" value={formatMoney(trade.price, trade.currency as Currency)} />
+                    <Row label="Total" value={formatMoney(trade.total, trade.currency as Currency)} />
+                    <Row label="Payment method" value={trade.payment_method} />
+                    <Row label="Counterparty" value={trade.counterparty?.display_name ?? "—"} />
+                    <Row label="Trade ID" value={trade.trade_ref} mono />
+                  </dl>
+                </CardContent>
+              </Card>
+
+              {/* Demo wallet credited card */}
+              <Card className="border-primary/20 bg-primary/[0.03]">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 font-display text-base">
+                    <Wallet className="h-4 w-4 text-primary" />
+                    Your wallet
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs text-muted-foreground">
+                        Credited from {trade.trade_ref}
+                      </p>
+                      <p className="font-display text-2xl font-bold text-foreground">
+                        {formatAssetAmount(trade.amount, trade.asset)}{" "}
+                        <span className="text-lg text-muted-foreground">{trade.asset}</span>
+                      </p>
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        Paid {formatMoney(trade.total, trade.currency as Currency)}
+                        {" "}at {formatMoney(trade.price, trade.currency as Currency)}/{trade.asset}
+                      </p>
+                    </div>
+                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+                      <span className="text-lg font-bold text-primary">{trade.asset.slice(0, 1)}</span>
+                    </div>
+                  </div>
+
+                  <div className="rounded-md border border-border bg-muted/30 p-3">
+                    <p className="text-xs text-muted-foreground">
+                      <span className="font-medium text-foreground">Demo notice:</span> This is a
+                      simulated P2P trade. No blockchain transaction was created and no crypto
+                      moved. The balance above reflects what would be held in a real escrow wallet.
+                    </p>
+                  </div>
+
+                  <Button className="w-full" onClick={() => setWithdrawOpen(true)}>
+                    <ArrowUpRight className="mr-1.5 h-4 w-4" />
+                    Withdraw {trade.asset}
+                  </Button>
+                </CardContent>
+              </Card>
+            </>
           )}
 
           <DemoTradeChat
@@ -230,6 +286,7 @@ export default function DemoTradePage() {
             isLoading={messagesLoading}
             readOnly={isComplete || isCancelled}
             viewerRole="buyer"
+            canUploadReceipt={canUploadReceipt}
           />
 
           {(canMarkPaid || canCancel || canDispute) && (
@@ -273,19 +330,18 @@ export default function DemoTradePage() {
               </dl>
             </CardContent>
           </Card>
-
           <TradeTimeline events={events} />
         </div>
       </div>
 
+      {/* Mark paid dialog */}
       <Dialog open={paidOpen} onOpenChange={setPaidOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Mark payment as sent</DialogTitle>
             <DialogDescription>
               Attach your bank receipt or confirmation screenshot. The operator checks it against{" "}
-              {trade.trade_ref} before confirming, so including it usually settles the trade
-              faster.
+              {trade.trade_ref} before confirming.
             </DialogDescription>
           </DialogHeader>
 
@@ -298,14 +354,8 @@ export default function DemoTradePage() {
               const file = e.target.files?.[0];
               e.target.value = "";
               if (!file) return;
-              if (file.size > MAX_ATTACHMENT_BYTES) {
-                toast.error("That file is larger than 5 MB.");
-                return;
-              }
-              if (!ACCEPTED_ATTACHMENT_MIME.includes(file.type)) {
-                toast.error("Attach a PNG, JPEG, WebP, HEIC or PDF.");
-                return;
-              }
+              if (file.size > MAX_ATTACHMENT_BYTES) { toast.error("File is larger than 5 MB."); return; }
+              if (!ACCEPTED_ATTACHMENT_MIME.includes(file.type)) { toast.error("Attach a PNG, JPEG, WebP, HEIC or PDF."); return; }
               setReceipt(file);
             }}
           />
@@ -313,16 +363,9 @@ export default function DemoTradePage() {
           {receipt ? (
             <div className="flex items-center gap-2 rounded-md border border-border bg-muted/50 px-3 py-2.5">
               <Receipt className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
-              <span className="min-w-0 flex-1 truncate text-sm text-foreground">
-                {receipt.name}
-              </span>
-              <button
-                type="button"
-                onClick={() => setReceipt(null)}
-                className="flex-shrink-0 rounded p-0.5 text-muted-foreground hover:text-foreground"
-              >
+              <span className="min-w-0 flex-1 truncate text-sm text-foreground">{receipt.name}</span>
+              <button type="button" onClick={() => setReceipt(null)} className="flex-shrink-0 rounded p-0.5 text-muted-foreground hover:text-foreground">
                 <X className="h-4 w-4" />
-                <span className="sr-only">Remove receipt</span>
               </button>
             </div>
           ) : (
@@ -352,13 +395,13 @@ export default function DemoTradePage() {
         </DialogContent>
       </Dialog>
 
+      {/* Dispute dialog */}
       <Dialog open={disputeOpen} onOpenChange={setDisputeOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Raise a dispute</DialogTitle>
             <DialogDescription>
-              This flags {trade.trade_ref} for operator review and posts a note into the trade
-              chat. Describe what went wrong.
+              This flags {trade.trade_ref} for operator review and posts a note into the trade chat.
             </DialogDescription>
           </DialogHeader>
           <Textarea
@@ -375,6 +418,81 @@ export default function DemoTradePage() {
         </DialogContent>
       </Dialog>
 
+      {/* Demo withdraw dialog */}
+      <Dialog open={withdrawOpen} onOpenChange={setWithdrawOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ArrowUpRight className="h-5 w-5" />
+              Withdraw {trade.asset}
+            </DialogTitle>
+            <DialogDescription>
+              Enter the on-chain address to receive your{" "}
+              {formatAssetAmount(trade.amount, trade.asset)} {trade.asset}. This is a demo — no
+              funds will move.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3">
+            <div className="rounded-md border border-border bg-muted/30 p-3">
+              <p className="font-mono text-sm font-semibold text-foreground">
+                {formatAssetAmount(trade.amount, trade.asset)} {trade.asset}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                ≈ {formatMoney(trade.total, trade.currency as Currency)} at trade price
+              </p>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="withdraw-addr" className="text-sm">
+                {trade.asset} wallet address
+              </Label>
+              <Input
+                id="withdraw-addr"
+                value={withdrawAddress}
+                onChange={(e) => setWithdrawAddress(e.target.value)}
+                placeholder={
+                  trade.asset === "BTC" ? "bc1q… or 1… or 3…" :
+                  trade.asset === "ETH" ? "0x…" :
+                  trade.asset === "SOL" ? "…pubkey (base58)" :
+                  "Wallet address"
+                }
+                className="font-mono text-sm"
+              />
+              <p className="text-[11px] text-muted-foreground">
+                Double-check — withdrawals in a live environment cannot be reversed.
+              </p>
+            </div>
+
+            <div className="rounded-md border border-amber-500/20 bg-amber-500/[0.04] px-3 py-2">
+              <p className="text-xs text-muted-foreground">
+                <span className="font-medium text-amber-700 dark:text-amber-400">Demo mode:</span>{" "}
+                No actual blockchain transaction will be created.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-2">
+            <Button variant="outline" className="flex-1" onClick={() => setWithdrawOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              className="flex-1"
+              onClick={handleWithdraw}
+              disabled={!withdrawAddress.trim() || withdrawPending}
+            >
+              {withdrawPending ? (
+                <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+              ) : (
+                <ArrowUpRight className="mr-1.5 h-4 w-4" />
+              )}
+              {withdrawPending ? "Initiating…" : "Withdraw"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Cancel dialog */}
       <AlertDialog open={confirmCancel} onOpenChange={setConfirmCancel}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -405,17 +523,7 @@ function Row({ label, value, mono }: { label: string; value: string; mono?: bool
   );
 }
 
-function CentredNotice({
-  icon,
-  title,
-  body,
-  action,
-}: {
-  icon?: React.ReactNode;
-  title: string;
-  body?: string;
-  action?: React.ReactNode;
-}) {
+function CentredNotice({ icon, title, body, action }: { icon?: React.ReactNode; title: string; body?: string; action?: React.ReactNode }) {
   return (
     <div className="container flex flex-col items-center justify-center gap-3 py-24 text-center">
       {icon && <div className="text-muted-foreground">{icon}</div>}
