@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "P2PxBT — Trust Escrow Flow"
+description = "P2PxBT is a peer-to-peer crypto trading platform with trust escrow. Users can buy and sell BTC, ETH, SOL and USDT peer-to-peer across the US, UK, Europe and Hong Kong. Includes a marketplace, dashboard, admin console, KYC, blog, and SEO landing pages, powered by Supabase."
+version = "1.0.0"
+id = "artifacts/trust-escrow-flow"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 21702
+
+[services.development]
+run = "pnpm --filter @workspace/trust-escrow-flow run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/trust-escrow-flow", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/trust-escrow-flow/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "21702"
+BASE_PATH = "/"

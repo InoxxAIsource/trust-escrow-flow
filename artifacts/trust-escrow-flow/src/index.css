@@ -1,0 +1,173 @@
+/* Self-hosted type. Replaces the render-blocking Google Fonts <link>. */
+@import "@fontsource-variable/geist";
+@import "@fontsource-variable/geist-mono";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===========================================================================
+   P2PxBT theme
+   ---------------------------------------------------------------------------
+   Institutional financial, not consumer fintech. Credibility here comes from
+   restraint: one accent, one neutral family, one radius scale.
+
+   Redesign notes (what changed and why):
+
+   * Accent stayed blue. It is the existing brand, so it is preserved rather
+     than replaced, but recalibrated: saturation dropped 91% -> 72% and the
+     lightness deepened. The old value was the bright generic link-blue that
+     every AI-built SaaS page ships; the new one reads closer to a terminal or
+     a broker.
+   * Neutrals were three drifting hues (210 / 215 / 220). They are now one
+     cool-grey ramp on hue 215, so nothing looks subtly warm next to something
+     subtly cool.
+   * Positive/negative are now a muted teal-green and a clay red rather than
+     stoplight colours, which is what financial interfaces actually use for
+     price movement.
+   =========================================================================== */
+
+@layer base {
+  :root {
+    /* Surfaces: off-white, never pure #fff, so cards can sit above the page. */
+    --background: 215 24% 98%;
+    --foreground: 215 30% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 215 30% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 30% 12%;
+
+    /* Accent: deep institutional blue. */
+    --primary: 218 72% 38%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 215 22% 95%;
+    --secondary-foreground: 215 30% 12%;
+
+    --muted: 215 22% 95%;
+    --muted-foreground: 215 14% 42%;
+
+    --accent: 218 60% 95%;
+    --accent-foreground: 218 72% 32%;
+
+    --destructive: 4 62% 47%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 215 18% 89%;
+    --input: 215 18% 86%;
+    --ring: 218 72% 38%;
+
+    /* One radius scale. Components derive sm/md/lg from this in the config. */
+    --radius: 0.5rem;
+
+    /* Market semantics. Muted on purpose: a marketplace is mostly neutral,
+       and reserving vivid colour for real movement keeps it meaningful. */
+    --success: 162 58% 32%;
+    --success-foreground: 0 0% 100%;
+    --warning: 32 78% 42%;
+    --warning-foreground: 0 0% 100%;
+
+    --sidebar-background: 215 24% 98%;
+    --sidebar-foreground: 215 20% 28%;
+    --sidebar-primary: 218 72% 38%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 218 60% 95%;
+    --sidebar-accent-foreground: 218 72% 32%;
+    --sidebar-border: 215 18% 89%;
+    --sidebar-ring: 218 72% 38%;
+  }
+
+  .dark {
+    /* Off-black, not #000, so elevation still reads. */
+    --background: 215 28% 8%;
+    --foreground: 215 20% 96%;
+
+    --card: 215 26% 11%;
+    --card-foreground: 215 20% 96%;
+
+    --popover: 215 26% 11%;
+    --popover-foreground: 215 20% 96%;
+
+    /* Lifted for contrast against the dark ground, same hue as light mode. */
+    --primary: 214 84% 62%;
+    --primary-foreground: 215 30% 10%;
+
+    --secondary: 215 22% 17%;
+    --secondary-foreground: 215 20% 96%;
+
+    --muted: 215 22% 16%;
+    --muted-foreground: 215 14% 64%;
+
+    --accent: 218 45% 18%;
+    --accent-foreground: 214 84% 76%;
+
+    --destructive: 4 58% 52%;
+    --destructive-foreground: 215 20% 96%;
+
+    --border: 215 20% 19%;
+    --input: 215 20% 22%;
+    --ring: 214 84% 62%;
+
+    --success: 162 52% 44%;
+    --success-foreground: 215 30% 10%;
+    --warning: 32 72% 55%;
+    --warning-foreground: 215 30% 10%;
+
+    --sidebar-background: 215 28% 8%;
+    --sidebar-foreground: 215 20% 96%;
+    --sidebar-primary: 214 84% 62%;
+    --sidebar-primary-foreground: 215 30% 10%;
+    --sidebar-accent: 218 45% 18%;
+    --sidebar-accent-foreground: 214 84% 76%;
+    --sidebar-border: 215 20% 19%;
+    --sidebar-ring: 214 84% 62%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+    /* Optical sizing and default kerning read better at display sizes. */
+    font-optical-sizing: auto;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display tracking-tight;
+  }
+
+  /* Financial figures must align in columns and never shift width as they
+     tick. Applied globally to monospace so every price, balance and countdown
+     inherits it without each component remembering. */
+  .font-mono,
+  code,
+  kbd,
+  samp {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1, "zero" 1;
+  }
+}
+
+@layer utilities {
+  /* For proportional-font numbers that still need column alignment, e.g. a
+     price rendered in the display face inside a table cell. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+  }
+
+  /* Hairline rule used to separate data rows without drawing a full card. */
+  .rule {
+    @apply border-t border-border;
+  }
+}

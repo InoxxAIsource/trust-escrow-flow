@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Type is self-hosted via @fontsource-variable/geist, imported in
+         src/index.css. No third-party font request, no render-blocking link. -->
+    <link rel="preconnect" href="https://api.coingecko.com" />
+
+    <meta name="theme-color" content="#1b3a8f" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+
+    <!-- Base metadata. react-helmet-async overrides this per route once the
+         app mounts, but crawlers and link unfurlers read what is in the HTML,
+         so these values have to stand on their own. -->
+    <title data-rh="true">P2PxBT — Peer-to-Peer Crypto Trading</title>
+    <meta data-rh="true"
+      name="description"
+      content="Buy and sell BTC, ETH, SOL and USDT peer-to-peer across the US, UK, Europe and Hong Kong, on local payment rails."
+    />
+    <meta name="author" content="P2PxBT" />
+    <link data-rh="true" rel="canonical" href="https://p2pxbt.com/" />
+
+    <meta data-rh="true" property="og:type" content="website" />
+    <meta data-rh="true" property="og:site_name" content="P2PxBT" />
+    <meta data-rh="true" property="og:locale" content="en_US" />
+    <meta data-rh="true" property="og:url" content="https://p2pxbt.com/" />
+    <meta data-rh="true" property="og:title" content="P2PxBT — Peer-to-Peer Crypto Trading" />
+    <meta data-rh="true"
+      property="og:description"
+      content="Buy and sell BTC, ETH, SOL and USDT peer-to-peer across the US, UK, Europe and Hong Kong, on local payment rails."
+    />
+    <!-- Served from this origin. The previous value pointed at a third-party
+         bucket left over from an earlier toolchain. -->
+    <meta data-rh="true" property="og:image" content="https://p2pxbt.com/og-image.jpg" />
+    <meta data-rh="true" property="og:image:width" content="1200" />
+    <meta data-rh="true" property="og:image:height" content="630" />
+
+    <meta data-rh="true" name="twitter:card" content="summary_large_image" />
+    <meta data-rh="true" name="twitter:site" content="@p2pxbt" />
+    <meta data-rh="true" name="twitter:title" content="P2PxBT — Peer-to-Peer Crypto Trading" />
+    <meta data-rh="true"
+      name="twitter:description"
+      content="Buy and sell BTC, ETH, SOL and USDT peer-to-peer across the US, UK, Europe and Hong Kong, on local payment rails."
+    />
+    <meta data-rh="true" name="twitter:image" content="https://p2pxbt.com/og-image.jpg" />
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

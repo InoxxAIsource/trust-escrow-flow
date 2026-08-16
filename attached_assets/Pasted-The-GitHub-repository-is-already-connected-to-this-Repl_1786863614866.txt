@@ -1,0 +1,232 @@
+The GitHub repository is already connected to this Replit project.
+
+Your task is to make the existing connected GitHub project run correctly in Replit **without rebuilding or redesigning it**.
+
+## SOURCE OF TRUTH
+
+The currently connected GitHub repository is:
+
+`InoxxAIsource/trust-escrow-flow`
+
+Use the existing repository files already available in this Replit workspace.
+
+Do NOT clone another repository.
+Do NOT create a new application from scratch.
+
+## CORE OBJECTIVE
+
+Make the project work in Replit **exactly as it currently works in GitHub**.
+
+This is a migration/compatibility task, NOT a redesign or feature-development task.
+
+Preserve:
+
+* Existing UI
+* Existing UX
+* Existing pages
+* Existing routes
+* Existing components
+* Existing styling
+* Existing animations
+* Existing assets
+* Existing fonts
+* Existing responsive behavior
+* Existing business logic
+* Existing Supabase integration
+* Existing API/data flows
+* Existing authentication
+* Existing SEO implementation
+* Existing scripts
+* Existing dependencies
+
+Do not replace the technology stack.
+
+## FIRST: INSPECT EVERYTHING
+
+Before making changes, inspect the existing project structure and determine:
+
+* Framework
+* Package manager
+* `package.json`
+* Lockfiles
+* Vite configuration
+* TypeScript configuration
+* Tailwind configuration
+* Routing
+* Application entry point
+* Supabase configuration
+* Environment variables
+* Build scripts
+* SEO scripts
+* Existing deployment configuration
+* Existing Run/Start configuration
+
+Understand the existing application before modifying anything.
+
+## IMPORTANT — DO NOT REBUILD
+
+Do NOT:
+
+* Recreate the application
+* Rewrite the application
+* Convert it to Next.js
+* Replace React
+* Replace Vite
+* Replace Tailwind
+* Replace Supabase
+* Replace existing UI components
+* Redesign the interface
+* Change colors
+* Change typography
+* Change layouts
+* Remove pages
+* Remove functionality
+* Add unrelated features
+* Upgrade major dependencies unnecessarily
+
+Only modify code when required to make the existing application function correctly in Replit.
+
+## ENVIRONMENT VARIABLES
+
+Inspect `.env.example` and determine every environment variable required by the application.
+
+Configure the required variables through Replit Secrets.
+
+Do NOT expose secret values in source code.
+
+Do NOT print secret values in the console.
+
+If an existing `.env` file is present, treat it as sensitive.
+
+Do not commit secrets.
+
+## DEPENDENCIES
+
+Use the existing project's package manager and lockfile where possible.
+
+Install the dependencies already defined by the project.
+
+Do not arbitrarily replace the package manager.
+
+Do not perform unnecessary dependency upgrades.
+
+## REPLIT RUN CONFIGURATION
+
+Configure the Replit Run command so the existing application starts correctly.
+
+The Vite development server must be accessible from Replit's web preview.
+
+Make sure it binds to the appropriate host/interface and uses Replit's provided port.
+
+Do not introduce unnecessary backend infrastructure.
+
+## BUILD
+
+Run the existing build command from `package.json`.
+
+Fix genuine build errors caused by the Replit environment.
+
+Do not change application functionality just to silence warnings.
+
+## TEST THE APPLICATION
+
+After configuration, actually run the application and verify:
+
+1. Homepage loads.
+2. All existing routes load.
+3. Navigation works.
+4. Buttons work.
+5. Forms work.
+6. Modals work.
+7. Animations work.
+8. Responsive design works.
+9. Supabase integration works.
+10. Authentication works if present.
+11. Existing API/data calls work.
+12. No blocking browser console errors exist.
+13. No blocking server errors exist.
+
+Test both desktop and mobile layouts where possible.
+
+## SEO
+
+The existing project contains SEO-related scripts.
+
+Preserve them.
+
+Verify that the existing SEO functionality continues working, including:
+
+* Sitemap
+* robots behavior
+* Metadata
+* Canonical URLs
+* Open Graph metadata
+* Structured data
+* llms.txt
+* Existing SEO verification
+
+Do not remove or replace existing SEO implementation.
+
+## VISUAL FIDELITY
+
+The final Replit version should look and behave the same as the current GitHub version.
+
+If something looks different, investigate the cause instead of redesigning it.
+
+Preserve the existing design pixel-for-pixel as much as reasonably possible.
+
+## CHANGE POLICY
+
+Follow this rule:
+
+**If it already works, leave it alone.**
+
+Only change something when:
+
+* Replit cannot run it as-is
+* A dependency is missing
+* An environment variable is missing
+* A build/runtime error requires a fix
+* A Replit-specific configuration is required
+
+Keep every migration change minimal.
+
+## FINAL VALIDATION
+
+Do not stop after installing dependencies.
+
+Actually start the application and verify it through the Replit preview.
+
+Then run the production build and confirm it succeeds.
+
+At the end, report:
+
+### Migration Status
+
+* Running / Not running
+
+### Replit Configuration
+
+* Run command
+* Build command
+* Any configuration files added/modified
+
+### Environment Variables
+
+* Required variable names only
+* Do not reveal secret values
+
+### Changes Made
+
+* Exact files changed
+* Why each change was necessary
+
+### Verification
+
+* Routes tested
+* Supabase tested
+* Build tested
+* SEO tested
+* Any remaining issues
+
+Again: **preserve the existing project exactly. This is a GitHub-to-Replit migration, not a rebuild.**

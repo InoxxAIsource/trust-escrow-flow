@@ -1,0 +1,92 @@
+# P2PxBT
+
+> A peer-to-peer cryptocurrency marketplace covering the United States, United
+> Kingdom, Europe and Hong Kong. Buyers are matched with counterparties who
+> quote their own spread over a live reference price; payment details are
+> issued by an operator in the trade chat rather than published on a listing,
+> and identity verification is required before a first trade.
+
+Assets traded: BTC, ETH, SOL, USDT. Payment rails: USA Bank Wire, ACH Transfer,
+UK Faster Payments, SEPA Transfer, FPS Transfer (Hong Kong), Bank Transfer.
+
+Pricing is derived from a live reference feed: sellers quote a 4.00%–6.00%
+premium over mid, buyers a 2.00%–4.00% discount under it. Each counterparty's
+spread is fixed, so listings compete on price.
+
+## Core
+
+- [Home](https://p2pxbt.com/): marketplace overview and live reference prices
+- [Marketplace](https://p2pxbt.com/marketplace): live offers across all four assets and markets
+- [How it works](https://p2pxbt.com/how-it-works): the trade lifecycle from verification to completion
+- [Fees](https://p2pxbt.com/fees): what a trade costs and how spreads are set
+
+## Assets
+
+- [Buy Bitcoin](https://p2pxbt.com/buy-bitcoin): Buy Bitcoin (BTC) securely on P2PxBT with escrow protection
+- [Buy Ethereum](https://p2pxbt.com/buy-ethereum): Buy Ethereum (ETH) securely on P2PxBT with escrow protection
+- [Buy Solana](https://p2pxbt.com/buy-solana): Buy Solana (SOL) securely on P2PxBT with escrow protection
+- [Buy USDT](https://p2pxbt.com/buy-usdt): Buy Tether (USDT) securely on P2PxBT with escrow protection
+
+## Markets
+
+- [Buy Bitcoin in USA](https://p2pxbt.com/buy-bitcoin-usa)
+- [Buy Ethereum in USA](https://p2pxbt.com/buy-ethereum-usa)
+- [Buy Solana in USA](https://p2pxbt.com/buy-solana-usa)
+- [Buy USDT in USA](https://p2pxbt.com/buy-usdt-usa)
+- [Buy Bitcoin in UK](https://p2pxbt.com/buy-bitcoin-uk)
+- [Buy Ethereum in UK](https://p2pxbt.com/buy-ethereum-uk)
+- [Buy Solana in UK](https://p2pxbt.com/buy-solana-uk)
+- [Buy USDT in UK](https://p2pxbt.com/buy-usdt-uk)
+- [Buy Bitcoin in Germany](https://p2pxbt.com/buy-bitcoin-germany)
+- [Buy Ethereum in Germany](https://p2pxbt.com/buy-ethereum-germany)
+- [Buy Solana in Germany](https://p2pxbt.com/buy-solana-germany)
+- [Buy USDT in Germany](https://p2pxbt.com/buy-usdt-germany)
+- [Buy Bitcoin in France](https://p2pxbt.com/buy-bitcoin-france)
+- [Buy Ethereum in France](https://p2pxbt.com/buy-ethereum-france)
+- [Buy Solana in France](https://p2pxbt.com/buy-solana-france)
+- [Buy USDT in France](https://p2pxbt.com/buy-usdt-france)
+- [Buy Bitcoin in Netherlands](https://p2pxbt.com/buy-bitcoin-netherlands)
+- [Buy Ethereum in Netherlands](https://p2pxbt.com/buy-ethereum-netherlands)
+- [Buy Solana in Netherlands](https://p2pxbt.com/buy-solana-netherlands)
+- [Buy USDT in Netherlands](https://p2pxbt.com/buy-usdt-netherlands)
+- [Buy Bitcoin in Ireland](https://p2pxbt.com/buy-bitcoin-ireland)
+- [Buy Ethereum in Ireland](https://p2pxbt.com/buy-ethereum-ireland)
+- [Buy Solana in Ireland](https://p2pxbt.com/buy-solana-ireland)
+- [Buy USDT in Ireland](https://p2pxbt.com/buy-usdt-ireland)
+- [Buy Bitcoin in Spain](https://p2pxbt.com/buy-bitcoin-spain)
+- [Buy Ethereum in Spain](https://p2pxbt.com/buy-ethereum-spain)
+- [Buy Solana in Spain](https://p2pxbt.com/buy-solana-spain)
+- [Buy USDT in Spain](https://p2pxbt.com/buy-usdt-spain)
+- [Buy Bitcoin in Italy](https://p2pxbt.com/buy-bitcoin-italy)
+- [Buy Ethereum in Italy](https://p2pxbt.com/buy-ethereum-italy)
+- [Buy Solana in Italy](https://p2pxbt.com/buy-solana-italy)
+- [Buy USDT in Italy](https://p2pxbt.com/buy-usdt-italy)
+- [Buy Bitcoin in Hong Kong](https://p2pxbt.com/buy-bitcoin-hong-kong)
+- [Buy Ethereum in Hong Kong](https://p2pxbt.com/buy-ethereum-hong-kong)
+- [Buy Solana in Hong Kong](https://p2pxbt.com/buy-solana-hong-kong)
+- [Buy USDT in Hong Kong](https://p2pxbt.com/buy-usdt-hong-kong)
+
+## Guides
+
+- [How P2PxBT Works: A Walkthrough](https://p2pxbt.com/blog/how-p2pxbt-works): Every stage of the trade lifecycle, from identity verification through to a completed trade — and what is enforced at each step
+- [Is P2P Crypto Trading Safe? Everything You Need to Know](https://p2pxbt.com/blog/is-p2p-crypto-safe): Understand the risks and safety mechanisms in P2P crypto trading
+- [Best Escrow Services for Crypto Trading in 2024](https://p2pxbt.com/blog/best-escrow-for-crypto): Compare the top crypto escrow services and learn what makes a great escrow platform for safe P2P cryptocurrency trading
+- [How P2P Pricing Works: Spreads, Premiums and Discounts](https://p2pxbt.com/blog/how-p2p-pricing-works): Why P2P prices sit above or below spot, what a spread actually pays for, and how competing counterparties produce a range rather than one number
+- [Choosing a Payment Method for P2P Trades](https://p2pxbt.com/blog/choosing-a-payment-method): Wire, ACH, Faster Payments, SEPA and FPS differ in ways that matter for P2P settlement
+- [Why Verification Is Required Before You Trade](https://p2pxbt.com/blog/why-verification-is-required): Verification is mandatory before a first trade
+- [USDT vs USDC: Which Stablecoin Should You Use?](https://p2pxbt.com/blog/usdt-vs-usdc): A detailed comparison of USDT (Tether) and USDC (Circle) stablecoins, focusing on P2P trading liquidity, availability, and security
+- [Ethereum Price Prediction 2025: Should You Buy ETH?](https://p2pxbt.com/blog/ethereum-price-prediction): Expert analysis on Ethereum price predictions for 2025 and why buying ETH through P2P escrow trading is the safest approach
+
+## Policies
+
+- [Terms of Service](https://p2pxbt.com/terms)
+- [Privacy Policy](https://p2pxbt.com/privacy)
+
+## Notes
+
+- Trading requires identity verification approved by an operator. The platform
+  does not support anonymous or no-KYC trading.
+- Supported payment rails are bank transfers only. PayPal, Venmo, Zelle, Cash
+  App and mobile-money rails are not supported.
+- Coverage is limited to the United States, United Kingdom, the eurozone and
+  Hong Kong. Other markets are not served.

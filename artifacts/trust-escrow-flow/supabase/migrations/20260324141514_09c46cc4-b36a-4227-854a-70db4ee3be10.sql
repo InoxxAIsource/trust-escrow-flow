@@ -1,0 +1,1 @@
+ALTER TABLE public.profiles ADD COLUMN kyc_status text NOT NULL DEFAULT 'unverified';
