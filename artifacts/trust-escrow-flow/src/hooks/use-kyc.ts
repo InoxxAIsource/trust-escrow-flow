@@ -139,7 +139,7 @@ export function useSubmitKyc() {
         validateFile(file, step.title);
       }
 
-      // The first path segment must be the user's id — both the storage
+      // The first path segment must be the user's id - both the storage
       // policies and guard_kyc_document_paths() pivot on it.
       const uploaded: string[] = [];
       const paths = {} as Record<string, string>;
@@ -227,7 +227,7 @@ export function useKycQueue() {
 
 /**
  * Mints a short-lived signed URL for a submitted document. The bucket is
- * private, so this is the only way to view one — and it only succeeds for the
+ * private, so this is the only way to view one - and it only succeeds for the
  * owner or an admin, enforced by the storage policies.
  */
 export function useKycDocumentUrl() {

@@ -44,7 +44,7 @@ export type DemoBackendStatus = "ready" | "not-provisioned" | "error";
 
 export interface DemoBackendState {
   status: DemoBackendStatus;
-  /** Present when status is "error" — an unexpected failure worth surfacing. */
+  /** Present when status is "error" - an unexpected failure worth surfacing. */
   message?: string;
 }
 

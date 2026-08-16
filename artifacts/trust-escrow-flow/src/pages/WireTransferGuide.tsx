@@ -9,7 +9,7 @@ export default function WireTransferGuide() {
   return (
     <div className="container py-12 lg:py-16">
       <SEOHead
-        title="Bank Wire Transfer Guide for P2P Crypto — P2PxBT"
+        title="Bank Wire Transfer Guide for P2P Crypto - P2PxBT"
         description="A complete guide to sending a bank wire transfer when buying or selling cryptocurrency on P2PxBT. Covers domestic wires, SWIFT, SEPA, Faster Payments and what to do after payment."
         canonical="https://p2pxbt.com/wire-transfer-guide"
       />
@@ -27,7 +27,7 @@ export default function WireTransferGuide() {
             Bank Wire Transfer Guide
           </h1>
           <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
-            All payments on P2PxBT are made via physical bank wire — no third-party apps, no
+            All payments on P2PxBT are made via physical bank wire - no third-party apps, no
             online payment platforms. This guide explains how to send a wire correctly, what
             details you need, and how to upload your receipt so the operator can release your
             crypto promptly.
@@ -53,7 +53,7 @@ export default function WireTransferGuide() {
           <p className="text-muted-foreground leading-relaxed mb-3">
             Wire transfers are the most reliable, traceable and fraud-resistant payment method for
             large-value P2P crypto transactions. Unlike card payments or online transfers, a bank
-            wire creates a clear audit trail that ties your bank account to the payment reference —
+            wire creates a clear audit trail that ties your bank account to the payment reference -
             making dispute resolution straightforward if anything goes wrong.
           </p>
           <p className="text-muted-foreground leading-relaxed">
@@ -132,7 +132,7 @@ export default function WireTransferGuide() {
               {
                 step: "2",
                 title: "Receive bank details in chat",
-                body: "A P2PxBT operator will send the recipient bank details — including account name, account number, sort code / routing number / IBAN and payment reference — directly into your trade chat. Do not use details from any other source.",
+                body: "A P2PxBT operator will send the recipient bank details - including account name, account number, sort code / routing number / IBAN and payment reference - directly into your trade chat. Do not use details from any other source.",
               },
               {
                 step: "3",
@@ -142,7 +142,7 @@ export default function WireTransferGuide() {
               {
                 step: "4",
                 title: "Enter details exactly",
-                body: "Copy the account details from the trade chat character-by-character. The payment reference (e.g. P2PXBT-1234) is critical — it is how the operator matches your payment to your trade. Do not omit it.",
+                body: "Copy the account details from the trade chat character-by-character. The payment reference (e.g. P2PXBT-1234) is critical - it is how the operator matches your payment to your trade. Do not omit it.",
               },
               {
                 step: "5",
@@ -195,7 +195,7 @@ export default function WireTransferGuide() {
           </div>
           <p className="mt-4 text-sm text-muted-foreground">
             Acceptable formats: PNG, JPEG, WebP, HEIC or PDF. Maximum file size: 5 MB. Do not
-            crop out the bank name, account numbers or reference — receipts missing these will
+            crop out the bank name, account numbers or reference - receipts missing these will
             delay confirmation.
           </p>
         </section>
@@ -210,7 +210,7 @@ export default function WireTransferGuide() {
                 Every P2PxBT trade has a <strong>4-hour payment window</strong> from the moment it
                 opens. You must send your wire, upload your receipt and click "Mark as sent" before
                 the timer expires. If you are close to the deadline and your bank's wire has not
-                landed yet, upload your proof of payment immediately — the operator can see it and
+                landed yet, upload your proof of payment immediately - the operator can see it and
                 hold the trade open while the funds arrive.
               </p>
             </div>

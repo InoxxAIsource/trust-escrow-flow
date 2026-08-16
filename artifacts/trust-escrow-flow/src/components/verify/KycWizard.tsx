@@ -20,7 +20,7 @@ type Files = Partial<Record<KycStepKey, File>>;
 
 /**
  * Surfaces the real reason a submission failed. A bare "Submission failed"
- * hides the common case entirely — the migrations not being applied, which
+ * hides the common case entirely - the migrations not being applied, which
  * returns a missing-column error the operator needs to see.
  */
 function describeSubmitError(error: unknown): string {
@@ -94,7 +94,7 @@ export function KycWizard() {
         details,
         files: files as Record<KycStepKey, File>,
       });
-      toast.success("Verification submitted — an operator will review it shortly.");
+      toast.success("Verification submitted - an operator will review it shortly.");
     } catch (error) {
       toast.error(describeSubmitError(error));
     }
@@ -108,7 +108,7 @@ export function KycWizard() {
           {isReview ? "Review and submit" : `Step ${step + 1} of ${KYC_STEPS.length}`}
         </CardTitle>
         <CardDescription>
-          Upload placeholder or redacted images — do not upload real identity documents.
+          Upload placeholder or redacted images - do not upload real identity documents.
         </CardDescription>
       </CardHeader>
 

@@ -1,5 +1,5 @@
 // ============================================================
-// SEED ENGINE — Multi-Country P2P Offer Generator
+// SEED ENGINE - Multi-Country P2P Offer Generator
 // Generates offers across multiple countries with proper
 // currency symbols, payment methods, and pricing.
 // ============================================================
@@ -51,14 +51,14 @@ export interface CountryConfig {
 /**
  * Two market sets, deliberately different in scope.
  *
- * The first four — US, UK, Europe, Hong Kong — are the settlement markets.
+ * The first four - US, UK, Europe, Hong Kong - are the settlement markets.
  * They have counterparties in the database, operator-issued payment details
  * and a working trade flow, and they are what `/marketplace` shows to someone
  * arriving at the domain directly.
  *
  * The rest are reach markets. A visitor landing from search on, say,
  * /buy-usdt-india-upi sees a live board of INR offers quoting UPI rather than
- * an empty page or a redirect somewhere irrelevant — the market matches the
+ * an empty page or a redirect somewhere irrelevant - the market matches the
  * link that brought them. These generate offers here but have no counterparty
  * rows, so they do not appear in the settlement marketplace.
  *
@@ -501,8 +501,8 @@ function generateTrader(country: CountryConfig) {
 
 // ── USDT Offer Generator (per country) ──
 // Bands are anchored in USD, matching the demo's quote currency:
-//   sell-type offers (shown on the Buy tab)  — $1.04 to $1.06 per USDT
-//   buy-type offers  (shown on the Sell tab) — $0.96 to $0.98 per USDT
+//   sell-type offers (shown on the Buy tab)  - $1.04 to $1.06 per USDT
+//   buy-type offers  (shown on the Sell tab) - $0.96 to $0.98 per USDT
 // Each country's band is the USD band converted at its own fxRate.
 function generateUSDTOffers(country: CountryConfig, usdtPriceLocal: number): SeededOffer[] {
   const offers: SeededOffer[] = [];
@@ -663,7 +663,7 @@ function generateCryptoOffers(
  * depends on ticket size, which is drawn randomly, and the large-ticket
  * override diverts some turns to Bank Transfer. With India quoting five rails
  * against nine Bitcoin offers, the fifth rail dropped out on some page loads
- * and appeared on others — so /buy-bitcoin-google-pay showed an empty board
+ * and appeared on others - so /buy-bitcoin-google-pay showed an empty board
  * intermittently, which is harder to notice than a consistently broken one.
  *
  * This runs once after generation and adds any missing rail to an existing

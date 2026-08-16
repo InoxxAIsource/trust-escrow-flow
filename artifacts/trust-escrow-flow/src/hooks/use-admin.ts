@@ -127,7 +127,7 @@ export function usePaymentInstructions(counterpartyId: string | undefined) {
  * Saves a counterparty's payment instructions for one rail.
  *
  * Stores all operator-entered fields (including routing identifiers) directly
- * so the operator can override any value — useful for demo environments where
+ * so the operator can override any value - useful for demo environments where
  * the auto-derived placeholders need to be replaced with real-looking data.
  */
 export function useSavePaymentInstructions() {

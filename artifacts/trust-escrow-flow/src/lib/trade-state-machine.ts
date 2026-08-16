@@ -5,7 +5,7 @@
  * in `demo_trade_can_transition()` (migration 20260811090300) and every
  * transition runs inside a SECURITY DEFINER function. This mirror exists so
  * the UI can disable buttons that would fail, and so the timeline can be
- * labelled — it is a convenience layer over a server-side rule, never a
+ * labelled - it is a convenience layer over a server-side rule, never a
  * substitute for one.
  *
  * If you change an edge here, change it in the migration too. The test suite
@@ -76,7 +76,7 @@ export function nextStates(from: TradeState): TradeState[] {
   return TRANSITIONS.filter(([f]) => f === from).map(([, t]) => t);
 }
 
-/** Copy for status chips. Kept demo-explicit — no "escrow", no "settlement". */
+/** Copy for status chips. Kept demo-explicit - no "escrow", no "settlement". */
 export const STATE_LABELS: Record<TradeState, string> = {
   CREATED: "Created",
   KYC_PENDING: "Verification pending",
@@ -136,10 +136,10 @@ export const EVENT_LABELS: Record<string, string> = {
   PAYMENT_DETAILS_SENT: "Operator sent payment details",
   BUYER_MARKED_PAYMENT_SENT: "Payment marked as sent",
   RECEIPT_UPLOADED: "Payment receipt uploaded",
-  TRADE_COMPLETED: "Payment confirmed — trade complete",
+  TRADE_COMPLETED: "Payment confirmed - trade complete",
   TRADE_CANCELLED: "Trade cancelled",
-  TRADE_DISPUTED: "Dispute raised — awaiting operator review",
-  TRADE_EXPIRED: "Trade expired — payment window elapsed",
+  TRADE_DISPUTED: "Dispute raised - awaiting operator review",
+  TRADE_EXPIRED: "Trade expired - payment window elapsed",
 };
 
 export function labelForEvent(eventType: string): string {

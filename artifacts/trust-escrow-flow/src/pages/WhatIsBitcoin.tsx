@@ -9,8 +9,8 @@ export default function WhatIsBitcoin() {
   return (
     <div className="container py-12 lg:py-16">
       <SEOHead
-        title="What is Bitcoin (BTC)? — P2PxBT Guide"
-        description="A clear, jargon-free guide to Bitcoin — what it is, how it works, why people use it, and how to buy or sell BTC peer-to-peer on P2PxBT."
+        title="What is Bitcoin (BTC)? - P2PxBT Guide"
+        description="A clear, jargon-free guide to Bitcoin - what it is, how it works, why people use it, and how to buy or sell BTC peer-to-peer on P2PxBT."
         canonical="https://p2pxbt.com/what-is-bitcoin"
       />
       <Breadcrumbs
@@ -28,7 +28,7 @@ export default function WhatIsBitcoin() {
           </h1>
           <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
             Bitcoin is the world's first decentralised digital currency. Created in 2009, it lets
-            people send and receive value across borders — without a bank, government or
+            people send and receive value across borders - without a bank, government or
             intermediary involved. It runs on a public ledger called the blockchain, secured by
             a global network of computers.
           </p>
@@ -100,20 +100,20 @@ export default function WhatIsBitcoin() {
           <h2 className="font-display text-2xl font-semibold text-foreground">How Bitcoin works</h2>
           <p className="text-muted-foreground leading-relaxed">
             When you send Bitcoin, you broadcast a signed message to the network stating that a
-            certain amount of BTC should move from your address to another. Miners — computers
-            running specialised software — collect these messages, verify they are valid (that
+            certain amount of BTC should move from your address to another. Miners - computers
+            running specialised software - collect these messages, verify they are valid (that
             you actually own the coins you're sending), and bundle them into a block.
           </p>
           <p className="text-muted-foreground leading-relaxed">
             Each block is cryptographically chained to the one before it, forming the
             "blockchain." To alter a past transaction an attacker would need to redo the
-            computational work for that block and every block after it — a task that becomes
+            computational work for that block and every block after it - a task that becomes
             exponentially harder as the chain grows. This makes confirmed Bitcoin transactions
             effectively irreversible.
           </p>
           <p className="text-muted-foreground leading-relaxed">
             Miners are rewarded with newly created BTC and transaction fees for their work. The
-            reward halves every 210,000 blocks (roughly every four years) — a built-in mechanism
+            reward halves every 210,000 blocks (roughly every four years) - a built-in mechanism
             that controls inflation and enforces the 21 million cap.
           </p>
         </section>
@@ -132,7 +132,7 @@ export default function WhatIsBitcoin() {
               <li key={item.title} className="flex gap-3">
                 <span className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-primary" />
                 <span className="text-sm leading-relaxed text-muted-foreground">
-                  <strong className="text-foreground">{item.title} — </strong>
+                  <strong className="text-foreground">{item.title} - </strong>
                   {item.body}
                 </span>
               </li>
@@ -157,7 +157,7 @@ export default function WhatIsBitcoin() {
               <tbody className="divide-y divide-border">
                 {[
                   ["Controlled by", "No one (protocol rules)", "Central bank / government"],
-                  ["Supply limit", "21 million BTC, fixed", "Unlimited — set by policy"],
+                  ["Supply limit", "21 million BTC, fixed", "Unlimited - set by policy"],
                   ["Settlement time", "10–60 minutes on-chain", "1–5 business days (international)"],
                   ["Reversibility", "Irreversible once confirmed", "Chargebacks / recalls possible"],
                   ["Access", "Anyone with internet", "Requires bank account"],
@@ -184,7 +184,7 @@ export default function WhatIsBitcoin() {
               { step: "1", text: "Create a free account and complete identity verification." },
               { step: "2", text: "Browse the marketplace for a BTC seller in your region and payment method." },
               { step: "3", text: "Enter the amount, review the P2P price, and open the trade." },
-              { step: "4", text: "A P2PxBT operator sends bank details into the trade chat. Send your wire payment — physical wire only." },
+              { step: "4", text: "A P2PxBT operator sends bank details into the trade chat. Send your wire payment - physical wire only." },
               { step: "5", text: "Upload your payment receipt. The operator confirms and releases Bitcoin to your wallet." },
             ].map((item) => (
               <li key={item.step} className="flex gap-3 text-sm leading-relaxed text-muted-foreground">

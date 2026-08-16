@@ -236,7 +236,7 @@ const Dashboard = () => {
   if (!user) {
     return (
       <div className="container py-12">
-        <SEOHead title="Dashboard — P2PxBT" description="View your trades, wallet, and active offers." canonical="https://p2pxbt.com/dashboard" noindex />
+        <SEOHead title="Dashboard - P2PxBT" description="View your trades, wallet, and active offers." canonical="https://p2pxbt.com/dashboard" noindex />
         <div className="max-w-md mx-auto text-center py-20">
           <Lock className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
           <h1 className="font-display text-2xl font-bold text-foreground mb-2">Sign in to view your dashboard</h1>
@@ -254,7 +254,7 @@ const Dashboard = () => {
   const handleCancelOffer = async (offerId: string) => {
     try {
       await cancelOffer.mutateAsync(offerId);
-      toast.success("Offer cancelled — funds restored to your wallet");
+      toast.success("Offer cancelled - funds restored to your wallet");
     } catch {
       toast.error("Failed to cancel offer");
     }
@@ -262,7 +262,7 @@ const Dashboard = () => {
 
   return (
     <div className="container py-12">
-      <SEOHead title="Dashboard — P2PxBT" description="View your trades, wallet, and active offers." canonical="https://p2pxbt.com/dashboard" noindex />
+      <SEOHead title="Dashboard - P2PxBT" description="View your trades, wallet, and active offers." canonical="https://p2pxbt.com/dashboard" noindex />
       <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Dashboard", href: "/dashboard" }]} />
 
       {profile?.kyc_status !== "verified" && (
@@ -325,7 +325,7 @@ const Dashboard = () => {
         })}
       </div>
 
-      {/* Demo P2P Holdings — aggregated from completed demo trades */}
+      {/* Demo P2P Holdings - aggregated from completed demo trades */}
       {demoAssets.length > 0 && (
         <div className="mb-8">
           <div className="mb-3 flex items-center justify-between">

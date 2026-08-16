@@ -105,7 +105,7 @@ function Console() {
     try {
       const result = await reset.mutateAsync();
       toast.success(
-        `Environment reset — ${result.trades_cleared} trades and ${result.kyc_cleared} applications cleared.`,
+        `Environment reset - ${result.trades_cleared} trades and ${result.kyc_cleared} applications cleared.`,
       );
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Reset failed.");
@@ -118,7 +118,7 @@ function Console() {
 
   return (
     <div className="container py-8">
-      <SEOHead title="Operator Console — P2PxBT" description="Operations console." noindex />
+      <SEOHead title="Operator Console - P2PxBT" description="Operations console." noindex />
 
       <header className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
@@ -183,7 +183,7 @@ function Metric({ label, value, highlight }: { label: string; value?: number; hi
   return (
     <Card className={highlight && value ? "border-amber-500/40" : undefined}>
       <CardContent className="p-4">
-        <p className="text-2xl font-bold text-foreground">{value ?? "—"}</p>
+        <p className="text-2xl font-bold text-foreground">{value ?? "-"}</p>
         <p className="text-xs text-muted-foreground">{label}</p>
       </CardContent>
     </Card>
@@ -251,7 +251,7 @@ function KycQueue() {
           return (
             <TableRow key={s.id}>
               <TableCell className="align-top">
-                <p className="font-medium text-foreground">{s.full_name ?? "—"}</p>
+                <p className="font-medium text-foreground">{s.full_name ?? "-"}</p>
                 <dl className="mt-1 space-y-0.5 text-xs text-muted-foreground">
                   {s.date_of_birth && (
                     <div>
@@ -356,8 +356,8 @@ function TradesTable({ filter }: { filter: "active" | "completed" }) {
       {trades.map((t) => (
         <TableRow key={t.id}>
           <TableCell className="font-mono text-xs">{t.trade_ref}</TableCell>
-          <TableCell className="text-sm">{t.owner?.username ?? "—"}</TableCell>
-          <TableCell className="text-sm">{t.counterparty?.display_name ?? "—"}</TableCell>
+          <TableCell className="text-sm">{t.owner?.username ?? "-"}</TableCell>
+          <TableCell className="text-sm">{t.counterparty?.display_name ?? "-"}</TableCell>
           <TableCell className="text-sm">{t.asset}</TableCell>
           <TableCell className="font-mono text-xs">
             {formatAssetAmount(t.amount, t.asset)}
@@ -366,7 +366,7 @@ function TradesTable({ filter }: { filter: "active" | "completed" }) {
           <TableCell className="text-xs">{t.payment_method}</TableCell>
           <TableCell>
             <Badge variant="outline" className="text-[10px]">
-              {t.owner?.kyc_status ?? "—"}
+              {t.owner?.kyc_status ?? "-"}
             </Badge>
           </TableCell>
           <TableCell><TradeStateBadge state={t.demo_state} /></TableCell>
@@ -511,14 +511,14 @@ function ActivityLog() {
                 {String(a.metadata?.trade_ref ?? a.trade_id.slice(0, 8))}
               </Link>
             ) : (
-              "—"
+              "-"
             )}
           </TableCell>
           <TableCell className="max-w-xs truncate text-xs text-muted-foreground">
             {Object.entries(a.metadata ?? {})
               .filter(([k]) => k !== "trade_ref")
               .map(([k, v]) => `${k}: ${String(v)}`)
-              .join(" · ") || "—"}
+              .join(" · ") || "-"}
           </TableCell>
         </TableRow>
       ))}

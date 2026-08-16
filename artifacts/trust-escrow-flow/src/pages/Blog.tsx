@@ -9,7 +9,7 @@ import { blogPosts } from "@/data/blog-posts";
 const Blog = () => (
   <>
     <SEOHead
-      title="P2PxBT Blog — Crypto P2P Guides, Safety Tips, Market Analysis"
+      title="P2PxBT Blog - Crypto P2P Guides, Safety Tips, Market Analysis"
       description="Learn about P2P crypto trading, escrow protection, and how to buy and sell cryptocurrency safely. Guides, tips, and industry insights from P2PxBT."
       canonical="https://p2pxbt.com/blog"
       jsonLd={[

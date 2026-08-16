@@ -11,7 +11,7 @@ interface BreadcrumbsProps {
 }
 
 // Note: BreadcrumbList JSON-LD is emitted via SEOHead's `jsonLd` prop on each
-// page. Do NOT also emit it from this component — it caused duplicate
+// page. Do NOT also emit it from this component - it caused duplicate
 // BreadcrumbList script tags in the DOM.
 const Breadcrumbs = ({ items }: BreadcrumbsProps) => {
   const location = useLocation();

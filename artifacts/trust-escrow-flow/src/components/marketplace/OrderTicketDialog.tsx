@@ -144,7 +144,7 @@ export function OrderTicketDialog({
             )}
           </div>
 
-          {/* Payment method — chosen BEFORE the trade opens, per the workflow. */}
+          {/* Payment method - chosen BEFORE the trade opens, per the workflow. */}
           <div className="space-y-2">
             <Label>Payment method</Label>
             <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="space-y-2">
@@ -162,7 +162,7 @@ export function OrderTicketDialog({
             </RadioGroup>
             <p className="text-xs text-muted-foreground">
               Payment details are issued by a P2PxBT operator in the trade chat after the trade
-              opens — they are never shown up front.
+              opens - they are never shown up front.
             </p>
           </div>
 

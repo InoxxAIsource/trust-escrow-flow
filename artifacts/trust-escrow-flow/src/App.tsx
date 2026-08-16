@@ -74,7 +74,7 @@ const App = () => (
                   No dead ends: anything unmatched lands on the home page
                   rather than a 404. vercel.json 301s every URL the old site
                   served to its nearest surviving equivalent; this catches
-                  everything else — typos, stale deep links, old app routes.
+                  everything else - typos, stale deep links, old app routes.
                 */}
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>

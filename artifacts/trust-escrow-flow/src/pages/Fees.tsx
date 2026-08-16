@@ -14,7 +14,7 @@ const fees = [
 ];
 
 const benefits = [
-  "No hidden fees — what you see is what you pay",
+  "No hidden fees - what you see is what you pay",
   "Zero deposit fees for all cryptocurrencies",
   "Volume-based discounts for active traders",
   "Escrow protection included at no extra cost",
@@ -25,7 +25,7 @@ const benefits = [
 const Fees = () => (
   <>
     <SEOHead
-      title="P2PxBT Fees — Transparent P2P Escrow Pricing"
+      title="P2PxBT Fees - Transparent P2P Escrow Pricing"
       description="See P2PxBT's simple and transparent fee structure. Flat 1.2% trading fee, zero deposit fees, and free escrow protection on every P2P crypto trade."
       canonical="https://p2pxbt.com/fees"
       jsonLd={[

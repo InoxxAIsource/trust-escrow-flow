@@ -129,7 +129,7 @@ export default function DemoTradePage() {
         await sendMessage.mutateAsync({ message: "Payment receipt", file: receipt, isReceipt: true });
       }
       await markPaid.mutateAsync(trade.id);
-      toast.success(receipt ? "Receipt uploaded and payment marked as sent." : "Payment marked as sent — awaiting operator confirmation.");
+      toast.success(receipt ? "Receipt uploaded and payment marked as sent." : "Payment marked as sent - awaiting operator confirmation.");
       setPaidOpen(false);
       setReceipt(null);
     } catch (error) {
@@ -140,7 +140,7 @@ export default function DemoTradePage() {
   const handleDispute = async () => {
     try {
       await dispute.mutateAsync({ tradeId: trade.id, reason: disputeReason.trim() });
-      toast.success("Dispute raised — an operator will review this trade.");
+      toast.success("Dispute raised - an operator will review this trade.");
       setDisputeOpen(false);
       setDisputeReason("");
     } catch (error) {
@@ -175,7 +175,7 @@ export default function DemoTradePage() {
 
   return (
     <div className="container py-8">
-      <SEOHead title={`Trade ${trade.trade_ref} — P2PxBT`} description="Peer-to-peer trade." noindex />
+      <SEOHead title={`Trade ${trade.trade_ref} - P2PxBT`} description="Peer-to-peer trade." noindex />
       <Breadcrumbs
         items={[
           { label: "Home", href: "/" },
@@ -250,7 +250,7 @@ export default function DemoTradePage() {
                     <Row label="P2P price" value={formatMoney(trade.price, trade.currency as Currency)} />
                     <Row label="Total" value={formatMoney(trade.total, trade.currency as Currency)} />
                     <Row label="Payment method" value={trade.payment_method} />
-                    <Row label="Counterparty" value={trade.counterparty?.display_name ?? "—"} />
+                    <Row label="Counterparty" value={trade.counterparty?.display_name ?? "-"} />
                     <Row label="Trade ID" value={trade.trade_ref} mono />
                   </dl>
                 </CardContent>
@@ -344,7 +344,7 @@ export default function DemoTradePage() {
                 <Row label="P2P price" value={formatMoney(trade.price, trade.currency as Currency)} />
                 <Row label="Total" value={formatMoney(trade.total, trade.currency as Currency)} />
                 <Row label="Payment method" value={trade.payment_method} />
-                <Row label="Counterparty" value={trade.counterparty?.display_name ?? "—"} />
+                <Row label="Counterparty" value={trade.counterparty?.display_name ?? "-"} />
               </dl>
 
               {expiresAtMs && !isTerminated && (
@@ -494,7 +494,7 @@ export default function DemoTradePage() {
                 className="font-mono text-sm"
               />
               <p className="text-[11px] text-muted-foreground">
-                Double-check — withdrawals in a live environment cannot be reversed.
+                Double-check - withdrawals in a live environment cannot be reversed.
               </p>
             </div>
 

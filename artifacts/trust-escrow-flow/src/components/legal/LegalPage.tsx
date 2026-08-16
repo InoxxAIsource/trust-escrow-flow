@@ -32,7 +32,7 @@ export function LegalPage({
   return (
     <div className="container py-12 lg:py-16">
       <SEOHead
-        title={`${title} — P2PxBT`}
+        title={`${title} - P2PxBT`}
         description={description}
         canonical={`https://p2pxbt.com${path}`}
       />

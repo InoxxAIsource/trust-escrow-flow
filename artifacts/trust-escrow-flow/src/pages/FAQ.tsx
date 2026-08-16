@@ -24,8 +24,8 @@ const faqs: FAQCategory[] = [
         answer: (
           <>
             P2PxBT is a peer-to-peer cryptocurrency trading platform that connects buyers and
-            sellers directly. Trades are settled via local payment rails — bank wire, UK Faster
-            Payments, and more — without an intermediary holding funds.{" "}
+            sellers directly. Trades are settled via local payment rails - bank wire, UK Faster
+            Payments, and more - without an intermediary holding funds.{" "}
             <Link to="/how-it-works" className="text-primary underline underline-offset-2">
               See how it works →
             </Link>
@@ -87,7 +87,7 @@ const faqs: FAQCategory[] = [
               <Link to="/verify" className="text-primary underline underline-offset-2">
                 identity verification
               </Link>{" "}
-              — required before your first trade.
+              - required before your first trade.
             </li>
             <li>
               Browse the{" "}
@@ -139,7 +139,7 @@ const faqs: FAQCategory[] = [
         answer: (
           <>
             After your trade opens, a P2PxBT operator sends the counterparty's payment details
-            directly into the trade chat — they are never displayed in advance. Only send payment
+            directly into the trade chat - they are never displayed in advance. Only send payment
             to details delivered inside the secure trade chat.
           </>
         ),
@@ -186,7 +186,7 @@ const faqs: FAQCategory[] = [
         question: "Can I cancel a trade?",
         answer: (
           <>
-            Yes — you can cancel at any point before you mark payment as sent, using the{" "}
+            Yes - you can cancel at any point before you mark payment as sent, using the{" "}
             <strong>Cancel trade</strong> button on your trade page. Once payment has been marked,
             cancellation requires a dispute to be raised.
           </>
@@ -282,7 +282,7 @@ const faqs: FAQCategory[] = [
         ),
       },
       {
-        question: "I forgot my password — what do I do?",
+        question: "I forgot my password - what do I do?",
         answer: (
           <>
             Use the <strong>Forgot password</strong> link on the{" "}
@@ -342,7 +342,7 @@ export default function FAQ() {
   return (
     <div className="container py-12 lg:py-16">
       <SEOHead
-        title="FAQ — P2PxBT"
+        title="FAQ - P2PxBT"
         description="Answers to common questions about P2PxBT: how trading works, payment methods, fees, identity verification, and account management."
         canonical="https://p2pxbt.com/faq"
       />

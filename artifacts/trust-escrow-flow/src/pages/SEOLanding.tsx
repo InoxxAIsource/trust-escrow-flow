@@ -28,7 +28,7 @@ function extractCitySlug(slug: string): string | null {
 const LAST_UPDATED = "2026-04-02T10:00:00Z";
 
 /**
- * A trade can only be opened in a settlement market — those are the ones with
+ * A trade can only be opened in a settlement market - those are the ones with
  * counterparty rows and a working payment flow. Reach markets list prices so
  * the page is useful to someone arriving from search, but there is nothing
  * behind the button, so acting on one sends the visitor home with a plain
@@ -285,7 +285,7 @@ const SEOLanding = () => {
           </Card>
         )}
 
-        {/* Recent Activity Feed — City-specific or generic */}
+        {/* Recent Activity Feed - City-specific or generic */}
         <Card className="mb-10">
           <CardContent className="py-5">
             <div className="flex items-center gap-2 mb-3">
@@ -373,12 +373,12 @@ const SEOLanding = () => {
                 {section.text.split("\n").map((line, j) => {
                   if (line.trim() === "") return null;
                   if (line.match(/^\d+\.\s\*\*/)) {
-                    const match = line.match(/^\d+\.\s\*\*(.+?)\*\*\s*[—–-]\s*(.*)/);
-                    if (match) return <div key={j} className="flex items-start gap-2"><CheckCircle className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" /><span><strong className="text-foreground">{match[1]}</strong> — {match[2]}</span></div>;
+                    const match = line.match(/^\d+\.\s\*\*(.+?)\*\*\s*[-–-]\s*(.*)/);
+                    if (match) return <div key={j} className="flex items-start gap-2"><CheckCircle className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" /><span><strong className="text-foreground">{match[1]}</strong> - {match[2]}</span></div>;
                   }
                   if (line.startsWith("- **")) {
-                    const match = line.match(/- \*\*(.+?)\*\*\s*[—–-]\s*(.*)/);
-                    if (match) return <div key={j} className="flex items-start gap-2 ml-2"><span className="text-primary">•</span><span><strong className="text-foreground">{match[1]}</strong> — {match[2]}</span></div>;
+                    const match = line.match(/- \*\*(.+?)\*\*\s*[-–-]\s*(.*)/);
+                    if (match) return <div key={j} className="flex items-start gap-2 ml-2"><span className="text-primary">•</span><span><strong className="text-foreground">{match[1]}</strong> - {match[2]}</span></div>;
                   }
                   if (line.startsWith("- ")) return <div key={j} className="flex items-start gap-2 ml-2"><span className="text-primary">•</span><span>{line.replace("- ", "")}</span></div>;
                   return <p key={j}>{line}</p>;
@@ -420,7 +420,7 @@ const SEOLanding = () => {
           </div>
         )}
 
-        {/* Related Links — Internal Linking */}
+        {/* Related Links - Internal Linking */}
         <Card>
           <CardContent className="py-6">
             <h2 className="font-display font-semibold text-foreground mb-4">Related Pages</h2>

@@ -48,7 +48,7 @@ const Footer = () => (
             P2PxBT
           </Link>
           <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
-            Peer-to-peer crypto trading across four markets — USA, UK, Europe and Hong Kong —
+            Peer-to-peer crypto trading across four markets - USA, UK, Europe and Hong Kong -
             settled on local payment rails.
           </p>
           <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">

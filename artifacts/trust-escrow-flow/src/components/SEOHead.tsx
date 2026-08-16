@@ -9,7 +9,7 @@ interface SEOHeadProps {
   ogImage?: string;
   /** Describes the image for screen readers and for cards that fail to load it. */
   ogImageAlt?: string;
-  /** og:type — defaults to "website". Use "article" for blog posts. */
+  /** og:type - defaults to "website". Use "article" for blog posts. */
   ogType?: "website" | "article" | "product";
   /** ISO date. Emitted as article:published_time when ogType is "article". */
   publishedTime?: string;
@@ -26,11 +26,11 @@ const SITE_URL = "https://p2pxbt.com";
  * declare 1200x630. Card renderers trust the declared size for layout, so a
  * square image came back cropped or was dropped for failing the aspect check.
  * A file in /public also keeps one stable URL across builds, which matters
- * because Facebook and LinkedIn cache by image URL — a content-hashed
+ * because Facebook and LinkedIn cache by image URL - a content-hashed
  * filename re-fetches on every deploy.
  */
 const DEFAULT_OG = `${SITE_URL}/og-image.jpg`;
-const DEFAULT_OG_ALT = "P2PxBT — peer-to-peer crypto trading";
+const DEFAULT_OG_ALT = "P2PxBT - peer-to-peer crypto trading";
 
 /** Card crawlers reject relative image paths outright. */
 function absolute(url: string): string {

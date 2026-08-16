@@ -56,7 +56,7 @@ const COINS: CoinRow[] = [
 ];
 
 function PriceChange({ change }: { change?: number }) {
-  if (change == null) return <span className="text-muted-foreground text-sm">—</span>;
+  if (change == null) return <span className="text-muted-foreground text-sm">-</span>;
   const positive = change >= 0;
   const neutral = Math.abs(change) < 0.01;
   return (
@@ -77,7 +77,7 @@ export default function CryptoPrices() {
   return (
     <div className="container py-12 lg:py-16">
       <SEOHead
-        title="Live Crypto Prices — BTC, ETH, SOL, USDT — P2PxBT"
+        title="Live Crypto Prices - BTC, ETH, SOL, USDT - P2PxBT"
         description="Live cryptocurrency prices on P2PxBT. See real-time BTC, ETH, SOL and USDT rates refreshed every 30 seconds, plus P2P buy and sell offers in your region."
         canonical="https://p2pxbt.com/crypto-prices"
       />
@@ -101,7 +101,7 @@ export default function CryptoPrices() {
           </div>
           <p className="mt-4 leading-relaxed text-muted-foreground max-w-2xl">
             Reference prices for all assets traded on P2PxBT. The P2P rate shown on marketplace
-            offers may differ — counterparties apply a small premium or discount based on local
+            offers may differ - counterparties apply a small premium or discount based on local
             supply, demand and payment method.
           </p>
         </header>
@@ -157,11 +157,11 @@ export default function CryptoPrices() {
         {/* About P2P pricing */}
         <section className="mb-10 space-y-4">
           <h2 className="font-display text-2xl font-semibold text-foreground">
-            Market price vs P2P price — what's the difference?
+            Market price vs P2P price - what's the difference?
           </h2>
           <p className="text-muted-foreground leading-relaxed">
             The prices above are reference rates pulled from aggregate market data and refreshed
-            every 30 seconds. They represent the global spot price — what you would pay on a
+            every 30 seconds. They represent the global spot price - what you would pay on a
             centralised exchange before fees.
           </p>
           <p className="text-muted-foreground leading-relaxed">

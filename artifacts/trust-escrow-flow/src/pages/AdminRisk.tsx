@@ -68,7 +68,7 @@ export default function AdminRisk() {
 
   // This route was previously reachable by anyone. The risk tables are now
   // admin-only at the RLS layer as well, so an unauthorised visitor would see
-  // an empty dashboard regardless — but failing closed here is clearer.
+  // an empty dashboard regardless - but failing closed here is clearer.
   if (!isAdmin) {
     return (
       <div className="container flex flex-col items-center gap-3 py-24 text-center">
@@ -94,7 +94,7 @@ function RiskDashboard() {
 
   return (
     <div className="min-h-screen">
-      <SEOHead title="Risk Dashboard — Admin" description="Monitor and manage user risk levels" noindex />
+      <SEOHead title="Risk Dashboard - Admin" description="Monitor and manage user risk levels" noindex />
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Admin Risk Dashboard", href: "/admin/risk" }]} />
 

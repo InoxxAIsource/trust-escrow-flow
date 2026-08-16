@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 /**
  * Live reference prices for the home page ticker.
  *
- * Source: Binance public REST API — no key required, real-time, generous rate
+ * Source: Binance public REST API - no key required, real-time, generous rate
  * limits for a 60 s poll. The 24h ticker endpoint returns `lastPrice` and
  * `priceChangePercent` directly, so no secondary calculation is needed.
  *
@@ -49,7 +49,7 @@ const BINANCE_SYMBOLS = Object.keys(BINANCE_PAIR_META);
 
 /**
  * Binance 24hr ticker. Returns lastPrice + priceChangePercent for each pair.
- * Weight = 2 per symbol (up to 40 total) — well within the 1 200 w/min limit.
+ * Weight = 2 per symbol (up to 40 total) - well within the 1 200 w/min limit.
  */
 const BINANCE_TICKER_URL =
   `https://api.binance.com/api/v3/ticker/24hr?symbols=${encodeURIComponent(JSON.stringify(BINANCE_SYMBOLS))}`;
@@ -92,7 +92,7 @@ export function useLivePrices() {
           };
         });
 
-      // USDT is a USD stablecoin — Binance has no self-referential pair.
+      // USDT is a USD stablecoin - Binance has no self-referential pair.
       prices.push({
         symbol: "USDT",
         name: "Tether",

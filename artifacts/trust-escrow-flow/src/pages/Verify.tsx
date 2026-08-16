@@ -39,7 +39,7 @@ export default function Verify() {
   return (
     <div className="container py-12">
       <SEOHead
-        title="Identity Verification — P2PxBT"
+        title="Identity Verification - P2PxBT"
         description="Submit identity verification to unlock trading on P2PxBT."
         noindex
       />

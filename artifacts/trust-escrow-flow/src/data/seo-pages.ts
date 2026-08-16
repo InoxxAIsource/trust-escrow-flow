@@ -1,5 +1,5 @@
 // ============================================================
-// SEO PAGE GENERATOR — Programmatic SEO Engine
+// SEO PAGE GENERATOR - Programmatic SEO Engine
 // Generates 150+ unique pages across coins, countries, payments,
 // and combination pages. Each page has 300+ words of unique content.
 // ============================================================
@@ -36,14 +36,14 @@ const coins = [
  * Markets these pages cover.
  *
  * The first nine are settlement markets: they have counterparties in the
- * database and a working trade flow. The rest are reach markets — a visitor
+ * database and a working trade flow. The rest are reach markets - a visitor
  * arriving from search sees a live board of local offers in local currency,
  * matching the link that brought them, but trades settle through the four
  * supported regions. `seed-engine.ts` is the source of the offer data and
  * carries the same split via SETTLEMENT_MARKETS.
  *
  * Location `name` must match the `name` in seed-engine's countryConfigs
- * exactly — filterConfig.country is matched by string, so a mismatch produces
+ * exactly - filterConfig.country is matched by string, so a mismatch produces
  * a page with an empty board rather than an error.
  */
 const locations = [
@@ -190,7 +190,7 @@ function buildContentSections(coin: typeof coins[0], loc?: typeof locations[0], 
 
   sections.push({
     heading: `How to Buy ${coin.name}${locText}${pmText}`,
-    text: `Buying ${coin.fullName}${locText}${pmText} on P2PxBT is simple and secure. Follow these steps:\n\n1. **Create your account** — Sign up with your email and verify your identity for higher trade limits\n2. **Browse offers** — Find the best ${coin.symbol} rates from verified traders${loc ? ` in ${loc.name}` : ""}${pm ? ` who accept ${pm.name}` : ""}\n3. **Start the trade** — Select an offer and enter the amount you want to buy in ${loc ? loc.currency : "your local currency"}\n4. **Funds locked in escrow** — The seller's ${coin.symbol} is locked in P2PxBT's secure escrow wallet automatically\n5. **Make payment** — Send payment via ${pm ? pm.name : "your preferred method"} to the seller's details\n6. **Receive ${coin.symbol}** — Once the seller confirms your payment, ${coin.symbol} is released to your P2PxBT wallet instantly`,
+    text: `Buying ${coin.fullName}${locText}${pmText} on P2PxBT is simple and secure. Follow these steps:\n\n1. **Create your account** - Sign up with your email and verify your identity for higher trade limits\n2. **Browse offers** - Find the best ${coin.symbol} rates from verified traders${loc ? ` in ${loc.name}` : ""}${pm ? ` who accept ${pm.name}` : ""}\n3. **Start the trade** - Select an offer and enter the amount you want to buy in ${loc ? loc.currency : "your local currency"}\n4. **Funds locked in escrow** - The seller's ${coin.symbol} is locked in P2PxBT's secure escrow wallet automatically\n5. **Make payment** - Send payment via ${pm ? pm.name : "your preferred method"} to the seller's details\n6. **Receive ${coin.symbol}** - Once the seller confirms your payment, ${coin.symbol} is released to your P2PxBT wallet instantly`,
   });
 
   if (pm) {
@@ -209,7 +209,7 @@ function buildContentSections(coin: typeof coins[0], loc?: typeof locations[0], 
 
   sections.push({
     heading: "Why Escrow Protection Matters",
-    text: `Escrow protection is the gold standard for safe P2P crypto trading. When you trade on P2PxBT, here's how it works: the seller's cryptocurrency is locked in a secure, non-custodial escrow wallet before any payment is made. The buyer then sends payment directly to the seller using the agreed payment method. Once the seller confirms receipt, the crypto is released from escrow to the buyer's wallet. If there's any disagreement, P2PxBT's dispute resolution team steps in. This system completely eliminates the risk of being scammed — your money and crypto are always protected.`,
+    text: `Escrow protection is the gold standard for safe P2P crypto trading. When you trade on P2PxBT, here's how it works: the seller's cryptocurrency is locked in a secure, non-custodial escrow wallet before any payment is made. The buyer then sends payment directly to the seller using the agreed payment method. Once the seller confirms receipt, the crypto is released from escrow to the buyer's wallet. If there's any disagreement, P2PxBT's dispute resolution team steps in. This system completely eliminates the risk of being scammed - your money and crypto are always protected.`,
   });
 
   sections.push({
@@ -219,14 +219,14 @@ function buildContentSections(coin: typeof coins[0], loc?: typeof locations[0], 
 
   sections.push({
     heading: `${coin.name} Trading Tips`,
-    text: `Here are tips for a smooth ${coin.name} trading experience:\n\n- **Compare rates** — Check multiple offers to get the best ${coin.symbol} price${locText}\n- **Verify the trader** — Look for the verification badge and high completion rates\n- **Use escrow** — Never trade outside the platform; always use P2PxBT's escrow\n- **Start small** — If you're new, begin with a smaller trade to build confidence\n- **Stay in chat** — Use the in-trade chat to communicate with your trading partner\n- **Keep records** — Save payment confirmations and trade receipts for your records`,
+    text: `Here are tips for a smooth ${coin.name} trading experience:\n\n- **Compare rates** - Check multiple offers to get the best ${coin.symbol} price${locText}\n- **Verify the trader** - Look for the verification badge and high completion rates\n- **Use escrow** - Never trade outside the platform; always use P2PxBT's escrow\n- **Start small** - If you're new, begin with a smaller trade to build confidence\n- **Stay in chat** - Use the in-trade chat to communicate with your trading partner\n- **Keep records** - Save payment confirmations and trade receipts for your records`,
   });
 
   return sections;
 }
 
 // ══════════════════════════════════════════════
-// 1. COIN PAGES — /buy-{coin}, /sell-{coin}
+// 1. COIN PAGES - /buy-{coin}, /sell-{coin}
 // ══════════════════════════════════════════════
 const coinPages: SEOPageData[] = coins.flatMap((coin) =>
   (["buy", "sell"] as const).map((action) => ({
@@ -249,7 +249,7 @@ const coinPages: SEOPageData[] = coins.flatMap((coin) =>
 );
 
 // ══════════════════════════════════════════════
-// 2. COUNTRY PAGES — /buy-{coin}-{country}
+// 2. COUNTRY PAGES - /buy-{coin}-{country}
 // ══════════════════════════════════════════════
 const countryPages: SEOPageData[] = coins.flatMap((coin) =>
   locations.map((loc) => ({
@@ -273,7 +273,7 @@ const countryPages: SEOPageData[] = coins.flatMap((coin) =>
 );
 
 // ══════════════════════════════════════════════
-// 3. PAYMENT PAGES — /buy-{coin}-{payment}
+// 3. PAYMENT PAGES - /buy-{coin}-{payment}
 // ══════════════════════════════════════════════
 const paymentPages: SEOPageData[] = coins.flatMap((coin) =>
   paymentMethods.map((pm) => ({
@@ -297,7 +297,7 @@ const paymentPages: SEOPageData[] = coins.flatMap((coin) =>
 );
 
 // ══════════════════════════════════════════════
-// 4. COMBINATION PAGES — /buy-{coin}-{country}-{payment}
+// 4. COMBINATION PAGES - /buy-{coin}-{country}-{payment}
 // ══════════════════════════════════════════════
 const comboPages: SEOPageData[] = [];
 // Coin x market x payment-rail combinations, derived from `locations` by slug
@@ -310,7 +310,7 @@ const byslug = (slug: string) => locations.find((l) => l.slug === slug)!;
  *
  * Previously a hand-picked list covering only the settlement markets, which
  * meant a restored market got its country page and its rail page but not the
- * combination — /buy-usdt-india and /buy-usdt-upi both resolved while
+ * combination - /buy-usdt-india and /buy-usdt-upi both resolved while
  * /buy-usdt-india-upi, the one that was indexed and earning clicks, 404'd.
  *
  * Driving it from each location's own `payments` list keeps the two in step:
@@ -352,7 +352,7 @@ topCombos.forEach(({ coin, loc, pm }) => {
     metaTitle: `Buy ${coin.name} in ${loc.name} with ${pm} | Best P2P Rates | P2PxBT`,
     metaDescription: `Buy ${coin.fullName} in ${loc.name} using ${pm}. Escrow-protected P2P trades, verified traders, best rates in ${loc.currency}. Trade safely on P2PxBT.`,
     h1: `Buy ${coin.name} in ${loc.name} with ${pm}`,
-    intro: `Buy ${coin.fullName} in ${loc.name} using ${pm} on P2PxBT. Get the best ${coin.symbol}/${loc.currency} rates from verified local traders. Every trade is protected by our secure escrow system — your funds are always safe.`,
+    intro: `Buy ${coin.fullName} in ${loc.name} using ${pm} on P2PxBT. Get the best ${coin.symbol}/${loc.currency} rates from verified local traders. Every trade is protected by our secure escrow system - your funds are always safe.`,
     action: "buy",
     coin: coin.name,
     coinSymbol: coin.symbol,
@@ -373,7 +373,7 @@ topCombos.forEach(({ coin, loc, pm }) => {
 });
 
 // ══════════════════════════════════════════════
-// 5. INDIA CITY PAGES — /buy-usdt-{city}, /sell-usdt-{city}, /buy-usdt-{city}-{payment}
+// 5. INDIA CITY PAGES - /buy-usdt-{city}, /sell-usdt-{city}, /buy-usdt-{city}-{payment}
 // ══════════════════════════════════════════════
 interface CityData {
   name: string;
@@ -390,14 +390,14 @@ const marketCities: CityData[] = [
   { name: "Chicago", slug: "chicago", tagline: "A long-standing centre of derivatives and trading", localContext: "Chicago's trading heritage makes it a fitting market for the US listings. Counterparties quote a 4-6% premium over the reference price on the buy side, settled through USA Bank Wire or ACH Transfer." },
   { name: "Miami", slug: "miami", tagline: "A gateway between US and international markets", localContext: "Miami rounds out the US coverage, with counterparties quoting on USA Bank Wire and ACH Transfer. Every trade follows the same operator-assisted workflow, from verification through to completion." },
   { name: "London", slug: "london", tagline: "Europe's largest financial centre", localContext: "London anchors the UK market. Counterparties quote on UK Faster Payments and Bank Transfer, with payment details issued by a P2PxBT operator in the trade chat rather than published on the listing." },
-  { name: "Manchester", slug: "manchester", tagline: "A major hub in the north of England", localContext: "Manchester extends the UK coverage beyond London. Counterparties here quote on UK Faster Payments, and the full trade lifecycle — verification, operator-issued details, completion — runs exactly as it does in every other market." },
+  { name: "Manchester", slug: "manchester", tagline: "A major hub in the north of England", localContext: "Manchester extends the UK coverage beyond London. Counterparties here quote on UK Faster Payments, and the full trade lifecycle - verification, operator-issued details, completion - runs exactly as it does in every other market." },
   { name: "Edinburgh", slug: "edinburgh", tagline: "Scotland's financial and technology centre", localContext: "Edinburgh completes the UK listings. As in every market, counterparties quote their own spread over the live reference price and payment details are released only by an operator." },
   { name: "Berlin", slug: "berlin", tagline: "Germany's technology and startup capital", localContext: "Berlin leads the European market. Counterparties quote on SEPA Transfer and Bank Transfer, the standard rails across the eurozone." },
   { name: "Paris", slug: "paris", tagline: "A principal financial centre of the eurozone", localContext: "Paris forms part of the European coverage. Counterparties quote on SEPA Transfer, and payment instructions are released only when a P2PxBT operator sends them into the trade chat." },
   { name: "Amsterdam", slug: "amsterdam", tagline: "A hub for European fintech", localContext: "Amsterdam extends the eurozone listings. Counterparties quote on SEPA Transfer and Bank Transfer, with limits and pricing set per counterparty." },
   { name: "Dublin", slug: "dublin", tagline: "Ireland's technology and financial services centre", localContext: "Dublin appears in the European market with SEPA Transfer and Bank Transfer listings. The verification and operator workflow is identical across every market." },
   { name: "Madrid", slug: "madrid", tagline: "Spain's commercial and financial capital", localContext: "Madrid rounds out the southern European coverage. Counterparties quote on SEPA Transfer, and every price shown derives from the live reference feed plus that counterparty's own spread." },
-  { name: "Hong Kong", slug: "hong-kong-city", tagline: "Asia's leading international financial centre", localContext: "Hong Kong anchors the Asian market. Counterparties quote on FPS Transfer — the territory's Faster Payment System — and Bank Transfer, with payment details issued by an operator in the trade chat." },
+  { name: "Hong Kong", slug: "hong-kong-city", tagline: "Asia's leading international financial centre", localContext: "Hong Kong anchors the Asian market. Counterparties quote on FPS Transfer - the territory's Faster Payment System - and Bank Transfer, with payment details issued by an operator in the trade chat." },
 ];
 
 // ── City-specific mock data for live variation ──
@@ -427,7 +427,7 @@ export function getCityLiveData(citySlug: string): CityLiveData | undefined {
 export const marketCityPages: SEOPageData[] = [];
 
 // ══════════════════════════════════════════════
-// 5. COUNTRY HUBS — /{country}
+// 5. COUNTRY HUBS - /{country}
 // ══════════════════════════════════════════════
 // One page per market, covering all four assets rather than one. These are the
 // entry point a country's long tail links up into, so without them every
@@ -442,7 +442,7 @@ const hubPages: SEOPageData[] = locations.map((loc) => {
     metaTitle: `Buy & Sell Crypto in ${loc.name} | P2P Rates in ${loc.currency} | P2PxBT`,
     metaDescription: `Compare peer-to-peer ${assetList} offers in ${loc.name}. Live ${loc.currency} rates from verified counterparties, settled through ${loc.payments[0]}.`,
     h1: `P2P Crypto Trading in ${loc.name}`,
-    intro: `Browse live peer-to-peer offers in ${loc.name}, priced in ${loc.currency}. Every counterparty quotes its own spread over the live reference rate, so the board below is a set of competing prices rather than one number — cheapest first.`,
+    intro: `Browse live peer-to-peer offers in ${loc.name}, priced in ${loc.currency}. Every counterparty quotes its own spread over the live reference rate, so the board below is a set of competing prices rather than one number - cheapest first.`,
     action: "buy",
     coin: "USDT",
     coinSymbol: "USDT",
@@ -454,11 +454,11 @@ const hubPages: SEOPageData[] = locations.map((loc) => {
       },
       {
         heading: `Payment methods used in ${loc.name}`,
-        text: `Offers in ${loc.name} quote ${railList}. Which rail a counterparty accepts depends on the size of the trade — larger tickets typically settle by bank transfer, while instant rails suit smaller amounts. Filter the board by the method you can actually use before comparing prices; the best rate on a rail you cannot pay through is not the best rate.`,
+        text: `Offers in ${loc.name} quote ${railList}. Which rail a counterparty accepts depends on the size of the trade - larger tickets typically settle by bank transfer, while instant rails suit smaller amounts. Filter the board by the method you can actually use before comparing prices; the best rate on a rail you cannot pay through is not the best rate.`,
       },
       {
         heading: "How to read the board",
-        text: `Compare the spread rather than the headline price: the reference rate moves, but the spread is the counterparty's actual offer. Check the limits before the rate, since a good price on a listing that cannot fill your size is no use. Read completion rate and trade count together — a high percentage across very few trades says little.`,
+        text: `Compare the spread rather than the headline price: the reference rate moves, but the spread is the counterparty's actual offer. Check the limits before the rate, since a good price on a listing that cannot fill your size is no use. Read completion rate and trade count together - a high percentage across very few trades says little.`,
       },
     ],
     faq: [

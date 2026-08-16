@@ -37,7 +37,7 @@ const UserProfile = () => {
   return (
     <>
       <SEOHead
-        title={`${username} — Trader Profile | P2PxBT`}
+        title={`${username} - Trader Profile | P2PxBT`}
         description={`View ${username}'s trader profile on P2PxBT. ${user.trades.toLocaleString()} completed trades, ${user.rating}/5 rating.`}
         canonical={`https://p2pxbt.com/user/${username}`}
         noindex

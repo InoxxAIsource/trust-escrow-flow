@@ -59,7 +59,7 @@ export function DemoTradeChat({
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages.length]);
 
-  // Chat attachments — attached alongside a message
+  // Chat attachments - attached alongside a message
   const pickFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     e.target.value = "";
@@ -81,7 +81,7 @@ export function DemoTradeChat({
     }
   };
 
-  // Doc-tab uploads — standalone document or receipt
+  // Doc-tab uploads - standalone document or receipt
   const pickDoc = (e: React.ChangeEvent<HTMLInputElement>, isReceipt = false) => {
     const file = e.target.files?.[0];
     e.target.value = "";

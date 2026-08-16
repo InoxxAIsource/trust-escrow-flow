@@ -55,7 +55,7 @@ export default function AdminTradeDetail() {
   const [confirmComplete, setConfirmComplete] = useState(false);
   const [editingDetails, setEditingDetails] = useState(false);
 
-  // Record that an operator viewed this trade — appears on the buyer's
+  // Record that an operator viewed this trade - appears on the buyer's
   // timeline as "Operator opened the trade", which is part of the demo story.
   const tradeId = trade?.id;
   const canRecordOpen = isAdmin && !!tradeId;
@@ -120,7 +120,7 @@ export default function AdminTradeDetail() {
   const handleComplete = async () => {
     try {
       await confirmPayment.mutateAsync(trade.id);
-      toast.success("Payment confirmed — trade completed.");
+      toast.success("Payment confirmed - trade completed.");
     } catch (error) {
       toast.error(describeTradeError(error));
     } finally {
@@ -130,7 +130,7 @@ export default function AdminTradeDetail() {
 
   return (
     <div className="container py-8">
-      <SEOHead title={`Operator — ${trade.trade_ref}`} description="Operator trade mirror." noindex />
+      <SEOHead title={`Operator - ${trade.trade_ref}`} description="Operator trade mirror." noindex />
 
       <Button asChild variant="ghost" size="sm" className="mb-4 -ml-2">
         <Link to="/admin">
@@ -206,7 +206,7 @@ export default function AdminTradeDetail() {
                         </dl>
                       </div>
 
-                      {/* Inline editor — shown when operator clicks Edit */}
+                      {/* Inline editor - shown when operator clicks Edit */}
                       {editingDetails && editorCounterparty && (
                         <div className="rounded-lg border border-border bg-muted/20 p-4">
                           <p className="mb-3 text-xs font-medium text-foreground">
@@ -290,7 +290,7 @@ export default function AdminTradeDetail() {
                 <Row label="P2P price" value={formatMoney(trade.price, trade.currency as Currency)} />
                 <Row label="Total" value={formatMoney(trade.total, trade.currency as Currency)} />
                 <Row label="Payment method" value={trade.payment_method} />
-                <Row label="Counterparty" value={trade.counterparty?.display_name ?? "—"} />
+                <Row label="Counterparty" value={trade.counterparty?.display_name ?? "-"} />
               </dl>
               {trade.counterparty && (
                 <Button

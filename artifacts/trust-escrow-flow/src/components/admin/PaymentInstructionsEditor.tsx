@@ -45,8 +45,8 @@ const MAX_LENGTH: Record<string, number> = {
 /**
  * Per-rail editor for a counterparty's stored payment instructions.
  *
- * Every field — including routing identifiers like Routing Number and
- * SWIFT / BIC — is editable here. On a real platform these are derived
+ * Every field - including routing identifiers like Routing Number and
+ * SWIFT / BIC - is editable here. On a real platform these are derived
  * from verified counterparty data; in the demo the operator sets them
  * manually so they match whatever test scenario is being run.
  */

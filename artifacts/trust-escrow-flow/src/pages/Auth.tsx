@@ -74,7 +74,7 @@ export default function Auth() {
       } else {
         // Email confirmation is disabled, so the account is
         // usable immediately -- send them straight to the marketplace.
-        toast.success("Account created — browse the marketplace to start a trade.");
+        toast.success("Account created - browse the marketplace to start a trade.");
         navigate("/marketplace", { replace: true });
       }
     }
@@ -83,7 +83,7 @@ export default function Auth() {
 
   return (
     <>
-      <SEOHead title={`${isLogin ? "Login" : "Sign Up"} — P2PxBT`} description="Sign in to your P2PxBT account to trade crypto P2P with escrow protection." canonical="https://p2pxbt.com/auth" noindex />
+      <SEOHead title={`${isLogin ? "Login" : "Sign Up"} - P2PxBT`} description="Sign in to your P2PxBT account to trade crypto P2P with escrow protection." canonical="https://p2pxbt.com/auth" noindex />
       <div className="container max-w-md py-20">
         <div className="flex items-center justify-center gap-2 mb-8">
           <Shield className="h-8 w-8 text-primary" />

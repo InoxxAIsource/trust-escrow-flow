@@ -81,8 +81,8 @@ const BlogPost = () => {
               if (line.startsWith("## ")) return <h2 key={i}>{line.replace("## ", "")}</h2>;
               if (line.startsWith("### ")) return <h3 key={i}>{line.replace("### ", "")}</h3>;
               if (line.startsWith("- **")) {
-                const match = line.match(/- \*\*(.+?)\*\*\s*[—–-]\s*(.*)/);
-                if (match) return <li key={i}><strong>{match[1]}</strong> — {match[2]}</li>;
+                const match = line.match(/- \*\*(.+?)\*\*\s*[-–-]\s*(.*)/);
+                if (match) return <li key={i}><strong>{match[1]}</strong> - {match[2]}</li>;
               }
               if (line.startsWith("- ")) return <li key={i}>{line.replace("- ", "")}</li>;
               if (line.match(/^\d+\. /)) return <li key={i}>{line.replace(/^\d+\. /, "")}</li>;

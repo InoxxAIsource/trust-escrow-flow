@@ -28,7 +28,7 @@ const fade = { hidden: { opacity: 0, y: 20 }, visible: (i: number) => ({ opacity
 const HowItWorks = () => (
   <>
     <SEOHead
-      title="How P2PxBT Escrow Works — Step by Step Guide"
+      title="How P2PxBT Escrow Works - Step by Step Guide"
       description="Learn how P2PxBT's escrow system protects your P2P crypto trades. Step-by-step guide to safe cryptocurrency trading with built-in dispute resolution."
       canonical="https://p2pxbt.com/how-it-works"
       jsonLd={[

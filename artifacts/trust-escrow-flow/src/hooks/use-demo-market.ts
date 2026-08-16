@@ -19,7 +19,7 @@ import {
 
 /**
  * Probes whether the demo migrations have been applied. Everything else in the
- * demo gates on this, so it is cached hard — a missing schema will not start
+ * demo gates on this, so it is cached hard - a missing schema will not start
  * existing halfway through a session.
  */
 const PROBE_TIMEOUT_MS = 8000;
@@ -56,7 +56,7 @@ export function useDemoBackend() {
 // ── Price feed ───────────────────────────────────────────────────────────────
 
 /**
- * Crypto USD prices — Binance public REST, no key, real-time.
+ * Crypto USD prices - Binance public REST, no key, real-time.
  * USDT is a USD-pegged stablecoin; its price is always 1.0.
  */
 const BINANCE_PRICE_URL =
@@ -67,7 +67,7 @@ const BINANCE_PRICE_URL =
 /**
  * FX rates: 1 USD expressed in GBP, EUR, HKD.
  *
- * Primary: open.er-api.com — free, no key, generous rate limit, CORS-friendly.
+ * Primary: open.er-api.com - free, no key, generous rate limit, CORS-friendly.
  * Fallback: approximate rates baked in so a failed FX fetch does not blank
  *           the marketplace; the live crypto prices are still used and only the
  *           currency conversion degrades.
@@ -123,7 +123,7 @@ export function useMarketPrices() {
         return { prices: structuredClone(FALLBACK_MARKET_PRICES), isStale: true };
       }
 
-      // --- Step 2: FX rates (optional — degrade gracefully) -----------------
+      // --- Step 2: FX rates (optional - degrade gracefully) -----------------
       let fxRate: Record<Currency, number> = APPROX_FX;
       let fxStale = false;
       try {
@@ -138,7 +138,7 @@ export function useMarketPrices() {
           HKD: json.rates.HKD ?? APPROX_FX.HKD,
         };
       } catch {
-        fxStale = true; // FX degraded — crypto prices are still live.
+        fxStale = true; // FX degraded - crypto prices are still live.
       }
 
       // --- Step 3: Build matrix ---------------------------------------------

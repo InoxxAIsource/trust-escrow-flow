@@ -9,8 +9,8 @@ export default function WhatIsUSDT() {
   return (
     <div className="container py-12 lg:py-16">
       <SEOHead
-        title="What is USDT (Tether)? — P2PxBT Guide"
-        description="A plain-language guide to USDT (Tether) — the most widely used stablecoin. Learn what it is, how it keeps its $1 peg, and how to buy or sell USDT peer-to-peer."
+        title="What is USDT (Tether)? - P2PxBT Guide"
+        description="A plain-language guide to USDT (Tether) - the most widely used stablecoin. Learn what it is, how it keeps its $1 peg, and how to buy or sell USDT peer-to-peer."
         canonical="https://p2pxbt.com/what-is-usdt"
       />
       <Breadcrumbs
@@ -27,7 +27,7 @@ export default function WhatIsUSDT() {
             What is USDT (Tether)?
           </h1>
           <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
-            USDT — commonly called Tether — is a stablecoin: a cryptocurrency pegged 1:1 to the
+            USDT - commonly called Tether - is a stablecoin: a cryptocurrency pegged 1:1 to the
             US Dollar. One USDT is always worth approximately $1.00. It combines the speed and
             borderless nature of crypto with the price stability of the world's reserve currency,
             making it the most traded digital asset by volume.
@@ -64,7 +64,7 @@ export default function WhatIsUSDT() {
               {
                 icon: <Zap className="h-5 w-5 text-primary" />,
                 title: "Fast settlement",
-                body: "USDT transactions settle in seconds to minutes depending on the blockchain network — far faster than international wire transfers.",
+                body: "USDT transactions settle in seconds to minutes depending on the blockchain network - far faster than international wire transfers.",
               },
               {
                 icon: <BarChart3 className="h-5 w-5 text-primary" />,
@@ -79,7 +79,7 @@ export default function WhatIsUSDT() {
               {
                 icon: <RefreshCw className="h-5 w-5 text-primary" />,
                 title: "Multi-chain",
-                body: "USDT runs on Ethereum (ERC-20), Tron (TRC-20), Solana, Polygon and more — choose the network that suits your speed and fee needs.",
+                body: "USDT runs on Ethereum (ERC-20), Tron (TRC-20), Solana, Polygon and more - choose the network that suits your speed and fee needs.",
               },
             ].map((item) => (
               <Card key={item.title}>
@@ -100,7 +100,7 @@ export default function WhatIsUSDT() {
           <h2 className="font-display text-2xl font-semibold text-foreground">How USDT keeps its $1 peg</h2>
           <p className="text-muted-foreground leading-relaxed">
             Tether is an asset-backed stablecoin. For every USDT in circulation, Tether Ltd holds
-            an equivalent amount in reserve — primarily US Treasury bills, cash and cash
+            an equivalent amount in reserve - primarily US Treasury bills, cash and cash
             equivalents. When you redeem USDT through an authorised channel, Tether burns the
             tokens and releases the equivalent dollars from reserve.
           </p>
@@ -111,7 +111,7 @@ export default function WhatIsUSDT() {
             pulling the price down.
           </p>
           <p className="text-muted-foreground leading-relaxed">
-            On P2PxBT, the USDT price shown on each offer card reflects the local P2P rate —
+            On P2PxBT, the USDT price shown on each offer card reflects the local P2P rate -
             the premium or discount that counterparties apply over the 1:1 dollar reference price,
             based on local supply, demand and payment method.
           </p>
@@ -119,7 +119,7 @@ export default function WhatIsUSDT() {
 
         {/* USDT vs BTC */}
         <section className="mb-10">
-          <h2 className="font-display text-2xl font-semibold text-foreground mb-4">USDT vs Bitcoin — which should I buy?</h2>
+          <h2 className="font-display text-2xl font-semibold text-foreground mb-4">USDT vs Bitcoin - which should I buy?</h2>
           <div className="overflow-x-auto rounded-lg border border-border">
             <table className="w-full text-sm">
               <thead>
@@ -131,10 +131,10 @@ export default function WhatIsUSDT() {
               </thead>
               <tbody className="divide-y divide-border">
                 {[
-                  ["Price volatility", "Very low — pegged to $1", "High — moves with market"],
+                  ["Price volatility", "Very low - pegged to $1", "High - moves with market"],
                   ["Use case", "Savings, transfers, trading hub", "Long-term store of value"],
-                  ["Supply", "Elastic — minted on demand", "Fixed at 21 million BTC"],
-                  ["Counterparty risk", "Depends on Tether's reserves", "None — fully decentralised"],
+                  ["Supply", "Elastic - minted on demand", "Fixed at 21 million BTC"],
+                  ["Counterparty risk", "Depends on Tether's reserves", "None - fully decentralised"],
                   ["Best for", "Holding value in dollar terms", "Long-term appreciation"],
                 ].map(([factor, usdt, btc]) => (
                   <tr key={factor}>
@@ -168,14 +168,14 @@ export default function WhatIsUSDT() {
               <li key={item.title} className="flex gap-3">
                 <span className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-primary" />
                 <span className="text-sm leading-relaxed text-muted-foreground">
-                  <strong className="text-foreground">{item.title} — </strong>
+                  <strong className="text-foreground">{item.title} - </strong>
                   {item.body}
                 </span>
               </li>
             ))}
           </ul>
           <p className="text-sm text-muted-foreground">
-            Always confirm the network with the sender or exchange before withdrawing — sending
+            Always confirm the network with the sender or exchange before withdrawing - sending
             ERC-20 USDT to a TRC-20 address will result in loss of funds.
           </p>
         </section>
@@ -188,7 +188,7 @@ export default function WhatIsUSDT() {
               { step: "1", text: "Create an account and complete identity verification." },
               { step: "2", text: "Go to the marketplace and filter by USDT, your country and preferred payment method." },
               { step: "3", text: "Choose a counterparty and enter the amount you want to buy." },
-              { step: "4", text: "Open the trade — a P2PxBT operator sends wire payment details into the trade chat." },
+              { step: "4", text: "Open the trade - a P2PxBT operator sends wire payment details into the trade chat." },
               { step: "5", text: "Send a physical bank wire, upload your receipt, and mark payment as sent. USDT is released to your wallet once confirmed." },
             ].map((item) => (
               <li key={item.step} className="flex gap-3 text-sm leading-relaxed text-muted-foreground">

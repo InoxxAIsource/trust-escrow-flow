@@ -36,7 +36,7 @@ export default function DemoMarketplace() {
 
   const isBuy = side === "BUY";
   // The reference strip describes the band counterparties quote within, not a
-  // single price — each one has its own spread, shown on its card.
+  // single price - each one has its own spread, shown on its card.
   const bandLabel = isBuy
     ? formatBpsRange(BUY_PREMIUM_BPS_MIN, BUY_PREMIUM_BPS_MAX)
     : formatBpsRange(SELL_DISCOUNT_BPS_MIN, SELL_DISCOUNT_BPS_MAX);
@@ -45,7 +45,7 @@ export default function DemoMarketplace() {
   return (
     <div className="container py-8 md:py-12">
       <SEOHead
-        title="P2P Marketplace — P2PxBT"
+        title="P2P Marketplace - P2PxBT"
         description="Buy and sell BTC, ETH, SOL and USDT peer-to-peer across the US, UK, Europe and Hong Kong."
         canonical="https://p2pxbt.com/marketplace"
       />
@@ -91,7 +91,7 @@ export default function DemoMarketplace() {
                 /* The leading offer may be from any market, so it must be
                    formatted in its own currency. Rendering a GBP figure with a
                    dollar sign is worse than showing no figure at all. */
-                value={bestOffer ? formatMoney(bestOffer.p2pPrice, bestOffer.currency) : "—"}
+                value={bestOffer ? formatMoney(bestOffer.p2pPrice, bestOffer.currency) : "-"}
                 delta={bestOffer?.spreadLabel}
                 tone={isBuy ? "premium" : "discount"}
                 icon={
@@ -107,7 +107,7 @@ export default function DemoMarketplace() {
 
           {isStale && (
             <p className="mb-4 text-xs text-muted-foreground">
-              Live price feed unavailable — showing reference figures.
+              Live price feed unavailable - showing reference figures.
             </p>
           )}
 

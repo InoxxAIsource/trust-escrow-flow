@@ -202,7 +202,7 @@ export const PAYMENT_METHODS = [
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
 
 /**
- * A bank record is not one shape with optional fields — each country
+ * A bank record is not one shape with optional fields - each country
  * identifies an account differently, and showing a German seller a sort code
  * is simply wrong. These mirror `payment_rail_shape()` and
  * `build_payment_fields()` in the SQL; a test asserts the two agree.
@@ -253,7 +253,7 @@ export const RAIL_FIELDS: Record<RailShape, RailFieldSet> = {
 };
 
 /**
- * "Bank Transfer" has no shape of its own — it is whatever the counterparty's
+ * "Bank Transfer" has no shape of its own - it is whatever the counterparty's
  * region uses domestically. Mirrors `payment_rail_shape()`.
  */
 export function railShapeFor(method: string, region: string): RailShape {

@@ -168,7 +168,7 @@ export function useSendTradeMessage(
           throw new Error("Attach a PNG, JPEG, WebP, HEIC or PDF.");
         }
 
-        // <trade_id>/<uploader>/<uuid>.<ext> — both leading segments are
+        // <trade_id>/<uploader>/<uuid>.<ext> - both leading segments are
         // re-checked by the storage policy and again by the message guard, so
         // this path is the only shape either will accept.
         const extension = file.name.split(".").pop()?.toLowerCase() ?? "bin";
@@ -209,7 +209,7 @@ export function useSendTradeMessage(
       queryClient.invalidateQueries({ queryKey: ["trade-events", tradeId] });
       queryClient.invalidateQueries({ queryKey: ["admin-notifications"] });
 
-      // Fire-and-forget admin email — never block the UI on delivery.
+      // Fire-and-forget admin email - never block the UI on delivery.
       if (user && tradeContext) {
         const rawMessage = typeof input === "string" ? input : (input.message ?? "");
         const isSystemMessage = !rawMessage.trim() && typeof input !== "string" && input.file;
@@ -254,8 +254,8 @@ export interface OpenTradeInput {
 }
 
 /**
- * Opens a demo trade. All validation — KYC approval, offer limits, payment
- * method availability — happens inside `open_demo_trade()`; the client cannot
+ * Opens a demo trade. All validation - KYC approval, offer limits, payment
+ * method availability - happens inside `open_demo_trade()`; the client cannot
  * bypass any of it by crafting its own insert, because `trades` has no INSERT
  * policy at all.
  */

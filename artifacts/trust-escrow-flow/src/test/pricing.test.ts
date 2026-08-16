@@ -92,7 +92,7 @@ describe("currency", () => {
     expect(dear - cheap).toBeCloseTo(1_750, 6);
   });
 
-  it("is deterministic — the same inputs always give the same price", () => {
+  it("is deterministic - the same inputs always give the same price", () => {
     const a = quote("BUY", 100_000, 455);
     const b = quote("BUY", 100_000, 455);
     expect(a.p2pPrice).toBe(b.p2pPrice);

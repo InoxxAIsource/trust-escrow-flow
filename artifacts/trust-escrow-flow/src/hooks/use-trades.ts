@@ -82,7 +82,7 @@ export function useUserTrades() {
             .eq("id", trade.offer_id);
         }
       } catch {
-        // Seeded offers won't exist in DB — ignore
+        // Seeded offers won't exist in DB - ignore
       }
 
       return data as TradeRow;
