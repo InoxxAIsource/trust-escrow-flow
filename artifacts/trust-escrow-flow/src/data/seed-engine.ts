@@ -153,7 +153,7 @@ export const countryConfigs: CountryConfig[] = [
     paymentMethods: ["SEPA Transfer", "Bank Transfer"],
     usernames: [
       "pieter_vos", "sanne_dijkstra", "bram_jansen", "fleur_van_dijk",
-      "daan_bakker", "eva_hendriks", "Lars_de_boer", "inge_smit",
+      "daan_bakker", "eva_hendriks", "lars_de_boer", "inge_smit",
       "tim_visser", "nora_meijer", "stefan_berg", "lotte_kok",
     ],
     offerCount: { usdt: [10, 8], crypto: [4, 4] },
@@ -208,11 +208,11 @@ export const countryConfigs: CountryConfig[] = [
     fxRate: 7.82,
     paymentMethods: ["FPS Transfer", "Bank Transfer"],
     usernames: [
-      "harbour_trade", "victoria_peak", "central_crypto", "kowloon_coin",
-      "lantau_trader", "star_ferry_btc", "pearl_delta", "orchid_capital",
-      "jade_markets", "typhoon_trade", "causeway_coin", "aberdeen_fx",
-      "dragon_gate_fx", "lion_rock_btc", "tsim_sha_capital", "wan_chai_trade",
-      "repulse_bay_coin", "taikoo_crypto", "shaukeiwan_fx", "discovery_bay_btc",
+      "chan_wing_ki", "lee_siu_man", "wong_kin_fai", "lam_pui_ying",
+      "ng_kwok_hang", "cheung_mei_ling", "ho_wai_lun", "ma_tsz_kwan",
+      "yip_chun_hong", "kwong_siu_wai", "tang_yin_fong", "chow_ka_shing",
+      "liu_ming_fat", "fung_yee_man", "tsang_kam_tong", "leung_hoi_yin",
+      "mo_chi_keung", "to_wai_han", "siu_lok_ting", "poon_tak_wah",
     ],
     offerCount: { usdt: [12, 10], crypto: [5, 5] },
   },
@@ -478,11 +478,30 @@ function computeAvailableAmount(priceRatio: number, fxRate: number): number {
   return Math.round(baseAmount * fxRate / 85.5); // scale to local currency
 }
 
-/** Fixed $100 - $48,000 USD window, converted to local currency. */
+/**
+ * Per-offer randomised limits within the $100 - $48,000 USD window.
+ * Min ranges from $100 to $1,500; max ranges from $4,000 to $48,000.
+ * Both are rounded to clean local-currency increments so they read naturally.
+ */
 function computeLimits(fxRate: number): { minLimit: number; maxLimit: number } {
+  // Min: $100 – $1,500 USD, rounded to nearest $50-equivalent in local currency
+  const minUSD = LIMIT_MIN_USD + seededRandom() * (1500 - LIMIT_MIN_USD);
+  // Max: $4,000 – $48,000 USD, rounded to nearest $500-equivalent
+  const maxUSD = 4000 + seededRandom() * (LIMIT_MAX_USD - 4000);
+
+  // Round min to nearest 50 local units, max to nearest 500 local units
+  const roundTo = (val: number, step: number) => Math.round(val / step) * step;
+  const minStep = Math.max(1, Math.round(50 * fxRate));
+  const maxStep = Math.max(1, Math.round(500 * fxRate));
+
+  const minLimit = Math.max(Math.round(LIMIT_MIN_USD * fxRate), roundTo(minUSD * fxRate, minStep));
+  const maxLimit = Math.min(Math.round(LIMIT_MAX_USD * fxRate), roundTo(maxUSD * fxRate, maxStep));
+
+  // Guarantee min < max with at least a $1,000 USD gap
+  const gapFloor = Math.round(1000 * fxRate);
   return {
-    minLimit: Math.round(LIMIT_MIN_USD * fxRate),
-    maxLimit: Math.round(LIMIT_MAX_USD * fxRate),
+    minLimit,
+    maxLimit: Math.max(maxLimit, minLimit + gapFloor),
   };
 }
 
