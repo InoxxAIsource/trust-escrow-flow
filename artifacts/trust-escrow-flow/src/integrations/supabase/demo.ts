@@ -58,6 +58,9 @@ export interface DemoOffer {
   currency: Currency;
   min_limit: number;
   max_limit: number;
+  /** USD equivalents — used for cross-currency amount filtering. */
+  min_limit_usd: number;
+  max_limit_usd: number;
   payment_methods: string[];
   sort_order: number;
   is_active: boolean;

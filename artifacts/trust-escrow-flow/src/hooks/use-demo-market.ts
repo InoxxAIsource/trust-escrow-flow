@@ -227,16 +227,15 @@ export function usePricedOffers(side: TradeSide, asset: DemoAsset, region?: Mark
       const localMid =
         market?.prices[currency]?.[asset] ?? FALLBACK_MARKET_PRICES[currency][asset];
       const q = quote(side, localMid, offer.counterparty.spread_bps);
-      // Convert local-currency limits to approximate USD for cross-currency amount filtering.
-      const localPerUsd = usdMid > 0 ? localMid / usdMid : APPROX_FX[currency] ?? 1;
       return {
         ...offer,
         currency,
         marketPrice: q.marketPrice,
         p2pPrice: q.p2pPrice,
         spreadLabel: q.spreadLabel,
-        minLimitUSD: Math.round(offer.min_limit / localPerUsd),
-        maxLimitUSD: Math.round(offer.max_limit / localPerUsd),
+        // Use the stored USD columns directly — more accurate than back-converting local currency.
+        minLimitUSD: offer.min_limit_usd ?? Math.round(offer.min_limit / (usdMid > 0 ? localMid / usdMid : APPROX_FX[currency] ?? 1)),
+        maxLimitUSD: offer.max_limit_usd ?? Math.round(offer.max_limit / (usdMid > 0 ? localMid / usdMid : APPROX_FX[currency] ?? 1)),
       };
     })
     .sort((a, b) => {
