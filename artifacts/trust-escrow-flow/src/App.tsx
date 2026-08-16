@@ -23,6 +23,7 @@ import UserProfile from "./pages/UserProfile";
 import Verify from "./pages/Verify";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
+import FAQ from "./pages/FAQ";
 import AdminRisk from "./pages/AdminRisk";
 import { getAllSlugs } from "./data/seo-pages";
 
@@ -54,6 +55,7 @@ const App = () => (
                 <Route path="/verify" element={<Verify />} />
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/terms" element={<Terms />} />
+                <Route path="/faq" element={<FAQ />} />
                 <Route path="/admin" element={<AdminConsole />} />
                 <Route path="/admin/trade/:id" element={<AdminTradeDetail />} />
                 <Route path="/admin/risk" element={<AdminRisk />} />
