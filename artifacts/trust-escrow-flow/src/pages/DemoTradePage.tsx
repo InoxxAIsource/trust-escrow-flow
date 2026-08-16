@@ -56,6 +56,7 @@ import {
 } from "@/integrations/supabase/demo";
 import { formatAssetAmount, formatMoney, type Currency } from "@/lib/pricing";
 import { canTransition } from "@/lib/trade-state-machine";
+import { CountdownTimer } from "@/components/CountdownTimer";
 
 export default function DemoTradePage() {
   const { id } = useParams<{ id: string }>();
@@ -106,12 +107,17 @@ export default function DemoTradePage() {
   const state = trade.demo_state;
   const isComplete = state === "COMPLETED";
   const isCancelled = state === "CANCELLED";
+  const isExpired = state === "EXPIRED";
+  const isTerminated = isComplete || isCancelled || isExpired;
   const canMarkPaid = canTransition(state, "PAYMENT_MARKED");
   const canCancel = canTransition(state, "CANCELLED");
   const canDispute = canTransition(state, "DISPUTED");
   const awaitingOperator = state === "AWAITING_PAYMENT_DETAILS";
   // After payment details have been sent, user can upload a receipt in the docs tab
   const canUploadReceipt = state === "PAYMENT_DETAILS_SENT" || canMarkPaid;
+
+  // Countdown: show while trade is live and has an expiry
+  const expiresAtMs = trade.expires_at ? new Date(trade.expires_at).getTime() : null;
 
   /**
    * Posts the receipt before the transition, so the operator sees the evidence
@@ -190,7 +196,7 @@ export default function DemoTradePage() {
         <p className="mt-1 font-mono text-sm text-muted-foreground">{trade.trade_ref}</p>
       </header>
 
-      {!isCancelled && (
+      {!isCancelled && !isExpired && (
         <div className="mb-6">
           <TradeProgressRail state={state} />
         </div>
@@ -199,6 +205,21 @@ export default function DemoTradePage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Left: chat + actions */}
         <div className="space-y-6 lg:col-span-2">
+          {isExpired && (
+            <Card className="border-destructive/30 bg-destructive/[0.05]">
+              <CardContent className="flex gap-3 p-4">
+                <TriangleAlert className="mt-0.5 h-4 w-4 flex-shrink-0 text-destructive" />
+                <div className="text-sm">
+                  <p className="font-medium text-foreground">Payment window expired</p>
+                  <p className="text-muted-foreground">
+                    The 4-hour payment window for this trade has elapsed and it has been
+                    automatically cancelled. Please open a new trade if you wish to continue.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {awaitingOperator && (
             <Card className="border-amber-500/30 bg-amber-500/[0.05]">
               <CardContent className="flex gap-3 p-4">
@@ -276,7 +297,7 @@ export default function DemoTradePage() {
             tradeId={trade.id}
             messages={messages}
             isLoading={messagesLoading}
-            readOnly={isComplete || isCancelled}
+            readOnly={isTerminated}
             viewerRole="buyer"
             canUploadReceipt={canUploadReceipt}
             tradeContext={{
@@ -325,6 +346,23 @@ export default function DemoTradePage() {
                 <Row label="Payment method" value={trade.payment_method} />
                 <Row label="Counterparty" value={trade.counterparty?.display_name ?? "—"} />
               </dl>
+
+              {expiresAtMs && !isTerminated && (
+                <div className="mt-4 rounded-md border border-amber-500/30 bg-amber-500/[0.06] px-3 py-2.5">
+                  <p className="text-xs text-muted-foreground mb-0.5">Payment window</p>
+                  <div className="flex items-center gap-1.5">
+                    <Clock className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
+                    <CountdownTimer expiresAt={expiresAtMs} />
+                    <span className="text-xs text-muted-foreground">remaining</span>
+                  </div>
+                </div>
+              )}
+
+              {isExpired && (
+                <div className="mt-4 rounded-md border border-destructive/30 bg-destructive/[0.06] px-3 py-2.5">
+                  <p className="text-xs font-medium text-destructive">Payment window elapsed</p>
+                </div>
+              )}
             </CardContent>
           </Card>
           <TradeTimeline events={events} />

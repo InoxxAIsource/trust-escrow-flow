@@ -24,11 +24,12 @@ export const TRADE_STATES = [
   "COMPLETED",
   "CANCELLED",
   "DISPUTED",
+  "EXPIRED",
 ] as const;
 
 export type TradeState = (typeof TRADE_STATES)[number];
 
-export const TERMINAL_STATES: readonly TradeState[] = ["COMPLETED", "CANCELLED"] as const;
+export const TERMINAL_STATES: readonly TradeState[] = ["COMPLETED", "CANCELLED", "EXPIRED"] as const;
 
 /** Legal edges, in the same order as the SQL function. */
 export const TRANSITIONS: ReadonlyArray<readonly [TradeState, TradeState]> = [
@@ -52,6 +53,13 @@ export const TRANSITIONS: ReadonlyArray<readonly [TradeState, TradeState]> = [
   ["PAYMENT_MARKED", "DISPUTED"],
   ["DISPUTED", "COMPLETED"],
   ["DISPUTED", "CANCELLED"],
+  // Expiry – system-driven, from any live state
+  ["TRADE_OPEN", "EXPIRED"],
+  ["PAYMENT_METHOD_SELECTED", "EXPIRED"],
+  ["AWAITING_PAYMENT_DETAILS", "EXPIRED"],
+  ["PAYMENT_DETAILS_SENT", "EXPIRED"],
+  ["PAYMENT_MARKED", "EXPIRED"],
+  ["DISPUTED", "EXPIRED"],
 ] as const;
 
 export function isTerminal(state: TradeState): boolean {
@@ -81,6 +89,7 @@ export const STATE_LABELS: Record<TradeState, string> = {
   COMPLETED: "Completed",
   CANCELLED: "Cancelled",
   DISPUTED: "Disputed",
+  EXPIRED: "Expired",
 };
 
 export type StateTone = "neutral" | "progress" | "attention" | "success" | "danger";
@@ -97,6 +106,7 @@ export const STATE_TONES: Record<TradeState, StateTone> = {
   COMPLETED: "success",
   CANCELLED: "danger",
   DISPUTED: "danger",
+  EXPIRED: "danger",
 };
 
 /**
@@ -129,6 +139,7 @@ export const EVENT_LABELS: Record<string, string> = {
   TRADE_COMPLETED: "Payment confirmed — trade complete",
   TRADE_CANCELLED: "Trade cancelled",
   TRADE_DISPUTED: "Dispute raised — awaiting operator review",
+  TRADE_EXPIRED: "Trade expired — payment window elapsed",
 };
 
 export function labelForEvent(eventType: string): string {

@@ -119,6 +119,7 @@ export interface DemoTrade {
   last_activity_at: string;
   completed_at: string | null;
   cancelled_reason: string | null;
+  expires_at: string | null;
 }
 
 export interface TradeEvent {
