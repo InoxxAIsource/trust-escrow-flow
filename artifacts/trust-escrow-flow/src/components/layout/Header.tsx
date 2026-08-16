@@ -66,7 +66,7 @@ const Header = () => {
                 <Link to="/auth">Log In</Link>
               </Button>
               <Button size="sm" asChild>
-                <Link to="/auth">Get Started</Link>
+                <Link to="/auth?tab=signup">Get Started</Link>
               </Button>
             </>
           )}
@@ -115,7 +115,7 @@ const Header = () => {
                     <Link to="/auth" onClick={() => setMobileOpen(false)}>Log In</Link>
                   </Button>
                   <Button size="sm" className="flex-1" asChild>
-                    <Link to="/auth" onClick={() => setMobileOpen(false)}>Get Started</Link>
+                    <Link to="/auth?tab=signup" onClick={() => setMobileOpen(false)}>Get Started</Link>
                   </Button>
                 </>
               )}
