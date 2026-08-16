@@ -22,7 +22,6 @@ import {
  * demo gates on this, so it is cached hard — a missing schema will not start
  * existing halfway through a session.
  */
-/** Unreachable DNS can hang a fetch for ~30s; fail the probe well before that. */
 const PROBE_TIMEOUT_MS = 8000;
 
 export function useDemoBackend() {
@@ -35,8 +34,6 @@ export function useDemoBackend() {
         .limit(1)
         .then(({ error }) => classifyProbe(error));
 
-      // Race rather than abort: a hung socket should surface a usable message,
-      // not leave the marketplace on a spinner until the browser gives up.
       const timeout = new Promise<DemoBackendState>((resolve) =>
         setTimeout(
           () =>
@@ -56,104 +53,113 @@ export function useDemoBackend() {
   });
 }
 
+// ── Price feed ───────────────────────────────────────────────────────────────
+
 /**
- * Real-time crypto prices via Binance public REST (no key, no rate-limit for
- * 30 s polls), converted to all market currencies via the Frankfurter FX API
- * (free, no key, updated continuously throughout the trading day).
- *
- * USDT is a stablecoin — its USD price is 1.0 by definition. Local prices are
- * derived by applying the USD→local FX rate, which is the correct approach
- * rather than fetching a USDT/GBP pair from Binance (thin or unavailable).
- *
- * Falls back to static figures rather than throwing, so a rate-limited feed
- * never blanks the marketplace, and the staleness is surfaced so the UI can
- * say so out loud.
+ * Crypto USD prices — Binance public REST, no key, real-time.
+ * USDT is a USD-pegged stablecoin; its price is always 1.0.
  */
-
-/** Binance price endpoint — returns { symbol, price } array. Weight = 2/symbol. */
 const BINANCE_PRICE_URL =
-  `https://api.binance.com/api/v3/ticker/price?symbols=${encodeURIComponent(
-    JSON.stringify(["BTCUSDT", "ETHUSDT", "SOLUSDT"]),
-  )}`;
+  `https://api.binance.com/api/v3/ticker/price?symbols=${
+    encodeURIComponent(JSON.stringify(["BTCUSDT", "ETHUSDT", "SOLUSDT"]))
+  }`;
 
-/** Frankfurter — converts 1 USD into GBP, EUR, HKD. Free, no key, ~daily updates. */
-const FRANKFURTER_URL = "https://api.frankfurter.app/latest?from=USD&to=GBP,EUR,HKD";
+/**
+ * FX rates: 1 USD expressed in GBP, EUR, HKD.
+ *
+ * Primary: open.er-api.com — free, no key, generous rate limit, CORS-friendly.
+ * Fallback: approximate rates baked in so a failed FX fetch does not blank
+ *           the marketplace; the live crypto prices are still used and only the
+ *           currency conversion degrades.
+ */
+const FX_URL = "https://open.er-api.com/v6/latest/USD";
+
+/** Approximate fallback rates. Updated when they drift materially. */
+const APPROX_FX: Record<Currency, number> = {
+  USD: 1,
+  GBP: 0.785,
+  EUR: 0.920,
+  HKD: 7.82,
+};
 
 export interface MarketPrices {
-  /** Live mid price per asset, per quote currency. */
   prices: Record<Currency, Record<DemoAsset, number>>;
-  /** True when the live feed failed and fallback figures are on screen. */
   isStale: boolean;
 }
 
+/**
+ * Fetches real-time mid prices in all four market currencies.
+ *
+ * Strategy:
+ *   1. Fetch crypto/USD from Binance + FX rates from open.er-api.com in
+ *      parallel.
+ *   2. If FX fetch fails, use APPROX_FX (still shows live crypto prices).
+ *   3. If Binance fails, fall back entirely to FALLBACK_MARKET_PRICES.
+ */
 export function useMarketPrices() {
   return useQuery<MarketPrices>({
     queryKey: ["demo-market-prices"],
     queryFn: async () => {
+      // --- Step 1: Binance (must succeed) -----------------------------------
+      let usdPrices: Record<DemoAsset, number>;
       try {
-        const [binanceRes, fxRes] = await Promise.all([
-          fetch(BINANCE_PRICE_URL),
-          fetch(FRANKFURTER_URL),
-        ]);
+        const res = await fetch(BINANCE_PRICE_URL);
+        if (!res.ok) throw new Error(`Binance ${res.status}`);
+        const rows = (await res.json()) as Array<{ symbol: string; price: string }>;
 
-        if (!binanceRes.ok) throw new Error(`Binance responded ${binanceRes.status}`);
-        if (!fxRes.ok) throw new Error(`FX feed responded ${fxRes.status}`);
-
-        const binanceRows = (await binanceRes.json()) as Array<{
-          symbol: string;
-          price: string;
-        }>;
-        const fxJson = (await fxRes.json()) as {
-          rates: { GBP: number; EUR: number; HKD: number };
-        };
-
-        // USD mid prices from Binance.
-        const usd: Record<DemoAsset, number> = {
-          BTC: 0,
-          ETH: 0,
-          SOL: 0,
-          USDT: 1.0, // stablecoin — always 1 USD by design
-        };
-
-        for (const row of binanceRows) {
-          const price = parseFloat(row.price);
-          if (!Number.isFinite(price) || price <= 0) continue;
-          if (row.symbol === "BTCUSDT") usd.BTC = price;
-          else if (row.symbol === "ETHUSDT") usd.ETH = price;
-          else if (row.symbol === "SOLUSDT") usd.SOL = price;
+        const raw: Partial<Record<DemoAsset, number>> = { USDT: 1.0 };
+        for (const row of rows) {
+          const p = parseFloat(row.price);
+          if (!Number.isFinite(p) || p <= 0) continue;
+          if (row.symbol === "BTCUSDT") raw.BTC = p;
+          else if (row.symbol === "ETHUSDT") raw.ETH = p;
+          else if (row.symbol === "SOLUSDT") raw.SOL = p;
         }
+        if (!raw.BTC || !raw.ETH || !raw.SOL) throw new Error("Binance: incomplete");
 
-        if (!usd.BTC || !usd.ETH || !usd.SOL) {
-          throw new Error("Binance returned incomplete prices");
-        }
-
-        // FX rates: 1 USD expressed in each quote currency.
-        const fxRate: Record<Currency, number> = {
-          USD: 1,
-          GBP: fxJson.rates.GBP,
-          EUR: fxJson.rates.EUR,
-          HKD: fxJson.rates.HKD,
-        };
-
-        const prices = {} as Record<Currency, Record<DemoAsset, number>>;
-        for (const currency of CURRENCIES) {
-          prices[currency] = {} as Record<DemoAsset, number>;
-          const rate = fxRate[currency];
-          for (const asset of DEMO_ASSETS) {
-            prices[currency][asset] = usd[asset] * rate;
-          }
-        }
-
-        return { prices, isStale: false };
+        usdPrices = raw as Record<DemoAsset, number>;
       } catch {
+        // Binance unavailable → full static fallback.
         return { prices: structuredClone(FALLBACK_MARKET_PRICES), isStale: true };
       }
+
+      // --- Step 2: FX rates (optional — degrade gracefully) -----------------
+      let fxRate: Record<Currency, number> = APPROX_FX;
+      let fxStale = false;
+      try {
+        const res = await fetch(FX_URL);
+        if (!res.ok) throw new Error(`FX ${res.status}`);
+        const json = (await res.json()) as { result?: string; rates?: Record<string, number> };
+        if (json.result !== "success" || !json.rates) throw new Error("FX: bad response shape");
+        fxRate = {
+          USD: 1,
+          GBP: json.rates.GBP ?? APPROX_FX.GBP,
+          EUR: json.rates.EUR ?? APPROX_FX.EUR,
+          HKD: json.rates.HKD ?? APPROX_FX.HKD,
+        };
+      } catch {
+        fxStale = true; // FX degraded — crypto prices are still live.
+      }
+
+      // --- Step 3: Build matrix ---------------------------------------------
+      const prices = {} as Record<Currency, Record<DemoAsset, number>>;
+      for (const currency of CURRENCIES) {
+        prices[currency] = {} as Record<DemoAsset, number>;
+        const rate = fxRate[currency];
+        for (const asset of DEMO_ASSETS) {
+          prices[currency][asset] = usdPrices[asset] * rate;
+        }
+      }
+
+      return { prices, isStale: fxStale };
     },
     refetchInterval: 20_000,
     staleTime: 10_000,
     retry: 2,
   });
 }
+
+// ── Counterparties ────────────────────────────────────────────────────────────
 
 export function useDemoCounterparties(kind?: "SELLER" | "BUYER") {
   return useQuery<DemoCounterparty[]>({
@@ -187,14 +193,8 @@ export function useDemoCounterparty(id: string | undefined) {
   });
 }
 
-/**
- * Offers for one side/asset, joined to their counterparty and priced from the
- * live feed using that counterparty's own stored spread.
- *
- * Pricing happens here rather than in the card so every consumer of an offer
- * sees the same number, and the result is sorted by price — best deal first,
- * which is what makes the spread between competing sellers legible.
- */
+// ── Priced offers ─────────────────────────────────────────────────────────────
+
 export function usePricedOffers(side: TradeSide, asset: DemoAsset, region?: MarketRegion | "ALL") {
   const { data: market } = useMarketPrices();
 
@@ -214,13 +214,10 @@ export function usePricedOffers(side: TradeSide, asset: DemoAsset, region?: Mark
     staleTime: 60_000,
   });
 
-  // Headline reference price for the strip. Individual offers are priced in
-  // their own counterparty's currency below.
   const marketPrice =
     market?.prices.USD[asset] ?? FALLBACK_MARKET_PRICES.USD[asset];
 
   const priced: PricedOffer[] = (offersQuery.data ?? [])
-    // A counterparty row can be absent if it was deactivated mid-flight.
     .filter((o) => !!o.counterparty)
     .filter((o) => !region || region === "ALL" || o.counterparty.region === region)
     .map((offer) => {
@@ -236,8 +233,6 @@ export function usePricedOffers(side: TradeSide, asset: DemoAsset, region?: Mark
         spreadLabel: q.spreadLabel,
       };
     })
-    // Buying: cheapest first. Selling: highest payout first. Either way the
-    // best price for the visitor leads, with online sellers breaking ties.
     .sort((a, b) => {
       const byPrice = side === "BUY" ? a.p2pPrice - b.p2pPrice : b.p2pPrice - a.p2pPrice;
       if (byPrice !== 0) return byPrice;
