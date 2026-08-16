@@ -26,11 +26,19 @@ interface KycPayload {
   userName: string;
   userEmail: string;
   userId: string;
+  phone: string;
   country: string;
   submittedAt: string;
 }
 
-type NotifyPayload = ChatPayload | KycPayload;
+interface SignupPayload {
+  type: "signup";
+  username: string;
+  userEmail: string;
+  signedUpAt: string;
+}
+
+type NotifyPayload = ChatPayload | KycPayload | SignupPayload;
 
 notifyRouter.post("/notify", async (req: Request, res: Response) => {
   const payload = req.body as NotifyPayload;
@@ -49,6 +57,9 @@ notifyRouter.post("/notify", async (req: Request, res: Response) => {
   } else if (payload.type === "kyc") {
     subject = `[P2PxBT] KYC documents submitted — ${payload.userName || payload.userEmail}`;
     html = buildKycHtml(payload);
+  } else if (payload.type === "signup") {
+    subject = `[P2PxBT] New user registered — ${payload.username}`;
+    html = buildSignupHtml(payload);
   } else {
     res.status(400).json({ error: "Unknown notification type" });
     return;
@@ -211,6 +222,10 @@ function buildKycHtml(p: KycPayload): string {
                       <td style="font-size:12px;color:#0f172a;">${escHtml(p.userEmail)}</td>
                     </tr>
                     <tr>
+                      <td style="font-size:12px;color:#64748b;">Phone</td>
+                      <td style="font-size:12px;color:#0f172a;">${escHtml(p.phone)}</td>
+                    </tr>
+                    <tr>
                       <td style="font-size:12px;color:#64748b;">Country</td>
                       <td style="font-size:12px;color:#0f172a;">${escHtml(p.country)}</td>
                     </tr>
@@ -246,6 +261,81 @@ function buildKycHtml(p: KycPayload): string {
             <p style="margin:0;font-size:11px;color:#94a3b8;">
               P2PxBT · This notification was sent because a user submitted KYC documents.<br/>
               Manage submissions at <a href="https://p2pxbt.com/admin/kyc" style="color:#3b82f6;">p2pxbt.com/admin/kyc</a>
+            </p>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+}
+
+function buildSignupHtml(p: SignupPayload): string {
+  const ts = new Date(p.signedUpAt).toLocaleString("en-GB", {
+    dateStyle: "full", timeStyle: "short", timeZone: "UTC",
+  });
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>New user registration</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:32px 16px;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08);">
+        <!-- Header -->
+        <tr>
+          <td style="background:#0f172a;padding:24px 32px;">
+            <p style="margin:0;font-size:20px;font-weight:700;color:#ffffff;letter-spacing:-0.3px;">
+              P2PxBT <span style="color:#3b82f6;">Console</span>
+            </p>
+            <p style="margin:4px 0 0;font-size:12px;color:#94a3b8;">New user registration</p>
+          </td>
+        </tr>
+        <!-- Body -->
+        <tr>
+          <td style="padding:32px;">
+            <p style="margin:0 0 8px;font-size:18px;font-weight:600;color:#0f172a;">A new user just signed up</p>
+            <p style="margin:0 0 24px;font-size:14px;color:#64748b;line-height:1.6;">
+              Someone has created a new P2PxBT account. Their details are below.
+            </p>
+
+            <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;margin-bottom:24px;">
+              <tr>
+                <td style="padding:16px;">
+                  <table width="100%" cellpadding="4" cellspacing="0">
+                    <tr>
+                      <td style="font-size:12px;color:#64748b;width:36%;">Username</td>
+                      <td style="font-size:12px;color:#0f172a;font-weight:600;">${escHtml(p.username)}</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size:12px;color:#64748b;">Email</td>
+                      <td style="font-size:12px;color:#0f172a;">${escHtml(p.userEmail)}</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size:12px;color:#64748b;">Signed up</td>
+                      <td style="font-size:12px;color:#0f172a;">${escHtml(ts)} UTC</td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+
+            <a href="https://p2pxbt.com/admin"
+               style="display:inline-block;background:#3b82f6;color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:6px;font-size:14px;font-weight:600;">
+              Open Admin Console →
+            </a>
+          </td>
+        </tr>
+        <!-- Footer -->
+        <tr>
+          <td style="padding:16px 32px;border-top:1px solid #e2e8f0;">
+            <p style="margin:0;font-size:11px;color:#94a3b8;">
+              P2PxBT · This notification was sent because a new account was registered on your platform.<br/>
+              Manage users at <a href="https://p2pxbt.com/admin" style="color:#3b82f6;">p2pxbt.com/admin</a>
             </p>
           </td>
         </tr>

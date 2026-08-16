@@ -43,8 +43,18 @@ export async function notifyAdminKyc(opts: {
   userName: string;
   userEmail: string;
   userId: string;
+  phone: string;
   country: string;
   submittedAt: string;
 }): Promise<void> {
   await post({ type: "kyc", ...opts });
+}
+
+/** Notify admin that a new user just signed up. */
+export async function notifyAdminSignup(opts: {
+  username: string;
+  userEmail: string;
+  signedUpAt: string;
+}): Promise<void> {
+  await post({ type: "signup", ...opts });
 }

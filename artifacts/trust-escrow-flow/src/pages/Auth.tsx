@@ -9,6 +9,7 @@ import { Shield, ArrowRight } from "lucide-react";
 import SEOHead from "@/components/SEOHead";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
+import { notifyAdminSignup } from "@/lib/notify";
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -75,6 +76,12 @@ export default function Auth() {
         // Email confirmation is disabled, so the account is
         // usable immediately -- send them straight to the marketplace.
         toast.success("Account created - browse the marketplace to start a trade.");
+        // Fire-and-forget admin notification (never blocks the user flow).
+        notifyAdminSignup({
+          username: username.trim(),
+          userEmail: email,
+          signedUpAt: new Date().toISOString(),
+        });
         navigate("/marketplace", { replace: true });
       }
     }

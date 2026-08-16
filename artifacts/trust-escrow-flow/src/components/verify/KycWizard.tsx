@@ -142,6 +142,15 @@ export function KycWizard() {
                 onChange={(v) => setDetail("dateOfBirth", v)}
                 max={maxDob}
               />
+              <Field
+                id="kyc-phone"
+                label="Phone number"
+                type="tel"
+                value={details.phone}
+                onChange={(v) => setDetail("phone", v)}
+                placeholder="+1 555 000 0000"
+                maxLength={30}
+              />
               <div className="space-y-1.5">
                 <Label htmlFor="kyc-country">Country</Label>
                 <select

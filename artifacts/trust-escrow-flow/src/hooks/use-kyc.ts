@@ -64,6 +64,7 @@ export type KycStepKey = (typeof KYC_STEPS)[number]["key"];
 export interface KycApplicantDetails {
   fullName: string;
   dateOfBirth: string;
+  phone: string;
   addressLine1: string;
   addressLine2: string;
   city: string;
@@ -79,6 +80,7 @@ export interface SubmitKycInput {
 export const EMPTY_APPLICANT_DETAILS: KycApplicantDetails = {
   fullName: "",
   dateOfBirth: "",
+  phone: "",
   addressLine1: "",
   addressLine2: "",
   city: "",
@@ -92,6 +94,7 @@ export const MIN_AGE_YEARS = 18;
 export function validateApplicantDetails(d: KycApplicantDetails): string | null {
   if (!d.fullName.trim()) return "Enter the name shown on your documents.";
   if (!d.dateOfBirth) return "Enter your date of birth.";
+  if (!d.phone.trim()) return "Enter your phone number.";
 
   const dob = new Date(d.dateOfBirth);
   if (Number.isNaN(dob.getTime())) return "That date of birth isn't valid.";
@@ -195,6 +198,7 @@ export function useSubmitKyc() {
       if (user) {
         notifyAdminKyc({
           userName: variables.details.fullName.trim(),
+          phone: variables.details.phone.trim(),
           userEmail: user.email ?? "",
           userId: user.id,
           country: variables.details.country.trim(),
