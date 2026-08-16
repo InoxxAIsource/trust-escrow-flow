@@ -1,5 +1,4 @@
 import { Router, type Request, type Response } from "express";
-import { ReplitConnectors } from "@replit/connectors-sdk";
 import { logger } from "../lib/logger";
 
 const notifyRouter = Router();
@@ -55,11 +54,19 @@ notifyRouter.post("/notify", async (req: Request, res: Response) => {
     return;
   }
 
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    res.status(500).json({ error: "RESEND_API_KEY is not configured" });
+    return;
+  }
+
   try {
-    const connectors = new ReplitConnectors();
-    const response = await connectors.proxy("resend", "/emails", {
+    const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`,
+      },
       body: JSON.stringify({
         from: FROM_EMAIL,
         to: [ADMIN_EMAIL],
