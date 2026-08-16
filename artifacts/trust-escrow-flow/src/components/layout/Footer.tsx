@@ -72,18 +72,6 @@ const Footer = () => (
         </div>
       </div>
 
-      {/*
-        The only standing disclosure left on the site. The banner across every
-        page was removed, but this cannot be: counterparties on this platform
-        are simulated and no funds move, and a visitor has no way to know that
-        from the interface alone.
-      */}
-      <p className="mt-8 border-t pt-6 text-xs leading-relaxed text-muted-foreground">
-        P2PxBT is a product demonstration. Counterparties are simulated, payment details are
-        non-functional placeholders, and no crypto, fiat or bank transfer is processed. P2PxBT
-        holds no customer funds and provides no custody, escrow or settlement service.
-      </p>
-
       {/* Bottom */}
       <div className="mt-6 pt-6 border-t flex flex-col sm:flex-row justify-between items-center gap-4">
         <p className="text-xs text-muted-foreground">
