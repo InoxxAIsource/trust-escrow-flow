@@ -330,10 +330,10 @@ const Dashboard = () => {
         <div className="mb-8">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="font-display text-sm font-semibold text-foreground">
-              Demo P2P Holdings
+              P2P Holdings
             </h2>
             <span className="text-xs text-muted-foreground">
-              From completed peer-to-peer trades · demo only
+              From completed peer-to-peer trades
             </span>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -459,7 +459,6 @@ const Dashboard = () => {
             </DialogTitle>
             <DialogDescription>
               Enter the on-chain address for your {withdrawAsset} withdrawal.
-              This is a demo — no funds will move.
             </DialogDescription>
           </DialogHeader>
 
@@ -491,13 +490,6 @@ const Dashboard = () => {
                   }
                   className="font-mono text-sm"
                 />
-              </div>
-
-              <div className="rounded-md border border-amber-500/20 bg-amber-500/[0.04] px-3 py-2">
-                <p className="text-xs text-muted-foreground">
-                  <span className="font-medium text-amber-700 dark:text-amber-400">Demo mode:</span>{" "}
-                  No actual blockchain transaction will be created.
-                </p>
               </div>
 
               <div className="flex gap-2">

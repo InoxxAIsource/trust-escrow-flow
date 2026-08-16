@@ -263,14 +263,6 @@ export default function DemoTradePage() {
                     </div>
                   </div>
 
-                  <div className="rounded-md border border-border bg-muted/30 p-3">
-                    <p className="text-xs text-muted-foreground">
-                      <span className="font-medium text-foreground">Demo notice:</span> This is a
-                      simulated P2P trade. No blockchain transaction was created and no crypto
-                      moved. The balance above reflects what would be held in a real escrow wallet.
-                    </p>
-                  </div>
-
                   <Button className="w-full" onClick={() => setWithdrawOpen(true)}>
                     <ArrowUpRight className="mr-1.5 h-4 w-4" />
                     Withdraw {trade.asset}
@@ -428,8 +420,7 @@ export default function DemoTradePage() {
             </DialogTitle>
             <DialogDescription>
               Enter the on-chain address to receive your{" "}
-              {formatAssetAmount(trade.amount, trade.asset)} {trade.asset}. This is a demo — no
-              funds will move.
+              {formatAssetAmount(trade.amount, trade.asset)} {trade.asset}.
             </DialogDescription>
           </DialogHeader>
 
@@ -464,12 +455,6 @@ export default function DemoTradePage() {
               </p>
             </div>
 
-            <div className="rounded-md border border-amber-500/20 bg-amber-500/[0.04] px-3 py-2">
-              <p className="text-xs text-muted-foreground">
-                <span className="font-medium text-amber-700 dark:text-amber-400">Demo mode:</span>{" "}
-                No actual blockchain transaction will be created.
-              </p>
-            </div>
           </div>
 
           <div className="flex gap-2">
