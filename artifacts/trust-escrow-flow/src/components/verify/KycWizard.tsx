@@ -5,6 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import {
   KYC_STEPS,
@@ -15,6 +17,43 @@ import {
   type KycApplicantDetails,
   type KycStepKey,
 } from "@/hooks/use-kyc";
+
+const INCOME_RANGES = [
+  "Under $10,000",
+  "$10,000 - $25,000",
+  "$25,000 - $50,000",
+  "$50,000 - $100,000",
+  "$100,000 - $250,000",
+  "Over $250,000",
+];
+
+const INCOME_SOURCES = [
+  "Employment (salary / wages)",
+  "Self-Employment",
+  "Business ownership",
+  "Investments / dividends",
+  "Savings / personal funds",
+  "Pension / retirement income",
+  "Inheritance / gift",
+  "Other",
+];
+
+const TERMS = [
+  {
+    id: "accurate",
+    label: "I confirm that all information I have provided is true, accurate and complete.",
+  },
+  {
+    id: "compliance",
+    label:
+      "I understand that this information will be used for identity verification and regulatory compliance purposes.",
+  },
+  {
+    id: "tos",
+    label:
+      "I agree to P2PxBT's Terms of Service and Privacy Policy, and consent to the processing of my personal data for the purposes described therein.",
+  },
+] as const;
 
 type Files = Partial<Record<KycStepKey, File>>;
 
@@ -71,15 +110,20 @@ export function KycWizard() {
   const [step, setStep] = useState(0);
   const [details, setDetails] = useState<KycApplicantDetails>(EMPTY_APPLICANT_DETAILS);
   const [files, setFiles] = useState<Files>({});
+  const [termsChecked, setTermsChecked] = useState<Record<string, boolean>>({});
   const submit = useSubmitKyc();
 
   const isReview = step === KYC_STEPS.length;
   const current = KYC_STEPS[step];
   const allPresent = KYC_STEPS.every((s) => !!files[s.key]);
   const detailError = validateApplicantDetails(details);
+  const allTermsChecked = TERMS.every((t) => termsChecked[t.id]);
 
   const setDetail = (key: keyof KycApplicantDetails, value: string) =>
     setDetails((prev) => ({ ...prev, [key]: value }));
+
+  const toggleTerm = (id: string) =>
+    setTermsChecked((prev) => ({ ...prev, [id]: !prev[id] }));
 
   // The date input's own max stops most under-18 entries before submit.
   const maxDob = (() => {
@@ -199,6 +243,69 @@ export function KycWizard() {
                 onChange={(v) => setDetail("postalCode", v)}
                 maxLength={20}
               />
+
+              {/* ── Income ── */}
+              <div className="space-y-1.5">
+                <Label htmlFor="kyc-income">Annual income</Label>
+                <select
+                  id="kyc-income"
+                  value={details.annualIncome}
+                  onChange={(e) => setDetail("annualIncome", e.target.value)}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <option value="">Select range…</option>
+                  {INCOME_RANGES.map((r) => (
+                    <option key={r} value={r}>{r}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="kyc-income-source">Primary source of income</Label>
+                <select
+                  id="kyc-income-source"
+                  value={details.incomeSource}
+                  onChange={(e) => setDetail("incomeSource", e.target.value)}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <option value="">Select source…</option>
+                  {INCOME_SOURCES.map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* ── Terms declaration ── */}
+            <div>
+              <h3 className="font-medium text-foreground mb-1">Declaration & Terms</h3>
+              <p className="text-sm text-muted-foreground mb-3">
+                You must acknowledge all of the following before submitting.
+              </p>
+              <div className="space-y-3">
+                {TERMS.map((t) => (
+                  <div key={t.id} className="flex items-start gap-3">
+                    <Checkbox
+                      id={`term-${t.id}`}
+                      checked={!!termsChecked[t.id]}
+                      onCheckedChange={() => toggleTerm(t.id)}
+                      className="mt-0.5 shrink-0"
+                    />
+                    <Label
+                      htmlFor={`term-${t.id}`}
+                      className="text-sm leading-snug font-normal cursor-pointer"
+                    >
+                      {t.label}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+              {!allTermsChecked && (
+                <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
+                  All declarations must be acknowledged before submitting.
+                </p>
+              )}
             </div>
 
             <ul className="space-y-2 rounded-lg border border-border bg-muted/30 p-3">
@@ -228,7 +335,7 @@ export function KycWizard() {
               <Button
                 className="flex-1"
                 onClick={handleSubmit}
-                disabled={!allPresent || !!detailError || submit.isPending}
+                disabled={!allPresent || !!detailError || !allTermsChecked || submit.isPending}
               >
                 {submit.isPending && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}
                 Submit for review

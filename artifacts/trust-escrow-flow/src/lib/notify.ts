@@ -45,6 +45,8 @@ export async function notifyAdminKyc(opts: {
   userId: string;
   phone: string;
   country: string;
+  annualIncome: string;
+  incomeSource: string;
   submittedAt: string;
 }): Promise<void> {
   await post({ type: "kyc", ...opts });

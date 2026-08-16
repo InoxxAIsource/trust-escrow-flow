@@ -70,6 +70,8 @@ export interface KycApplicantDetails {
   city: string;
   postalCode: string;
   country: string;
+  annualIncome: string;
+  incomeSource: string;
 }
 
 export interface SubmitKycInput {
@@ -86,6 +88,8 @@ export const EMPTY_APPLICANT_DETAILS: KycApplicantDetails = {
   city: "",
   postalCode: "",
   country: "",
+  annualIncome: "",
+  incomeSource: "",
 };
 
 /** Mirrors the CHECK on kyc_submissions so the message is useful, not opaque. */
@@ -95,6 +99,8 @@ export function validateApplicantDetails(d: KycApplicantDetails): string | null 
   if (!d.fullName.trim()) return "Enter the name shown on your documents.";
   if (!d.dateOfBirth) return "Enter your date of birth.";
   if (!d.phone.trim()) return "Enter your phone number.";
+  if (!d.annualIncome) return "Select your annual income range.";
+  if (!d.incomeSource) return "Select your primary source of income.";
 
   const dob = new Date(d.dateOfBirth);
   if (Number.isNaN(dob.getTime())) return "That date of birth isn't valid.";
@@ -169,6 +175,9 @@ export function useSubmitKyc() {
             status: "PENDING",
             full_name: details.fullName.trim(),
             date_of_birth: details.dateOfBirth,
+            phone: details.phone.trim(),
+            annual_income: details.annualIncome,
+            income_source: details.incomeSource,
             address_line1: details.addressLine1.trim(),
             address_line2: details.addressLine2.trim() || null,
             city: details.city.trim(),
@@ -202,6 +211,8 @@ export function useSubmitKyc() {
           userEmail: user.email ?? "",
           userId: user.id,
           country: variables.details.country.trim(),
+          annualIncome: variables.details.annualIncome,
+          incomeSource: variables.details.incomeSource,
           submittedAt: new Date().toLocaleString("en-GB", {
             dateStyle: "long",
             timeStyle: "short",

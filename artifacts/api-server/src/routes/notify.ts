@@ -28,6 +28,8 @@ interface KycPayload {
   userId: string;
   phone: string;
   country: string;
+  annualIncome: string;
+  incomeSource: string;
   submittedAt: string;
 }
 
@@ -228,6 +230,14 @@ function buildKycHtml(p: KycPayload): string {
                     <tr>
                       <td style="font-size:12px;color:#64748b;">Country</td>
                       <td style="font-size:12px;color:#0f172a;">${escHtml(p.country)}</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size:12px;color:#64748b;">Annual income</td>
+                      <td style="font-size:12px;color:#0f172a;">${escHtml(p.annualIncome)}</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size:12px;color:#64748b;">Income source</td>
+                      <td style="font-size:12px;color:#0f172a;">${escHtml(p.incomeSource)}</td>
                     </tr>
                     <tr>
                       <td style="font-size:12px;color:#64748b;">Submitted</td>
