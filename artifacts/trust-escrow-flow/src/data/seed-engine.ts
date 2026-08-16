@@ -90,7 +90,7 @@ export const countryConfigs: CountryConfig[] = [
       "peter_mallory", "laura_fielding", "daniel_brooks", "sophie_lawson",
       "thomas_wardle", "charlotte_ellis",
     ],
-    offerCount: { usdt: [12, 9], crypto: [5, 5] },
+    offerCount: { usdt: [12, 10], crypto: [5, 5] },
   },
   {
     code: "GB",
@@ -104,8 +104,10 @@ export const countryConfigs: CountryConfig[] = [
       "george_ashford", "harriet_vaughn", "william_pierce", "eleanor_shaw",
       "henry_mallory", "amelia_brooks", "edward_fielding", "isabel_carter",
       "arthur_bennett", "florence_reeves", "hugh_whitfield",
+      "cecily_thornton", "rupert_hadley", "beatrice_langton", "alistair_moss",
+      "penelope_cross", "jasper_alderton", "claudia_fenn",
     ],
-    offerCount: { usdt: [8, 6], crypto: [4, 4] },
+    offerCount: { usdt: [12, 10], crypto: [5, 5] },
   },
   // The eurozone is split per country rather than carried as one "Europe"
   // entry. The SEO pages filter boards by country name, so a single Europe
@@ -122,8 +124,10 @@ export const countryConfigs: CountryConfig[] = [
     usernames: [
       "lucas_meyer", "anna_hoffman", "niklas_berg", "katrin_weber",
       "andreas_klein", "greta_shulz", "jonas_richter", "lena_faber",
+      "felix_bauer", "sophie_hartmann", "max_schneider", "clara_vogel",
+      "paul_zimmermann", "mia_krause", "ben_wolf", "julia_braun",
     ],
-    offerCount: { usdt: [7, 5], crypto: [4, 3] },
+    offerCount: { usdt: [10, 8], crypto: [4, 4] },
   },
   {
     code: "FR",
@@ -135,8 +139,10 @@ export const countryConfigs: CountryConfig[] = [
     usernames: [
       "elena_moreau", "clara_dubois", "julien_laurent", "hugo_marchand",
       "camille_perrin", "antoine_giraud", "manon_leclerc", "theo_rousseau",
+      "lea_fontaine", "nicolas_blanc", "alice_renard", "pierre_chevalier",
+      "marie_dupont", "thomas_martin", "sarah_petit", "romain_robert",
     ],
-    offerCount: { usdt: [6, 5], crypto: [4, 3] },
+    offerCount: { usdt: [10, 8], crypto: [4, 4] },
   },
   {
     code: "NL",
@@ -147,9 +153,10 @@ export const countryConfigs: CountryConfig[] = [
     paymentMethods: ["SEPA Transfer", "Bank Transfer"],
     usernames: [
       "pieter_vos", "sanne_dijkstra", "bram_jansen", "fleur_van_dijk",
-      "daan_bakker", "eva_hendriks",
+      "daan_bakker", "eva_hendriks", "Lars_de_boer", "inge_smit",
+      "tim_visser", "nora_meijer", "stefan_berg", "lotte_kok",
     ],
-    offerCount: { usdt: [5, 4], crypto: [3, 3] },
+    offerCount: { usdt: [10, 8], crypto: [4, 4] },
   },
   {
     code: "IE",
@@ -160,9 +167,10 @@ export const countryConfigs: CountryConfig[] = [
     paymentMethods: ["SEPA Transfer", "Bank Transfer"],
     usernames: [
       "sean_donovan", "liam_mcgrath", "aoife_brennan", "cillian_walsh",
-      "niamh_gallagher", "eoin_murphy",
+      "niamh_gallagher", "eoin_murphy", "siobhan_ryan", "padraig_kelly",
+      "orla_quinn", "declan_barry", "ciara_lynch", "rory_fitzgerald",
     ],
-    offerCount: { usdt: [5, 4], crypto: [3, 3] },
+    offerCount: { usdt: [10, 8], crypto: [4, 4] },
   },
   {
     code: "ES",
@@ -173,9 +181,10 @@ export const countryConfigs: CountryConfig[] = [
     paymentMethods: ["SEPA Transfer", "Bank Transfer"],
     usernames: [
       "sofia_alvarez", "diego_navarro", "maria_costa", "pablo_serrano",
-      "lucia_ibanez", "javier_moline",
+      "lucia_ibanez", "javier_moline", "carmen_vidal", "andres_mora",
+      "isabel_reyes", "miguel_soto", "laura_gimenez", "carlos_fuentes",
     ],
-    offerCount: { usdt: [6, 4], crypto: [3, 3] },
+    offerCount: { usdt: [10, 8], crypto: [4, 4] },
   },
   {
     code: "IT",
@@ -186,9 +195,10 @@ export const countryConfigs: CountryConfig[] = [
     paymentMethods: ["SEPA Transfer", "Bank Transfer"],
     usernames: [
       "matteo_ricci", "marco_bianchi", "chiara_rossi", "giulia_conti",
-      "lorenzo_greco", "alessia_ferrara",
+      "lorenzo_greco", "alessia_ferrara", "luca_marini", "valentina_esposito",
+      "andrea_romano", "francesca_russo", "giuseppe_gallo", "elena_colombo",
     ],
-    offerCount: { usdt: [6, 4], crypto: [3, 3] },
+    offerCount: { usdt: [10, 8], crypto: [4, 4] },
   },
   {
     code: "HK",
@@ -201,8 +211,10 @@ export const countryConfigs: CountryConfig[] = [
       "harbour_trade", "victoria_peak", "central_crypto", "kowloon_coin",
       "lantau_trader", "star_ferry_btc", "pearl_delta", "orchid_capital",
       "jade_markets", "typhoon_trade", "causeway_coin", "aberdeen_fx",
+      "dragon_gate_fx", "lion_rock_btc", "tsim_sha_capital", "wan_chai_trade",
+      "repulse_bay_coin", "taikoo_crypto", "shaukeiwan_fx", "discovery_bay_btc",
     ],
-    offerCount: { usdt: [7, 5], crypto: [4, 4] },
+    offerCount: { usdt: [12, 10], crypto: [5, 5] },
   },
 
   // ── Reach markets ────────────────────────────────────────────────────────
@@ -371,6 +383,10 @@ export const countryConfigs: CountryConfig[] = [
   },
 ];
 
+// ── Limit bounds (in USD, converted to local currency per offer) ──
+const LIMIT_MIN_USD = 100;
+const LIMIT_MAX_USD = 48_000;
+
 // ── Constants ──
 
 const assets = [
@@ -462,10 +478,12 @@ function computeAvailableAmount(priceRatio: number, fxRate: number): number {
   return Math.round(baseAmount * fxRate / 85.5); // scale to local currency
 }
 
-function computeLimits(availableAmount: number, fxRate: number): { minLimit: number; maxLimit: number } {
-  const minLimit = Math.round(1000 * fxRate / 85.5);
-  const maxLimit = Math.min(availableAmount, Math.round(500000 * fxRate / 85.5));
-  return { minLimit, maxLimit: Math.max(maxLimit, minLimit + Math.round(10000 * fxRate / 85.5)) };
+/** Fixed $100 - $48,000 USD window, converted to local currency. */
+function computeLimits(fxRate: number): { minLimit: number; maxLimit: number } {
+  return {
+    minLimit: Math.round(LIMIT_MIN_USD * fxRate),
+    maxLimit: Math.round(LIMIT_MAX_USD * fxRate),
+  };
 }
 
 // ── Pick unique username ──
@@ -528,7 +546,7 @@ function generateUSDTOffers(country: CountryConfig, usdtPriceLocal: number): See
     const price = +Math.min(sellMax, Math.max(sellMin, rawPrice)).toFixed(2);
     const marginPct = +((price / marketPrice - 1) * 100).toFixed(1);
     const availableAmount = computeAvailableAmount(ratio, country.fxRate);
-    const { minLimit, maxLimit } = computeLimits(availableAmount, country.fxRate);
+    const { minLimit, maxLimit } = computeLimits(country.fxRate);
 
     offers.push({
       id: generateId(),
@@ -557,7 +575,7 @@ function generateUSDTOffers(country: CountryConfig, usdtPriceLocal: number): See
     const price = +Math.min(buyMax, Math.max(buyMin, rawPrice)).toFixed(2);
     const marginPct = +((price / marketPrice - 1) * 100).toFixed(1);
     const availableAmount = computeAvailableAmount(ratio, country.fxRate);
-    const { minLimit, maxLimit } = computeLimits(availableAmount, country.fxRate);
+    const { minLimit, maxLimit } = computeLimits(country.fxRate);
 
     offers.push({
       id: generateId(),
@@ -600,7 +618,7 @@ function generateCryptoOffers(
     const price = +(marketPriceLocal * variation).toFixed(2);
     const marginPct = +((price / marketPriceLocal - 1) * 100).toFixed(1);
     const availableAmount = computeAvailableAmount(ratio, country.fxRate);
-    const { minLimit, maxLimit } = computeLimits(availableAmount, country.fxRate);
+    const { minLimit, maxLimit } = computeLimits(country.fxRate);
 
     offers.push({
       id: generateId(),
@@ -629,7 +647,7 @@ function generateCryptoOffers(
     const price = +(marketPriceLocal * variation).toFixed(2);
     const marginPct = +((price / marketPriceLocal - 1) * 100).toFixed(1);
     const availableAmount = computeAvailableAmount(ratio, country.fxRate);
-    const { minLimit, maxLimit } = computeLimits(availableAmount, country.fxRate);
+    const { minLimit, maxLimit } = computeLimits(country.fxRate);
 
     offers.push({
       id: generateId(),

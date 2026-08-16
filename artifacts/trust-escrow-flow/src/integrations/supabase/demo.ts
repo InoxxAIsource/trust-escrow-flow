@@ -69,6 +69,9 @@ export interface PricedOffer extends DemoOffer {
   marketPrice: number;
   p2pPrice: number;
   spreadLabel: string;
+  /** Approximate USD equivalent of the offer's min/max limits (for cross-currency amount filtering). */
+  minLimitUSD: number;
+  maxLimitUSD: number;
 }
 
 export type KycStatus = "NOT_STARTED" | "PENDING" | "APPROVED" | "REJECTED";

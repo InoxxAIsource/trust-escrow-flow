@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Loader2, TrendingDown, TrendingUp } from "lucide-react";
+import { Loader2, TrendingDown, TrendingUp, X } from "lucide-react";
 import SEOHead from "@/components/SEOHead";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { DemoBackendNotice } from "@/components/demo/DemoIndicators";
 import { DemoOfferCard } from "@/components/marketplace/DemoOfferCard";
 import { OrderTicketDialog } from "@/components/marketplace/OrderTicketDialog";
@@ -25,22 +26,39 @@ import {
 } from "@/lib/pricing";
 import type { PricedOffer } from "@/integrations/supabase/demo";
 
+const AMOUNT_PRESETS = [500, 1_000, 5_000, 10_000, 25_000, 48_000] as const;
+
 export default function DemoMarketplace() {
   const [side, setSide] = useState<TradeSide>("BUY");
   const [asset, setAsset] = useState<DemoAsset>("BTC");
   const [region, setRegion] = useState<MarketRegion | "ALL">("ALL");
+  const [amountInput, setAmountInput] = useState("");
   const [selected, setSelected] = useState<PricedOffer | null>(null);
 
   const { data: backend, isLoading: backendLoading } = useDemoBackend();
   const { offers, marketPrice, isStale, isLoading } = usePricedOffers(side, asset, region);
 
+  // Parse text input; blank = no filter
+  const amountUSD = amountInput === "" ? null : Number(amountInput.replace(/[^0-9.]/g, ""));
+
+  const filteredOffers =
+    amountUSD && amountUSD > 0
+      ? offers.filter((o) => o.minLimitUSD <= amountUSD && amountUSD <= o.maxLimitUSD)
+      : offers;
+
   const isBuy = side === "BUY";
-  // The reference strip describes the band counterparties quote within, not a
-  // single price - each one has its own spread, shown on its card.
   const bandLabel = isBuy
     ? formatBpsRange(BUY_PREMIUM_BPS_MIN, BUY_PREMIUM_BPS_MAX)
     : formatBpsRange(SELL_DISCOUNT_BPS_MIN, SELL_DISCOUNT_BPS_MAX);
-  const bestOffer = offers[0] ?? null;
+  const bestOffer = filteredOffers[0] ?? null;
+
+  function handlePreset(amt: number) {
+    setAmountInput(String(amt));
+  }
+
+  function clearAmount() {
+    setAmountInput("");
+  }
 
   return (
     <div className="container py-8 md:py-12">
@@ -70,7 +88,7 @@ export default function DemoMarketplace() {
       </header>
 
       {backendLoading ? (
-        <LoadingBlock label="Connecting to the marketplace…" />
+        <LoadingBlock label="Connecting to the marketplace..." />
       ) : backend && backend.status !== "ready" ? (
         <DemoBackendNotice state={backend} />
       ) : (
@@ -88,9 +106,6 @@ export default function DemoMarketplace() {
                       ? "Best buy price"
                       : "Best sell price"
                 }
-                /* The leading offer may be from any market, so it must be
-                   formatted in its own currency. Rendering a GBP figure with a
-                   dollar sign is worse than showing no figure at all. */
                 value={bestOffer ? formatMoney(bestOffer.p2pPrice, bestOffer.currency) : "-"}
                 delta={bestOffer?.spreadLabel}
                 tone={isBuy ? "premium" : "discount"}
@@ -140,7 +155,7 @@ export default function DemoMarketplace() {
           </div>
 
           {/* Region */}
-          <div className="mb-6 flex flex-wrap items-center gap-1.5" role="group" aria-label="Filter by region">
+          <div className="mb-4 flex flex-wrap items-center gap-1.5" role="group" aria-label="Filter by region">
             <span className="mr-1 text-xs text-muted-foreground">Region</span>
             <Button
               size="sm"
@@ -163,23 +178,88 @@ export default function DemoMarketplace() {
             ))}
           </div>
 
+          {/* Amount filter */}
+          <div className="mb-6 rounded-lg border border-border bg-muted/30 px-4 py-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs text-muted-foreground whitespace-nowrap">Amount (USD)</span>
+
+              {/* Preset buttons */}
+              <Button
+                size="sm"
+                variant={amountInput === "" ? "secondary" : "ghost"}
+                onClick={clearAmount}
+                className="h-7 px-3 text-xs"
+              >
+                Any
+              </Button>
+              {AMOUNT_PRESETS.map((amt) => (
+                <Button
+                  key={amt}
+                  size="sm"
+                  variant={amountInput === String(amt) ? "secondary" : "ghost"}
+                  onClick={() => handlePreset(amt)}
+                  className="h-7 px-3 text-xs"
+                >
+                  ${amt >= 1000 ? `${amt / 1000}k` : amt}
+                </Button>
+              ))}
+
+              {/* Custom input */}
+              <div className="relative ml-auto">
+                <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+                  $
+                </span>
+                <Input
+                  type="number"
+                  min={100}
+                  max={48000}
+                  placeholder="Enter amount"
+                  value={amountInput}
+                  onChange={(e) => setAmountInput(e.target.value)}
+                  className="h-7 w-36 pl-5 text-xs"
+                />
+                {amountInput && (
+                  <button
+                    onClick={clearAmount}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    aria-label="Clear amount"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {amountUSD && amountUSD > 0 && (
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                Showing offers that accept ${amountUSD.toLocaleString()} USD
+                {filteredOffers.length === 0 && offers.length > 0
+                  ? " - no offers match this amount"
+                  : ` (${filteredOffers.length} of ${offers.length})`}
+              </p>
+            )}
+          </div>
+
           {/* Offers */}
           {isLoading ? (
-            <LoadingBlock label="Loading offers…" />
-          ) : offers.length === 0 ? (
+            <LoadingBlock label="Loading offers..." />
+          ) : filteredOffers.length === 0 ? (
             <Card>
               <CardContent className="p-10 text-center text-sm text-muted-foreground">
-                No {side === "BUY" ? "sellers" : "buyers"} are listed for {asset} right now.
+                {amountUSD && amountUSD > 0
+                  ? `No ${side === "BUY" ? "sellers" : "buyers"} accept $${amountUSD.toLocaleString()} for ${asset}. Try a different amount.`
+                  : `No ${side === "BUY" ? "sellers" : "buyers"} are listed for ${asset} right now.`}
               </CardContent>
             </Card>
           ) : (
             <>
               <p className="mb-3 text-sm text-muted-foreground">
-                {offers.length} {side === "BUY" ? "seller" : "buyer"}
-                {offers.length === 1 ? "" : "s"} for {asset}
+                {filteredOffers.length} {side === "BUY" ? "seller" : "buyer"}
+                {filteredOffers.length === 1 ? "" : "s"} for {asset}
+                {amountUSD && amountUSD > 0 ? ` accepting $${amountUSD.toLocaleString()}` : ""}
               </p>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-                {offers.map((offer) => (
+                {filteredOffers.map((offer) => (
                   <DemoOfferCard
                     key={offer.id}
                     offer={offer}
