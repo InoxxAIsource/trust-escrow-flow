@@ -141,17 +141,11 @@ export function useSavePaymentInstructions() {
       // Upsert the full fields object directly so every field (including
       // routing_number, swift, sort_code, iban etc.) is operator-controlled.
       const { data, error } = await demoDb
-        .from("demo_payment_instructions")
-        .upsert(
-          {
-            counterparty_id: input.counterpartyId,
-            method: input.method,
-            fields: input.fields,
-          },
-          { onConflict: "counterparty_id,method" },
-        )
-        .select()
-        .single();
+        .rpc("admin_save_payment_instructions", {
+          p_counterparty_id: input.counterpartyId,
+          p_method: input.method,
+          p_fields: input.fields,
+        });
       if (error) throw error;
       return data as PaymentInstruction;
     },
