@@ -3,7 +3,7 @@ import { FileText, Loader2, Paperclip, Receipt, Send, ShieldCheck, Upload, X } f
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
@@ -170,13 +170,15 @@ export function DemoTradeChat({
                     <Button variant="outline" size="icon" onClick={() => fileRef.current?.click()} disabled={send.isPending} title="Attach a file">
                       <Paperclip className="h-4 w-4" /><span className="sr-only">Attach</span>
                     </Button>
-                    <Input
+                    <Textarea
                       value={draft}
                       onChange={(e) => setDraft(e.target.value)}
                       onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-                      placeholder={pending ? "Add a note (optional)…" : "Write a message…"}
+                      placeholder={pending ? "Add a note (optional)…" : "Write a message… (Shift+Enter for new line)"}
                       maxLength={2000}
                       aria-label="Message"
+                      rows={1}
+                      className="resize-none min-h-[36px] max-h-32 overflow-y-auto"
                     />
                     <Button onClick={handleSend} disabled={(!draft.trim() && !pending) || send.isPending} size="icon">
                       {send.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
