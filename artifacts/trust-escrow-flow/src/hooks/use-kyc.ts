@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { demoDb, type KycSubmission, type KycDocumentType } from "@/integrations/supabase/demo";
 import { useAuth } from "./use-auth";
+import { notifyAdminKyc } from "@/lib/notify";
 
 export const KYC_BUCKET = "kyc-documents";
 
@@ -185,10 +186,25 @@ export function useSubmitKyc() {
         throw error;
       }
     },
-    onSuccess: async () => {
+    onSuccess: async (_data, variables) => {
       await refreshProfile();
       queryClient.invalidateQueries({ queryKey: ["kyc-submission"] });
       queryClient.invalidateQueries({ queryKey: ["admin-kyc-queue"] });
+
+      // Fire-and-forget admin email notification.
+      if (user) {
+        notifyAdminKyc({
+          userName: variables.details.fullName.trim(),
+          userEmail: user.email ?? "",
+          userId: user.id,
+          country: variables.details.country.trim(),
+          submittedAt: new Date().toLocaleString("en-GB", {
+            dateStyle: "long",
+            timeStyle: "short",
+            timeZone: "UTC",
+          }) + " UTC",
+        });
+      }
     },
   });
 }

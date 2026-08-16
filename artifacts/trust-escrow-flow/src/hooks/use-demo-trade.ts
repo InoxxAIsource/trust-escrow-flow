@@ -11,6 +11,7 @@ import {
   type DemoCounterparty,
 } from "@/integrations/supabase/demo";
 import { useAuth } from "./use-auth";
+import { notifyAdminChatMessage } from "@/lib/notify";
 
 /**
  * Subscribes to Postgres changes for one trade and invalidates the matching
@@ -126,7 +127,17 @@ export function useTradeMessages(tradeId: string | undefined) {
   });
 }
 
-export function useSendTradeMessage(tradeId: string | undefined) {
+/** Optional metadata passed at the hook call-site so notifications are rich. */
+export interface TradeMessageContext {
+  tradeRef: string;
+  asset: string;
+  amount: string;
+}
+
+export function useSendTradeMessage(
+  tradeId: string | undefined,
+  tradeContext?: TradeMessageContext,
+) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
@@ -192,11 +203,28 @@ export function useSendTradeMessage(tradeId: string | undefined) {
       if (error) throw error;
       return data as TradeMessage;
     },
-    onSuccess: () => {
+    onSuccess: (_data, input) => {
       queryClient.invalidateQueries({ queryKey: ["trade-messages", tradeId] });
       // A receipt also writes a timeline event and an operator notification.
       queryClient.invalidateQueries({ queryKey: ["trade-events", tradeId] });
       queryClient.invalidateQueries({ queryKey: ["admin-notifications"] });
+
+      // Fire-and-forget admin email — never block the UI on delivery.
+      if (user && tradeContext) {
+        const rawMessage = typeof input === "string" ? input : (input.message ?? "");
+        const isSystemMessage = !rawMessage.trim() && typeof input !== "string" && input.file;
+        const displayMessage = isSystemMessage ? "[File attachment]" : rawMessage.trim();
+
+        notifyAdminChatMessage({
+          tradeRef: tradeContext.tradeRef,
+          tradeId: tradeId ?? "",
+          message: displayMessage || "[attachment]",
+          userName: user.user_metadata?.full_name ?? user.email ?? "Unknown",
+          userEmail: user.email ?? "",
+          asset: tradeContext.asset,
+          amount: tradeContext.amount,
+        });
+      }
     },
   });
 }

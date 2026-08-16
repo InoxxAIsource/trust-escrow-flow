@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
-import { useSendTradeMessage, useAttachmentUrl, describeTradeError } from "@/hooks/use-demo-trade";
+import { useSendTradeMessage, useAttachmentUrl, describeTradeError, type TradeMessageContext } from "@/hooks/use-demo-trade";
 import {
   ACCEPTED_ATTACHMENT_MIME,
   MAX_ATTACHMENT_BYTES,
@@ -31,15 +31,18 @@ export function DemoTradeChat({
   isLoading,
   readOnly,
   viewerRole = "buyer",
-  /** When true, shows the "Upload receipt" quick button in Documents tab. */
   canUploadReceipt,
+  tradeContext,
 }: {
   tradeId: string;
   messages: TradeMessage[];
   isLoading: boolean;
   readOnly?: boolean;
   viewerRole?: "buyer" | "admin";
+  /** When true, shows the "Upload receipt" quick button in Documents tab. */
   canUploadReceipt?: boolean;
+  /** Optional trade metadata used for admin email notifications. */
+  tradeContext?: TradeMessageContext;
 }) {
   const [draft, setDraft] = useState("");
   const [pending, setPending] = useState<File | null>(null);
@@ -49,7 +52,7 @@ export function DemoTradeChat({
   const fileRef = useRef<HTMLInputElement>(null);
   const docRef = useRef<HTMLInputElement>(null);
   const receiptRef = useRef<HTMLInputElement>(null);
-  const send = useSendTradeMessage(tradeId);
+  const send = useSendTradeMessage(tradeId, tradeContext);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

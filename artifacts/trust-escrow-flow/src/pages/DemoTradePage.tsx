@@ -279,6 +279,11 @@ export default function DemoTradePage() {
             readOnly={isComplete || isCancelled}
             viewerRole="buyer"
             canUploadReceipt={canUploadReceipt}
+            tradeContext={{
+              tradeRef: trade.trade_ref,
+              asset: trade.asset,
+              amount: formatAssetAmount(trade.amount, trade.asset),
+            }}
           />
 
           {(canMarkPaid || canCancel || canDispute) && (
