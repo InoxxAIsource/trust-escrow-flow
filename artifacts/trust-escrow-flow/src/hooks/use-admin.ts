@@ -172,33 +172,6 @@ export function useMarkTradeOpened() {
   });
 }
 
-/**
- * The operator action the whole demo pivots on: copies the counterparty's
- * simulated payment details into the trade chat. The buyer has no route to
- * this data other than an operator choosing to send it.
- */
-export function useSendPaymentDetails() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (tradeId: string) => {
-      const { data, error } = await demoDb.rpc("admin_send_payment_details", {
-        _trade_id: tradeId,
-      });
-      if (error) throw error;
-      return data as TradeMessage;
-    },
-    onSuccess: (_data, tradeId) => {
-      queryClient.invalidateQueries({ queryKey: ["trade-messages", tradeId] });
-      queryClient.invalidateQueries({ queryKey: ["trade-events", tradeId] });
-      queryClient.invalidateQueries({ queryKey: ["demo-trade", tradeId] });
-      queryClient.invalidateQueries({ queryKey: ["admin-trades"] });
-      queryClient.invalidateQueries({ queryKey: ["admin-notifications"] });
-      queryClient.invalidateQueries({ queryKey: ["admin-actions"] });
-    },
-  });
-}
-
 export function useConfirmPayment() {
   const queryClient = useQueryClient();
 

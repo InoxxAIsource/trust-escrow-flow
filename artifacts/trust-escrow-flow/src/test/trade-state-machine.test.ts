@@ -18,7 +18,9 @@ import {
 
 const MIGRATION = resolve(
   __dirname,
-  "../../supabase/migrations/20260811090300_demo_trade_state_machine.sql",
+  // Latest migration that redefines demo_trade_can_transition() — keep this
+  // pointing at the newest override so the parity check tracks reality.
+  "../../supabase/migrations/20260817160000_manual_payment_details_flow.sql",
 );
 
 /** Pulls the tuple list out of demo_trade_can_transition() in the migration. */
@@ -59,11 +61,12 @@ describe("canTransition()", () => {
     }
   });
 
-  it("refuses to skip the operator payment-details step", () => {
-    // The single most important invariant: a buyer cannot jump from selecting
-    // a payment method to having been paid.
+  it("allows the buyer to mark payment once awaiting details (manual flow)", () => {
+    // The operator sends bank details by chat, so the buyer may mark payment
+    // from AWAITING_PAYMENT_DETAILS — but never earlier, and never straight
+    // to COMPLETED.
+    expect(canTransition("AWAITING_PAYMENT_DETAILS", "PAYMENT_MARKED")).toBe(true);
     expect(canTransition("PAYMENT_METHOD_SELECTED", "PAYMENT_MARKED")).toBe(false);
-    expect(canTransition("AWAITING_PAYMENT_DETAILS", "PAYMENT_MARKED")).toBe(false);
     expect(canTransition("AWAITING_PAYMENT_DETAILS", "COMPLETED")).toBe(false);
   });
 
