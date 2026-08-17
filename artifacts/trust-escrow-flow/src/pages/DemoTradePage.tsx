@@ -55,7 +55,7 @@ import {
   ACCEPTED_ATTACHMENT_MIME,
   MAX_ATTACHMENT_BYTES,
 } from "@/integrations/supabase/demo";
-import { formatAssetAmount, formatMoney, type Currency } from "@/lib/pricing";
+import { formatAssetAmount, formatMoney, FALLBACK_MARKET_PRICES, type Currency } from "@/lib/pricing";
 import { canTransition } from "@/lib/trade-state-machine";
 import { CountdownTimer } from "@/components/CountdownTimer";
 
@@ -162,16 +162,23 @@ export default function DemoTradePage() {
   };
 
   // Minimum withdrawal = 1 BTC worth of the trade's asset.
-  const btcPriceUsd = market?.prices.USD.BTC ?? 63000;
-  const assetPriceUsd = market?.prices.USD[trade?.asset ?? "BTC"] ?? btcPriceUsd;
-  const minWithdrawAmount = trade?.asset === "BTC" ? 1 : btcPriceUsd / assetPriceUsd;
+  // Always use per-asset fallback so the check works even before market data loads.
+  const btcPriceUsd  = market?.prices.USD.BTC  ?? FALLBACK_MARKET_PRICES.USD.BTC;
+  const assetPriceUsd = trade
+    ? (market?.prices.USD[trade.asset] ?? FALLBACK_MARKET_PRICES.USD[trade.asset])
+    : btcPriceUsd;
+  // Compare USD values directly — avoids asset-to-asset precision issues.
+  const tradeValueUsd   = (trade?.amount ?? 0) * assetPriceUsd;
+  const belowMinWithdraw = tradeValueUsd < btcPriceUsd;
+  // Minimum expressed in the trade's asset for display purposes.
+  const minWithdrawAmount = btcPriceUsd / assetPriceUsd;
 
   const handleWithdrawClick = () => {
-    if ((trade?.amount ?? 0) < minWithdrawAmount) {
+    if (belowMinWithdraw) {
       const minFmt = formatAssetAmount(minWithdrawAmount, trade.asset);
       const btcFmt = `$${Math.round(btcPriceUsd).toLocaleString()}`;
       toast.error(
-        `Minimum withdrawal is ${minFmt} ${trade.asset} (≈ 1 BTC / ${btcFmt}). Your current balance does not meet this threshold.`,
+        `Minimum withdrawal is ${minFmt} ${trade.asset} (≈ 1 BTC / ${btcFmt}). Your balance does not meet this threshold.`,
         { duration: 6000 },
       );
       return;
@@ -181,6 +188,11 @@ export default function DemoTradePage() {
 
   const handleWithdraw = async () => {
     if (!withdrawAddress.trim()) return;
+    // Safety net — re-check minimum even if dialog was opened via unexpected path.
+    if (belowMinWithdraw) {
+      setWithdrawOpen(false);
+      return;
+    }
     setWithdrawPending(true);
     // Demo: simulate a brief delay then confirm.
     await new Promise((r) => setTimeout(r, 1200));
