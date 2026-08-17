@@ -8,15 +8,20 @@ import { useQuery } from "@tanstack/react-query";
  * removed. New code should use `useMarketPrices` from
  * `@/hooks/use-demo-market`, which is the marketplace's source of truth.
  */
+export interface CoinPrice {
+  usd: number;
+  usd_24h_change?: number;
+}
+
 export interface CryptoPrices {
-  bitcoin: { usd: number };
-  ethereum: { usd: number };
-  solana: { usd: number };
-  tether: { usd: number };
+  bitcoin: CoinPrice;
+  ethereum: CoinPrice;
+  solana: CoinPrice;
+  tether: CoinPrice;
 }
 
 const COINGECKO_URL =
-  "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,tether&vs_currencies=usd";
+  "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,tether&vs_currencies=usd&include_24hr_change=true";
 
 async function fetchPrices(): Promise<CryptoPrices> {
   const res = await fetch(COINGECKO_URL);
