@@ -22,7 +22,7 @@ import {
  * demo gates on this, so it is cached hard - a missing schema will not start
  * existing halfway through a session.
  */
-const PROBE_TIMEOUT_MS = 8000;
+const PROBE_TIMEOUT_MS = 5000;
 
 export function useDemoBackend() {
   return useQuery<DemoBackendState>({
@@ -34,13 +34,9 @@ export function useDemoBackend() {
         .limit(1)
         .then(({ error }) => classifyProbe(error));
 
-      const timeout = new Promise<DemoBackendState>((resolve) =>
+      const timeout = new Promise<DemoBackendState>((_, reject) =>
         setTimeout(
-          () =>
-            resolve({
-              status: "error",
-              message: "The demo backend did not respond. Check your connection and reload.",
-            }),
+          () => reject(new Error("The marketplace did not respond. Check your connection and try again.")),
           PROBE_TIMEOUT_MS,
         ),
       );
@@ -48,8 +44,9 @@ export function useDemoBackend() {
       return Promise.race([probe, timeout]);
     },
     staleTime: Infinity,
-    gcTime: Infinity,
-    retry: false,
+    gcTime: 5 * 60 * 1000,
+    retry: 2,
+    retryDelay: 1000,
   });
 }
 

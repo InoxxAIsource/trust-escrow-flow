@@ -35,7 +35,7 @@ export default function DemoMarketplace() {
   const [amountInput, setAmountInput] = useState("");
   const [selected, setSelected] = useState<PricedOffer | null>(null);
 
-  const { data: backend, isLoading: backendLoading } = useDemoBackend();
+  const { data: backend, isLoading: backendLoading, refetch: retryBackend } = useDemoBackend();
   const { offers, marketPrice, isStale, isLoading } = usePricedOffers(side, asset, region);
 
   // Parse text input; blank = no filter
@@ -90,7 +90,7 @@ export default function DemoMarketplace() {
       {backendLoading ? (
         <LoadingBlock label="Connecting to the marketplace..." />
       ) : backend && backend.status !== "ready" ? (
-        <DemoBackendNotice state={backend} />
+        <DemoBackendNotice state={backend} onRetry={() => retryBackend()} />
       ) : (
         <>
 

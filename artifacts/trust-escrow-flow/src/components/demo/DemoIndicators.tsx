@@ -38,7 +38,13 @@ export function TradeStateBadge({
  * setup-time diagnostic for whoever provisions the environment, not a surface
  * a signed-in trader is expected to reach.
  */
-export function DemoBackendNotice({ state }: { state: DemoBackendState }) {
+export function DemoBackendNotice({
+  state,
+  onRetry,
+}: {
+  state: DemoBackendState;
+  onRetry?: () => void;
+}) {
   if (state.status === "ready") return null;
 
   const isMissing = state.status === "not-provisioned";
@@ -49,7 +55,7 @@ export function DemoBackendNotice({ state }: { state: DemoBackendState }) {
         <div className="flex items-center gap-2">
           <TriangleAlert className="h-5 w-5 text-amber-600 dark:text-amber-400" />
           <h2 className="font-display text-lg font-semibold text-foreground">
-            {isMissing ? "Backend not provisioned" : "Backend unavailable"}
+            {isMissing ? "Backend not provisioned" : "Connection issue"}
           </h2>
         </div>
 
@@ -71,7 +77,19 @@ export function DemoBackendNotice({ state }: { state: DemoBackendState }) {
             </p>
           </>
         ) : (
-          <p className="text-sm text-muted-foreground">{state.message}</p>
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              {state.message ?? "Could not reach the marketplace. Check your connection and try again."}
+            </p>
+            {onRetry && (
+              <button
+                onClick={onRetry}
+                className="rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-1.5 text-sm font-medium text-amber-700 transition-colors hover:bg-amber-500/20 dark:text-amber-400"
+              >
+                Try again
+              </button>
+            )}
+          </div>
         )}
       </CardContent>
     </Card>

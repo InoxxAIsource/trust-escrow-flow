@@ -13,7 +13,7 @@ import { useKycGate } from "@/hooks/use-kyc";
 export default function Verify() {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
-  const { data: backend, isLoading: backendLoading } = useDemoBackend();
+  const { data: backend, isLoading: backendLoading, refetch: retryBackend } = useDemoBackend();
   const { isApproved, isPending, isRejected, rejectionReason, isLoading: gateLoading } = useKycGate();
 
   if (loading || backendLoading) {
@@ -61,7 +61,7 @@ export default function Verify() {
         </header>
 
         {backend && backend.status !== "ready" ? (
-          <DemoBackendNotice state={backend} />
+          <DemoBackendNotice state={backend} onRetry={() => retryBackend()} />
         ) : gateLoading ? (
           <Centred>
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
