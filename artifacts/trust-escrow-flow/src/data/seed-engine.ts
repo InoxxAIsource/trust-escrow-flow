@@ -505,28 +505,34 @@ function computeLimits(fxRate: number): { minLimit: number; maxLimit: number } {
   };
 }
 
-// ── Pick unique username ──
-let _usedUsernames: Set<string> = new Set();
-function pickUsername(pool: string[]): string {
+// ── Pick unique username (scoped per country:asset namespace) ──
+// Each asset market in a country draws from the same name pool independently,
+// so BTC sellers look different from ETH sellers even in the same country,
+// without needing a huge pool or falling back to numbered suffixes.
+let _usedUsernames: Map<string, Set<string>> = new Map();
+function pickUsername(pool: string[], namespace: string): string {
+  if (!_usedUsernames.has(namespace)) _usedUsernames.set(namespace, new Set());
+  const used = _usedUsernames.get(namespace)!;
   for (let attempt = 0; attempt < 100; attempt++) {
     const idx = Math.floor(seededRandom() * pool.length);
     const name = pool[idx];
-    if (!_usedUsernames.has(name)) {
-      _usedUsernames.add(name);
+    if (!used.has(name)) {
+      used.add(name);
       return name;
     }
   }
+  // Fallback: pool exhausted for this namespace — append a short suffix.
   const base = pool[Math.floor(seededRandom() * pool.length)];
   const suffix = Math.floor(seededRandom() * 99) + 1;
   const fallback = `${base}_${suffix}`;
-  _usedUsernames.add(fallback);
+  used.add(fallback);
   return fallback;
 }
 
 // ── Trader profile ──
-function generateTrader(country: CountryConfig) {
+function generateTrader(country: CountryConfig, namespace: string) {
   return {
-    username: pickUsername(country.usernames),
+    username: pickUsername(country.usernames, namespace),
     rating: +randBetween(4.2, 5.0).toFixed(1),
     trades: Math.floor(randBetween(100, 5000)),
     completionRate: +randBetween(94, 100).toFixed(1),
@@ -582,7 +588,7 @@ function generateUSDTOffers(country: CountryConfig, usdtPriceLocal: number): See
       country: country.name,
       currency: country.currency,
       currencySymbol: country.currencySymbol,
-      ...generateTrader(country),
+      ...generateTrader(country, `${country.name}:USDT`),
       is_seeded: true,
     });
   }
@@ -611,7 +617,7 @@ function generateUSDTOffers(country: CountryConfig, usdtPriceLocal: number): See
       country: country.name,
       currency: country.currency,
       currencySymbol: country.currencySymbol,
-      ...generateTrader(country),
+      ...generateTrader(country, `${country.name}:USDT`),
       is_seeded: true,
     });
   }
@@ -654,7 +660,7 @@ function generateCryptoOffers(
       country: country.name,
       currency: country.currency,
       currencySymbol: country.currencySymbol,
-      ...generateTrader(country),
+      ...generateTrader(country, `${country.name}:${assetSymbol}`),
       is_seeded: true,
     });
   }
@@ -683,7 +689,7 @@ function generateCryptoOffers(
       country: country.name,
       currency: country.currency,
       currencySymbol: country.currencySymbol,
-      ...generateTrader(country),
+      ...generateTrader(country, `${country.name}:${assetSymbol}`),
       is_seeded: true,
     });
   }
@@ -739,7 +745,7 @@ function ensureRailCoverage(offers: SeededOffer[]): void {
 
 export function generateAllOffers(livePricesUSD?: Partial<LivePrices>): SeededOffer[] {
   _seed = Date.now();
-  _usedUsernames = new Set();
+  _usedUsernames = new Map();
   // Reset so rail coverage is identical on every call, not dependent on how
   // many times the generator has already run this session.
   _pmRotation = new Map();
