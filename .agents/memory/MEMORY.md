@@ -1,1 +1,2 @@
 - [P2PxBT migration quirks](p2pxbt-migration.md) — React 18 + Tailwind v3 pinned explicitly; catalog has React 19 and Tailwind v4 which both conflict.
+- [Supabase migration application](supabase-migrations.md) — local migration files never auto-apply; user must paste SQL into Supabase SQL Editor; give SQL inline in chat.
