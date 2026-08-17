@@ -259,6 +259,12 @@ function KycQueue() {
                       <dd className="inline">{s.date_of_birth}</dd>
                     </div>
                   )}
+                  {s.phone && (
+                    <div>
+                      <dt className="inline">Phone: </dt>
+                      <dd className="inline font-mono">{s.phone}</dd>
+                    </div>
+                  )}
                   {(s.address_line1 || s.city) && (
                     <div className="max-w-[16rem]">
                       <dt className="inline">Address: </dt>
@@ -267,6 +273,18 @@ function KycQueue() {
                           .filter(Boolean)
                           .join(", ")}
                       </dd>
+                    </div>
+                  )}
+                  {s.annual_income && (
+                    <div>
+                      <dt className="inline">Annual income: </dt>
+                      <dd className="inline">{s.annual_income}</dd>
+                    </div>
+                  )}
+                  {s.income_source && (
+                    <div>
+                      <dt className="inline">Income source: </dt>
+                      <dd className="inline">{s.income_source}</dd>
                     </div>
                   )}
                 </dl>

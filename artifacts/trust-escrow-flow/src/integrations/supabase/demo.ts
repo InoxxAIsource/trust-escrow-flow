@@ -101,6 +101,9 @@ export interface KycSubmission {
   city: string | null;
   postal_code: string | null;
   country: string | null;
+  phone: string | null;
+  annual_income: string | null;
+  income_source: string | null;
   submitted_at: string;
   reviewed_at: string | null;
   reviewed_by: string | null;
