@@ -60,3 +60,45 @@ export async function notifyAdminSignup(opts: {
 }): Promise<void> {
   await post({ type: "signup", ...opts });
 }
+
+/** Notify admin that a buyer just opened a new trade. */
+export async function notifyAdminTradeOpened(opts: {
+  tradeRef: string;
+  tradeId: string;
+  asset: string;
+  amount: string;
+  paymentMethod: string;
+  userName: string;
+  userEmail: string;
+  openedAt: string;
+}): Promise<void> {
+  await post({ type: "trade_opened", ...opts });
+}
+
+/** Notify admin that a buyer marked payment as sent. */
+export async function notifyAdminPaymentSent(opts: {
+  tradeRef: string;
+  tradeId: string;
+  asset: string;
+  amount: string;
+  paymentMethod: string;
+  userName: string;
+  userEmail: string;
+  sentAt: string;
+}): Promise<void> {
+  await post({ type: "payment_sent", ...opts });
+}
+
+/** Notify admin that a buyer cancelled a trade. */
+export async function notifyAdminTradeCancelled(opts: {
+  tradeRef: string;
+  tradeId: string;
+  asset: string;
+  amount: string;
+  reason: string;
+  userName: string;
+  userEmail: string;
+  cancelledAt: string;
+}): Promise<void> {
+  await post({ type: "trade_cancelled", ...opts });
+}

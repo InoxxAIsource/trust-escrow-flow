@@ -11,7 +11,12 @@ import {
   type DemoCounterparty,
 } from "@/integrations/supabase/demo";
 import { useAuth } from "./use-auth";
-import { notifyAdminChatMessage } from "@/lib/notify";
+import {
+  notifyAdminChatMessage,
+  notifyAdminTradeOpened,
+  notifyAdminPaymentSent,
+  notifyAdminTradeCancelled,
+} from "@/lib/notify";
 
 /**
  * Subscribes to Postgres changes for one trade and invalidates the matching
@@ -261,6 +266,7 @@ export interface OpenTradeInput {
  */
 export function useOpenDemoTrade() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   return useMutation({
     mutationFn: async ({ offerId, amount, unitPrice, paymentMethod }: OpenTradeInput) => {
@@ -273,16 +279,30 @@ export function useOpenDemoTrade() {
       if (error) throw error;
       return data as DemoTrade;
     },
-    onSuccess: () => {
+    onSuccess: (trade) => {
       queryClient.invalidateQueries({ queryKey: ["my-demo-trades"] });
       queryClient.invalidateQueries({ queryKey: ["admin-trades"] });
       queryClient.invalidateQueries({ queryKey: ["admin-notifications"] });
+
+      if (user && trade) {
+        notifyAdminTradeOpened({
+          tradeRef: trade.trade_ref,
+          tradeId: trade.id,
+          asset: trade.asset,
+          amount: String(trade.amount),
+          paymentMethod: trade.payment_method,
+          userName: user.user_metadata?.full_name ?? user.email ?? "Unknown",
+          userEmail: user.email ?? "",
+          openedAt: new Date().toISOString(),
+        });
+      }
     },
   });
 }
 
 export function useMarkPaymentSent() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   return useMutation({
     mutationFn: async (tradeId: string) => {
@@ -290,16 +310,30 @@ export function useMarkPaymentSent() {
       if (error) throw error;
       return data as DemoTrade;
     },
-    onSuccess: (_data, tradeId) => {
+    onSuccess: (trade, tradeId) => {
       queryClient.invalidateQueries({ queryKey: ["demo-trade", tradeId] });
       queryClient.invalidateQueries({ queryKey: ["trade-events", tradeId] });
       queryClient.invalidateQueries({ queryKey: ["admin-notifications"] });
+
+      if (user && trade) {
+        notifyAdminPaymentSent({
+          tradeRef: trade.trade_ref,
+          tradeId: trade.id,
+          asset: trade.asset,
+          amount: String(trade.amount),
+          paymentMethod: trade.payment_method,
+          userName: user.user_metadata?.full_name ?? user.email ?? "Unknown",
+          userEmail: user.email ?? "",
+          sentAt: new Date().toISOString(),
+        });
+      }
     },
   });
 }
 
 export function useCancelDemoTrade() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   return useMutation({
     mutationFn: async ({ tradeId, reason }: { tradeId: string; reason?: string }) => {
@@ -310,11 +344,24 @@ export function useCancelDemoTrade() {
       if (error) throw error;
       return data as DemoTrade;
     },
-    onSuccess: (_data, { tradeId }) => {
+    onSuccess: (trade, { tradeId, reason }) => {
       queryClient.invalidateQueries({ queryKey: ["demo-trade", tradeId] });
       queryClient.invalidateQueries({ queryKey: ["trade-events", tradeId] });
       queryClient.invalidateQueries({ queryKey: ["my-demo-trades"] });
       queryClient.invalidateQueries({ queryKey: ["admin-trades"] });
+
+      if (user && trade) {
+        notifyAdminTradeCancelled({
+          tradeRef: trade.trade_ref,
+          tradeId: trade.id,
+          asset: trade.asset,
+          amount: String(trade.amount),
+          reason: reason ?? "No reason given",
+          userName: user.user_metadata?.full_name ?? user.email ?? "Unknown",
+          userEmail: user.email ?? "",
+          cancelledAt: new Date().toISOString(),
+        });
+      }
     },
   });
 }
