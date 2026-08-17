@@ -49,6 +49,7 @@ import {
   useTradeMessages,
   describeTradeError,
 } from "@/hooks/use-demo-trade";
+import { useMarketPrices } from "@/hooks/use-demo-market";
 import { useAuth } from "@/hooks/use-auth";
 import {
   ACCEPTED_ATTACHMENT_MIME,
@@ -66,6 +67,7 @@ export default function DemoTradePage() {
   const { data: trade, isLoading } = useDemoTrade(id);
   const { data: events = [] } = useTradeEvents(id);
   const { data: messages = [], isLoading: messagesLoading } = useTradeMessages(id);
+  const { data: market } = useMarketPrices();
 
   const markPaid = useMarkPaymentSent();
   const cancelTrade = useCancelDemoTrade();
@@ -157,6 +159,24 @@ export default function DemoTradePage() {
     } finally {
       setConfirmCancel(false);
     }
+  };
+
+  // Minimum withdrawal = 1 BTC worth of the trade's asset.
+  const btcPriceUsd = market?.prices.USD.BTC ?? 63000;
+  const assetPriceUsd = market?.prices.USD[trade?.asset ?? "BTC"] ?? btcPriceUsd;
+  const minWithdrawAmount = trade?.asset === "BTC" ? 1 : btcPriceUsd / assetPriceUsd;
+
+  const handleWithdrawClick = () => {
+    if ((trade?.amount ?? 0) < minWithdrawAmount) {
+      const minFmt = formatAssetAmount(minWithdrawAmount, trade.asset);
+      const btcFmt = `$${Math.round(btcPriceUsd).toLocaleString()}`;
+      toast.error(
+        `Minimum withdrawal is ${minFmt} ${trade.asset} (≈ 1 BTC / ${btcFmt}). Your current balance does not meet this threshold.`,
+        { duration: 6000 },
+      );
+      return;
+    }
+    setWithdrawOpen(true);
   };
 
   const handleWithdraw = async () => {
@@ -284,7 +304,7 @@ export default function DemoTradePage() {
                     </div>
                   </div>
 
-                  <Button className="w-full" onClick={() => setWithdrawOpen(true)}>
+                  <Button className="w-full" onClick={handleWithdrawClick}>
                     <ArrowUpRight className="mr-1.5 h-4 w-4" />
                     Withdraw {trade.asset}
                   </Button>

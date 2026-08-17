@@ -367,6 +367,8 @@ function MessageBubble({ message, viewerRole }: { message: TradeMessage; viewerR
   const isSystem = message.sender_role === "system";
 
   if (isSystem) {
+    // Hide the completion notice — it was removed from the platform messaging.
+    if (message.metadata?.kind === "COMPLETION_NOTICE") return null;
     return (
       <div className="flex justify-center">
         <p className="rounded-full bg-muted px-3 py-1 text-center text-xs text-muted-foreground">{message.message}</p>
