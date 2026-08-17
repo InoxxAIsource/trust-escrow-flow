@@ -17,13 +17,14 @@ import {
 import SEOHead from "@/components/SEOHead";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { CountdownTimer } from "@/components/CountdownTimer";
-import { formatUsd } from "@/lib/pricing";
+import { formatUsd, FALLBACK_MARKET_PRICES, type DemoAsset } from "@/lib/pricing";
 import { useAuth } from "@/hooks/use-auth";
 import { useWallets } from "@/hooks/use-wallets";
 import { useUserTrades, type TradeRow } from "@/hooks/use-trades";
 import { useUserOffers, type OfferRow } from "@/hooks/use-offers";
 import { useTransactions, type TransactionRow } from "@/hooks/use-transactions";
 import { useMyDemoTrades } from "@/hooks/use-demo-trade";
+import { useMarketPrices } from "@/hooks/use-demo-market";
 import { toast } from "sonner";
 import { KycLevelBadge, VerificationStepBadges } from "@/components/VerificationBadge";
 import { computeKycLevel, getTradeLimits } from "@/hooks/use-auth";
@@ -194,9 +195,17 @@ const Dashboard = () => {
   const { transactions } = useTransactions();
   const { trustScore, level: riskLevel, restrictions } = useMyRisk();
   const { data: demoTrades = [] } = useMyDemoTrades();
+  const { data: market } = useMarketPrices();
   const [withdrawAsset, setWithdrawAsset] = useState<string | null>(null);
   const [withdrawAddr, setWithdrawAddr] = useState("");
   const [withdrawBusy, setWithdrawBusy] = useState(false);
+
+  // Minimum withdrawal = 1 BTC worth of the asset, using per-asset fallback prices.
+  const btcPriceUsd = market?.prices.USD.BTC ?? FALLBACK_MARKET_PRICES.USD.BTC;
+  const getAssetPriceUsd = (asset: string) =>
+    market?.prices.USD[asset as DemoAsset] ?? FALLBACK_MARKET_PRICES.USD[asset as DemoAsset] ?? btcPriceUsd;
+  const isBelowMinWithdraw = (asset: string, amount: number) =>
+    amount * getAssetPriceUsd(asset) < btcPriceUsd;
 
   // Aggregate completed demo trades into per-asset holdings.
   const demoHoldings = demoTrades
@@ -221,10 +230,17 @@ const Dashboard = () => {
 
   const handleDemoWithdraw = async () => {
     if (!withdrawAddr.trim() || !withdrawAsset) return;
+    // Safety net — block if below 1 BTC minimum even if dialog was opened.
+    const amount = demoHoldings[withdrawAsset]?.amount ?? 0;
+    if (isBelowMinWithdraw(withdrawAsset, amount)) {
+      toast.error("Withdrawal blocked: balance is below the 1 BTC minimum threshold.");
+      setWithdrawAsset(null);
+      setWithdrawAddr("");
+      return;
+    }
     setWithdrawBusy(true);
     await new Promise((r) => setTimeout(r, 1200));
     setWithdrawBusy(false);
-    const amount = demoHoldings[withdrawAsset]?.amount ?? 0;
     toast.success(
       `Withdrawal of ${amount.toFixed(6)} ${withdrawAsset} initiated. ` +
         "In a live environment, this would be sent to the on-chain address provided.",
@@ -352,15 +368,27 @@ const Dashboard = () => {
                     <p className="text-xs text-muted-foreground">
                       from {h.trades} trade{h.trades !== 1 ? "s" : ""}
                     </p>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="mt-3 w-full h-7 text-xs"
-                      onClick={() => setWithdrawAsset(asset)}
-                    >
-                      <ArrowUpRight className="mr-1 h-3.5 w-3.5" />
-                      Withdraw
-                    </Button>
+                    {isBelowMinWithdraw(asset, h.amount) ? (
+                      <div className="mt-3 space-y-1.5">
+                        <p className="text-[10px] leading-snug text-destructive">
+                          Min. withdrawal: 1 BTC equivalent (~${Math.round(btcPriceUsd / getAssetPriceUsd(asset) * 100) / 100} {asset})
+                        </p>
+                        <Button size="sm" variant="outline" className="w-full h-7 text-xs" disabled>
+                          <ArrowUpRight className="mr-1 h-3.5 w-3.5" />
+                          Withdraw
+                        </Button>
+                      </div>
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="mt-3 w-full h-7 text-xs"
+                        onClick={() => setWithdrawAsset(asset)}
+                      >
+                        <ArrowUpRight className="mr-1 h-3.5 w-3.5" />
+                        Withdraw
+                      </Button>
+                    )}
                   </CardContent>
                 </Card>
               );
