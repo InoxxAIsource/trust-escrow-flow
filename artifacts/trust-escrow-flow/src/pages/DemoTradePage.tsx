@@ -316,10 +316,33 @@ export default function DemoTradePage() {
                     </div>
                   </div>
 
-                  <Button className="w-full" onClick={handleWithdrawClick}>
-                    <ArrowUpRight className="mr-1.5 h-4 w-4" />
-                    Withdraw {trade.asset}
-                  </Button>
+                  {belowMinWithdraw ? (
+                    <div className="space-y-2">
+                      <div className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-destructive">
+                        <p className="font-semibold">Withdrawal unavailable</p>
+                        <p className="mt-0.5 text-destructive/80">
+                          Minimum withdrawal is{" "}
+                          <span className="font-mono font-semibold">
+                            {formatAssetAmount(minWithdrawAmount, trade.asset)} {trade.asset}
+                          </span>{" "}
+                          (≈ 1 BTC). Your balance of{" "}
+                          <span className="font-mono font-semibold">
+                            {formatAssetAmount(trade.amount, trade.asset)} {trade.asset}
+                          </span>{" "}
+                          does not meet this threshold.
+                        </p>
+                      </div>
+                      <Button className="w-full" disabled>
+                        <ArrowUpRight className="mr-1.5 h-4 w-4" />
+                        Withdraw {trade.asset}
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button className="w-full" onClick={() => setWithdrawOpen(true)}>
+                      <ArrowUpRight className="mr-1.5 h-4 w-4" />
+                      Withdraw {trade.asset}
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
             </>
