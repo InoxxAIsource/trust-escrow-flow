@@ -141,7 +141,7 @@ export function DemoTradeChat({
                   <p className="py-8 text-center text-sm text-muted-foreground">Loading messages…</p>
                 ) : messages.length === 0 ? (
                   <p className="py-8 text-center text-sm text-muted-foreground">
-                    No messages yet. An operator will be in touch with payment details shortly.
+                    No messages yet. The seller will be in touch with payment details shortly.
                   </p>
                 ) : (
                   <div className="space-y-3 pb-4">
