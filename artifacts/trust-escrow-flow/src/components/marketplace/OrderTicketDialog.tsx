@@ -190,9 +190,9 @@ export function OrderTicketDialog({
           {/* Gates */}
           {!user && (
             <GateNotice
-              text="Sign in to open a trade."
-              actionLabel="Sign in"
-              onAction={() => navigate("/auth")}
+              text="Create a free account to open a trade."
+              actionLabel="Get started"
+              onAction={() => navigate("/auth?tab=signup")}
             />
           )}
           {user && isPending && (
