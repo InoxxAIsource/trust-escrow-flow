@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowUpRight, Clock, Lock, Wallet, TrendingUp, AlertCircle, CheckCircle, Package, Eye, MousePointer, CreditCard, XCircle, ArrowDownCircle, Plus, Shield } from "lucide-react";
+import { ArrowUpRight, Clock, Lock, Wallet, TrendingUp, AlertCircle, CheckCircle, Package, Eye, MousePointer, CreditCard, XCircle, ArrowDownCircle, Plus, Shield, Mail, User, CalendarDays } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -296,19 +296,49 @@ const Dashboard = () => {
 
       <VerificationProgressCard />
 
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="font-display text-3xl font-bold text-foreground">Dashboard</h1>
-          <div className="flex items-center gap-2 mt-1">
-            <p className="text-muted-foreground">Welcome, <span className="font-medium text-foreground">{profile?.username ?? "trader"}</span></p>
-            {profile && <KycLevelBadge level={computeKycLevel(profile)} />}
-            {profile && <TrustScoreBadge trustScore={trustScore} riskLevel={riskLevel} size="sm" showLabel />}
+      {/* Profile card */}
+      <Card className="mb-6">
+        <CardContent className="p-5">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+            {/* Avatar */}
+            <div className="flex-shrink-0 h-14 w-14 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center">
+              <span className="font-display text-xl font-bold text-primary select-none">
+                {(profile?.username ?? user.email ?? "?")[0].toUpperCase()}
+              </span>
+            </div>
+
+            {/* Details */}
+            <div className="flex-1 min-w-0">
+              <div className="flex flex-wrap items-center gap-2 mb-1">
+                <h1 className="font-display text-xl font-bold text-foreground truncate">
+                  {profile?.username ?? "Trader"}
+                </h1>
+                {profile && <KycLevelBadge level={computeKycLevel(profile)} />}
+                {profile && <TrustScoreBadge trustScore={trustScore} riskLevel={riskLevel} size="sm" showLabel />}
+              </div>
+
+              <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                <span className="flex items-center gap-1.5">
+                  <Mail className="h-3.5 w-3.5 flex-shrink-0" />
+                  <span className="truncate">{user.email}</span>
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <User className="h-3.5 w-3.5 flex-shrink-0" />
+                  @{profile?.username ?? "—"}
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <CalendarDays className="h-3.5 w-3.5 flex-shrink-0" />
+                  Member since {new Date(user.created_at).toLocaleDateString(undefined, { month: "short", year: "numeric" })}
+                </span>
+              </div>
+            </div>
+
+            <Button size="sm" onClick={() => navigate("/marketplace")} className="sm:self-start">
+              <Plus className="h-3.5 w-3.5 mr-1" /> Create Offer
+            </Button>
           </div>
-        </div>
-        <Button size="sm" onClick={() => navigate("/marketplace")}>
-          <Plus className="h-3.5 w-3.5 mr-1" /> Create Offer
-        </Button>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* Wallet Overview */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
