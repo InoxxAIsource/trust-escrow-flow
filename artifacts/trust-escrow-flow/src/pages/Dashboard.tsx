@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowUpRight, ArrowDownLeft, Clock, Lock, Wallet, TrendingUp, AlertCircle, CheckCircle, Package, Eye, MousePointer, CreditCard, XCircle, ArrowDownCircle, Plus, Shield, Mail, User, CalendarDays } from "lucide-react";
 import { DepositDialog } from "@/components/DepositDialog";
+import { CreateOfferDialog } from "@/components/CreateOfferDialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -199,6 +200,7 @@ const Dashboard = () => {
   const { data: market } = useMarketPrices();
   const [depositAsset, setDepositAsset] = useState<string | null>(null);
   const [withdrawAsset, setWithdrawAsset] = useState<string | null>(null);
+  const [createOfferOpen, setCreateOfferOpen] = useState(false);
   const [withdrawAddr, setWithdrawAddr] = useState("");
   const [withdrawBusy, setWithdrawBusy] = useState(false);
 
@@ -335,7 +337,7 @@ const Dashboard = () => {
               </div>
             </div>
 
-            <Button size="sm" onClick={() => navigate("/marketplace")} className="sm:self-start">
+            <Button size="sm" onClick={() => setCreateOfferOpen(true)} className="sm:self-start">
               <Plus className="h-3.5 w-3.5 mr-1" /> Create Offer
             </Button>
           </div>
@@ -521,6 +523,9 @@ const Dashboard = () => {
           )}
         </TabsContent>
       </Tabs>
+
+      {/* Create Offer dialog */}
+      <CreateOfferDialog open={createOfferOpen} onOpenChange={setCreateOfferOpen} />
 
       {/* Deposit dialog */}
       <DepositDialog
