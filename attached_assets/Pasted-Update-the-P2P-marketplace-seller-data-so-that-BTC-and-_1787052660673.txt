@@ -1,0 +1,87 @@
+Update the P2P marketplace seller data so that **BTC and USDT have completely independent seller lists**.
+
+The BTC sellers and USDT sellers should represent **different marketplace counterparties**.
+
+### Required changes
+
+1. **BTC sellers**
+
+   * Keep the BTC seller names as their own unique list.
+   * Keep BTC sell limits independent.
+   * Do not reuse BTC seller names for USDT.
+
+2. **USDT sellers**
+
+   * Create/use a completely different set of seller names from the BTC list.
+   * USDT sellers must have their own independent sell limits.
+   * Do NOT copy BTC names into USDT.
+   * Do NOT copy BTC sell limits into USDT.
+
+3. **Names must be different**
+
+   * There should be no seller name appearing in both BTC and USDT.
+   * If "Michael Carter" exists under BTC, do not use "Michael Carter" under USDT.
+   * Generate realistic U.S.-based male names for the USDT list, with approximately 20% Asian names, naturally mixed throughout the list.
+
+4. **Limits must be different**
+
+   * BTC and USDT must have independently randomized sell limits.
+   * Do not use the same dollar amount for the corresponding positions between BTC and USDT.
+   * Every seller should have a unique/randomized limit.
+
+5. **Sell-limit distribution**
+   For each asset independently, use approximately this distribution:
+
+   * ~8%: $500–$10,000
+   * ~15%: $10,000–$40,000
+   * ~25%: $40,000–$60,000
+   * ~10%: above $100,000
+   * Remaining sellers: randomly distributed across the ranges
+   * Minimum possible limit: **$500**
+   * Maximum: **$150,000**
+   * Include at least one seller at exactly **$500** in the overall demo data.
+   * Do not make the values repetitive or obviously sequential.
+
+### Important
+
+BTC and USDT should look like **two different P2P markets with different counterparties and different liquidity profiles**.
+
+For example:
+
+**BTC**
+
+* Daniel Kim — $47,325
+* Ryan Cooper — $128,750
+* Michael Carter — $6,840
+
+**USDT**
+
+* James Anderson — $32,680
+* Kevin Wong — $54,215
+* Robert Johnson — $1,850
+
+These are only examples. Generate the actual data independently.
+
+### Data structure
+
+Do not create a shared seller identity between BTC and USDT.
+
+The relationship should effectively be:
+
+**BTC → Independent Seller List → Independent Limits**
+
+**USDT → Independent Seller List → Independent Limits**
+
+### Validation
+
+After implementing the changes, verify:
+
+* No BTC seller name exists in the USDT seller list.
+* No USDT seller name exists in the BTC seller list.
+* BTC and USDT limits are independently generated.
+* No unnecessary duplicate seller records exist within the same asset.
+* BTC and USDT can display different counterparties and liquidity.
+* Existing filters, sorting, search, and P2P functionality continue working.
+* Do not modify unrelated parts of the application.
+
+Make the changes directly in the existing project and preserve the current UI/design.
