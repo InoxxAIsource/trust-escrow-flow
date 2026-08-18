@@ -47,6 +47,9 @@ UPDATE public.demo_counterparties SET display_name = 'Jason Martinez'    WHERE i
 UPDATE public.demo_counterparties SET display_name = 'Ryan Sullivan'     WHERE id = 'demo_seller_065';
 
 -- ── 1b. Remove USDT from supported_assets (keeps BTC/ETH/SOL intact) ─────────
+-- Includes demo_seller_066–068 (Atul Chug, Neil Sud, Hope Larry) which also
+-- had USDT offers from the high-value-seller migration and would otherwise
+-- appear on both the BTC and USDT marketplace tabs.
 UPDATE public.demo_counterparties
 SET supported_assets = array_remove(supported_assets, 'USDT')
 WHERE id IN (
@@ -55,7 +58,8 @@ WHERE id IN (
   'demo_seller_009','demo_seller_010','demo_seller_011','demo_seller_012',
   'demo_seller_013','demo_seller_014','demo_seller_015','demo_seller_016',
   'demo_seller_017','demo_seller_018','demo_seller_019','demo_seller_020',
-  'demo_seller_021','demo_seller_065'
+  'demo_seller_021','demo_seller_065',
+  'demo_seller_066','demo_seller_067','demo_seller_068'
 );
 
 -- ── 1c. Delete USDT offers so these sellers disappear from the USDT tab ───────
@@ -66,7 +70,8 @@ WHERE counterparty_id IN (
   'demo_seller_009','demo_seller_010','demo_seller_011','demo_seller_012',
   'demo_seller_013','demo_seller_014','demo_seller_015','demo_seller_016',
   'demo_seller_017','demo_seller_018','demo_seller_019','demo_seller_020',
-  'demo_seller_021','demo_seller_065'
+  'demo_seller_021','demo_seller_065',
+  'demo_seller_066','demo_seller_067','demo_seller_068'
 ) AND asset = 'USDT';
 
 -- ── 1d. Update BTC offer limits (operator-provided figures) ───────────────────
@@ -263,38 +268,36 @@ ON CONFLICT (counterparty_id, method) DO UPDATE SET fields = EXCLUDED.fields;
 -- VALIDATION QUERIES (run after the above to confirm correctness)
 -- ============================================================================
 
--- 1. BTC sellers: confirm 22 rows, no USDT offers
--- SELECT c.display_name, o.asset, o.min_limit_usd, o.max_limit_usd
--- FROM demo_offers o JOIN demo_counterparties c ON c.id = o.counterparty_id
--- WHERE c.region = 'US' AND c.kind = 'SELLER'
---   AND c.id IN ('demo_seller_001','demo_seller_002','demo_seller_003','demo_seller_004',
---                'demo_seller_005','demo_seller_006','demo_seller_007','demo_seller_008',
---                'demo_seller_009','demo_seller_010','demo_seller_011','demo_seller_012',
---                'demo_seller_013','demo_seller_014','demo_seller_015','demo_seller_016',
---                'demo_seller_017','demo_seller_018','demo_seller_019','demo_seller_020',
---                'demo_seller_021','demo_seller_065')
--- ORDER BY c.sort_order, o.asset;
+-- V1. No US SELLER has active offers for BOTH BTC and USDT simultaneously.
+--     Expected: 0 rows. Any row here means a seller appears on both tabs.
+-- SELECT c.id, c.display_name,
+--        array_agg(o.asset ORDER BY o.asset) AS active_assets
+-- FROM public.demo_counterparties c
+-- JOIN public.demo_offers o ON o.counterparty_id = c.id AND o.is_active
+-- WHERE c.kind = 'SELLER' AND c.region = 'US'
+-- GROUP BY c.id, c.display_name
+-- HAVING 'BTC' = ANY(array_agg(o.asset)) AND 'USDT' = ANY(array_agg(o.asset))
+-- ORDER BY c.id;
 
--- 2. USDT sellers: confirm 22 new rows, USDT only
+-- V2. BTC marketplace: 25 US sellers (001-021, 065, 066, 067, 068),
+--     each with exactly one active BTC offer and no USDT offer.
 -- SELECT c.display_name, o.min_limit_usd, o.max_limit_usd
 -- FROM demo_offers o JOIN demo_counterparties c ON c.id = o.counterparty_id
--- WHERE c.id LIKE 'demo_seller_0[789]%' OR c.id IN ('demo_seller_090')
+-- WHERE o.asset = 'BTC' AND c.region = 'US' AND c.kind = 'SELLER' AND o.is_active
+-- ORDER BY c.sort_order;
+
+-- V3. USDT marketplace: exactly 22 new sellers (069-090),
+--     each with exactly one active USDT offer and no BTC offer.
+-- SELECT c.display_name, o.min_limit_usd, o.max_limit_usd
+-- FROM demo_offers o JOIN demo_counterparties c ON c.id = o.counterparty_id
+-- WHERE o.asset = 'USDT' AND c.region = 'US' AND c.kind = 'SELLER' AND o.is_active
 -- ORDER BY o.max_limit_usd;
 
--- 3. No name overlap between BTC and USDT sellers
+-- V4. No name overlap between BTC US sellers and USDT US sellers.
+--     Expected: 0 rows.
 -- SELECT btc.display_name
--- FROM demo_counterparties btc
--- JOIN demo_counterparties usdt ON btc.display_name = usdt.display_name
--- WHERE btc.id IN ('demo_seller_001','demo_seller_002','demo_seller_003','demo_seller_004',
---                  'demo_seller_005','demo_seller_006','demo_seller_007','demo_seller_008',
---                  'demo_seller_009','demo_seller_010','demo_seller_011','demo_seller_012',
---                  'demo_seller_013','demo_seller_014','demo_seller_015','demo_seller_016',
---                  'demo_seller_017','demo_seller_018','demo_seller_019','demo_seller_020',
---                  'demo_seller_021','demo_seller_065')
---   AND usdt.id IN ('demo_seller_069','demo_seller_070','demo_seller_071','demo_seller_072',
---                   'demo_seller_073','demo_seller_074','demo_seller_075','demo_seller_076',
---                   'demo_seller_077','demo_seller_078','demo_seller_079','demo_seller_080',
---                   'demo_seller_081','demo_seller_082','demo_seller_083','demo_seller_084',
---                   'demo_seller_085','demo_seller_086','demo_seller_087','demo_seller_088',
---                   'demo_seller_089','demo_seller_090');
--- Expected: 0 rows (no overlapping names)
+-- FROM public.demo_counterparties btc
+-- JOIN public.demo_offers bo ON bo.counterparty_id = btc.id AND bo.asset = 'BTC' AND bo.is_active
+-- JOIN public.demo_counterparties usdt ON usdt.display_name = btc.display_name AND usdt.id <> btc.id
+-- JOIN public.demo_offers uo ON uo.counterparty_id = usdt.id AND uo.asset = 'USDT' AND uo.is_active
+-- WHERE btc.region = 'US' AND usdt.region = 'US';
