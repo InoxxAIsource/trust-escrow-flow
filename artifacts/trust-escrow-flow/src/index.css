@@ -7,57 +7,55 @@
 @tailwind utilities;
 
 /* ===========================================================================
-   P2PxBT theme
+   P2PxBT theme — DeepSeek-style palette
    ---------------------------------------------------------------------------
-   Institutional financial, not consumer fintech. Credibility here comes from
-   restraint: one accent, one neutral family, one radius scale.
+   Airy, pale-blue aesthetic: near-white sky-blue background with a soft
+   radial gradient bloom, a brighter periwinkle accent, and white cards with
+   gentle blue-tinted borders.
 
-   Redesign notes (what changed and why):
-
-   * Accent stayed blue. It is the existing brand, so it is preserved rather
-     than replaced, but recalibrated: saturation dropped 91% -> 72% and the
-     lightness deepened. The old value was the bright generic link-blue that
-     every AI-built SaaS page ships; the new one reads closer to a terminal or
-     a broker.
-   * Neutrals were three drifting hues (210 / 215 / 220). They are now one
-     cool-grey ramp on hue 215, so nothing looks subtly warm next to something
-     subtly cool.
-   * Positive/negative are now a muted teal-green and a clay red rather than
-     stoplight colours, which is what financial interfaces actually use for
-     price movement.
+   Light-mode changes vs. previous:
+   * Background shifted from neutral off-white (215 24% 98%) to pale periwinkle
+     (222 60% 97%) so the page breathes with the same hue as the accent.
+   * Primary lifted from deep navy (218 72% 38%) to bright periwinkle
+     (228 80% 56%) — still AA-accessible with white text (~4.8:1), but reads
+     airy rather than corporate.
+   * Muted/secondary surfaces now carry the same 222-hue, so the whole neutral
+     ramp reads as one consistent light-blue family.
+   * Border and input fields shifted to soft blue-tinted grey.
+   * Dark mode is unchanged.
    =========================================================================== */
 
 @layer base {
   :root {
-    /* Surfaces: off-white, never pure #fff, so cards can sit above the page. */
-    --background: 215 24% 98%;
-    --foreground: 215 30% 12%;
+    /* Surfaces: pale periwinkle, not pure white, so cards float above. */
+    --background: 222 60% 97%;
+    --foreground: 222 40% 14%;
 
     --card: 0 0% 100%;
-    --card-foreground: 215 30% 12%;
+    --card-foreground: 222 40% 14%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 215 30% 12%;
+    --popover-foreground: 222 40% 14%;
 
-    /* Accent: deep institutional blue. */
-    --primary: 218 72% 38%;
+    /* Accent: bright periwinkle blue — airy but still AA with white text. */
+    --primary: 228 80% 56%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 215 22% 95%;
-    --secondary-foreground: 215 30% 12%;
+    --secondary: 222 50% 95%;
+    --secondary-foreground: 222 40% 14%;
 
-    --muted: 215 22% 95%;
-    --muted-foreground: 215 14% 42%;
+    --muted: 222 50% 95%;
+    --muted-foreground: 222 20% 44%;
 
-    --accent: 218 60% 95%;
-    --accent-foreground: 218 72% 32%;
+    --accent: 228 75% 94%;
+    --accent-foreground: 228 80% 42%;
 
     --destructive: 4 62% 47%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 215 18% 89%;
-    --input: 215 18% 86%;
-    --ring: 218 72% 38%;
+    --border: 222 40% 91%;
+    --input: 222 40% 88%;
+    --ring: 228 80% 56%;
 
     /* One radius scale. Components derive sm/md/lg from this in the config. */
     --radius: 0.5rem;
@@ -69,14 +67,14 @@
     --warning: 32 78% 42%;
     --warning-foreground: 0 0% 100%;
 
-    --sidebar-background: 215 24% 98%;
-    --sidebar-foreground: 215 20% 28%;
-    --sidebar-primary: 218 72% 38%;
+    --sidebar-background: 222 60% 97%;
+    --sidebar-foreground: 222 30% 28%;
+    --sidebar-primary: 228 80% 56%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 218 60% 95%;
-    --sidebar-accent-foreground: 218 72% 32%;
-    --sidebar-border: 215 18% 89%;
-    --sidebar-ring: 218 72% 38%;
+    --sidebar-accent: 228 75% 94%;
+    --sidebar-accent-foreground: 228 80% 42%;
+    --sidebar-border: 222 40% 91%;
+    --sidebar-ring: 228 80% 56%;
   }
 
   .dark {
@@ -137,6 +135,21 @@
     font-optical-sizing: auto;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
+  }
+
+  /* DeepSeek-style ambient gradient bloom — soft blue glow top-centre and a
+     secondary wisp upper-right, both fully transparent at their edges so they
+     never clip or create a hard band. Fixed positioning keeps the bloom
+     stationary while the page scrolls, matching the reference screenshot. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 90% 55% at 50% -5%, hsl(228 80% 88% / 0.55) 0%, transparent 70%),
+      radial-gradient(ellipse 55% 40% at 85% 10%, hsl(222 70% 90% / 0.40) 0%, transparent 65%);
   }
 
   h1,
