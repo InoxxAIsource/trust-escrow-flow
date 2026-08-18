@@ -122,19 +122,16 @@ const Index = () => {
                  Going larger pushes the headline to three lines. */
               className="mt-5 font-display text-[2rem] font-semibold leading-[1.1] tracking-tight text-foreground sm:text-4xl md:text-5xl"
             >
-              A peer-to-peer desk,
-              {/* The forced break only helps once the line actually fits; on
-                  narrow screens it just adds a fourth line. */}
+              Buy &amp; Sell Crypto,
               <br className="hidden sm:inline" />{" "}
-              running end to end.
+              Peer-to-Peer.
             </motion.h1>
 
             <motion.p
               {...enter(0.12)}
               className="mt-6 max-w-[52ch] text-base leading-relaxed text-muted-foreground md:text-lg"
             >
-              Verified counterparties, competing quotes, and payment details issued by an
-              operator on your local rails. Four assets, four markets, one workflow.
+              Connect with verified counterparties, compare competitive quotes, and settle through a streamlined P2P workflow.
             </motion.p>
 
             <motion.div {...enter(0.18)} className="mt-8 flex flex-wrap gap-3">
