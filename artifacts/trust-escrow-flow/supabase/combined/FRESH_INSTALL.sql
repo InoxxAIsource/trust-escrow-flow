@@ -1,18 +1,12 @@
-﻿-- =========================================================================
+-- =========================================================================
 -- P2PxBT -- FRESH INSTALL
 -- =========================================================================
 -- Every migration in the repository, in order, for a BRAND NEW and EMPTY
 -- Supabase project.
 --
---   1-8    original schema (profiles, wallets, offers, trades, messages,
---          transactions, risk) -- the operational layer ALTERs these, so they
---          must exist first.
---   9-20   the operational layer (admin roles, KYC, counterparties, state
---          machine, chat, operator actions, regional roster, local currency).
---
--- RUN THIS ONLY ON AN EMPTY PROJECT. The original eight migrations use bare
--- CREATE TABLE / CREATE POLICY and will error on a database that already has
--- this schema. For a project that already has the original tables, use
+-- RUN THIS ONLY ON AN EMPTY PROJECT. The original migrations use bare
+-- CREATE TABLE / CREATE POLICY and will error on a database that already
+-- has this schema. For a project that already has the original tables, use
 -- APPLY_ALL.sql instead -- that contains only the operational layer and is
 -- idempotent.
 --
@@ -32,7 +26,6 @@
 --
 -- Generated from supabase/migrations/ -- do not edit directly.
 -- =========================================================================
-
 -- #########################################################################
 -- ## 20260323141545_58c8208b-ae0a-452c-a090-abd38641d3dc.sql
 -- #########################################################################
@@ -211,7 +204,6 @@ CREATE POLICY "Users can view their own locked deals" ON public.locked_deals FOR
 CREATE POLICY "Authenticated users can create locked deals" ON public.locked_deals FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Users can update their own locked deals" ON public.locked_deals FOR UPDATE USING (auth.uid() = user_id);
 
-
 -- #########################################################################
 -- ## 20260323143411_aee8a14a-0701-4efb-888c-faad26a64bf8.sql
 -- #########################################################################
@@ -261,7 +253,6 @@ CREATE POLICY "Trade participants can send messages"
 ALTER PUBLICATION supabase_realtime ADD TABLE public.trade_messages;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.trades;
 
-
 -- #########################################################################
 -- ## 20260323143733_6c8eb41c-76d3-4fad-bf7b-0f7d268a9e63.sql
 -- #########################################################################
@@ -302,7 +293,6 @@ CREATE POLICY "Users can insert their own transactions"
   TO authenticated
   WITH CHECK (auth.uid() = user_id);
 
-
 -- #########################################################################
 -- ## 20260324082347_3a8cd530-4acc-4a3c-81d8-88a6eb7a41e9.sql
 -- #########################################################################
@@ -320,7 +310,6 @@ CREATE POLICY "Authenticated users can create trades"
 ON public.trades FOR INSERT
 TO public
 WITH CHECK (auth.uid() = buyer_id OR auth.uid() = seller_id);
-
 
 -- #########################################################################
 -- ## 20260324141514_09c46cc4-b36a-4227-854a-70db4ee3be10.sql
@@ -341,7 +330,6 @@ ALTER TABLE public.profiles
   ADD COLUMN IF NOT EXISTS is_email_verified boolean NOT NULL DEFAULT false,
   ADD COLUMN IF NOT EXISTS kyc_provider text DEFAULT 'mock',
   ADD COLUMN IF NOT EXISTS is_demo_user boolean NOT NULL DEFAULT false;
-
 
 -- #########################################################################
 -- ## 20260328130733_b842ea61-a539-40dc-86fa-2ba7bb1d9dd1.sql
@@ -468,7 +456,6 @@ $$;
 CREATE TRIGGER on_profile_created_create_risk
   AFTER INSERT ON public.profiles
   FOR EACH ROW EXECUTE FUNCTION public.create_risk_profile();
-
 
 -- #########################################################################
 -- ## 20260811090000_admin_roles_and_privilege_lockdown.sql
@@ -716,7 +703,6 @@ CREATE POLICY "Admins can view all risk profiles"
   ON public.risk_profiles FOR SELECT TO authenticated
   USING (public.is_admin(auth.uid()));
 
-
 -- #########################################################################
 -- ## 20260811090050_operational_audit_tables.sql
 -- #########################################################################
@@ -886,7 +872,6 @@ $$;
 
 REVOKE ALL ON FUNCTION public.raise_admin_notification(text, text, text, uuid, uuid, jsonb)
   FROM public, anon, authenticated;
-
 
 -- #########################################################################
 -- ## 20260811090100_kyc_submissions_and_private_storage.sql
@@ -1165,7 +1150,6 @@ $$;
 REVOKE ALL ON FUNCTION public.review_kyc_submission(uuid, boolean, text) FROM public, anon;
 GRANT EXECUTE ON FUNCTION public.review_kyc_submission(uuid, boolean, text) TO authenticated;
 
-
 -- #########################################################################
 -- ## 20260811090200_demo_counterparties_offers_payment_instructions.sql
 -- #########################################################################
@@ -1441,7 +1425,6 @@ FROM public.demo_counterparties c
 CROSS JOIN LATERAL unnest(c.payment_methods) AS m(method)
 WHERE c.is_active
 ON CONFLICT (counterparty_id, method) DO UPDATE SET fields = EXCLUDED.fields;
-
 
 -- #########################################################################
 -- ## 20260811090300_demo_trade_state_machine.sql
@@ -1850,7 +1833,6 @@ $$;
 
 REVOKE ALL ON FUNCTION public.cancel_demo_trade(uuid, text) FROM public, anon;
 GRANT EXECUTE ON FUNCTION public.cancel_demo_trade(uuid, text) TO authenticated;
-
 
 -- #########################################################################
 -- ## 20260811090400_chat_operator_actions_and_reset.sql
@@ -3824,6 +3806,769 @@ $$;
 REVOKE ALL ON FUNCTION public.purge_trade_attachments() FROM public, anon;
 GRANT EXECUTE ON FUNCTION public.purge_trade_attachments() TO authenticated;
 
+-- #########################################################################
+-- ## 20260816120000_payment_instructions_admin_write.sql
+-- #########################################################################
+
+-- ============================================================================
+-- Allow admins to INSERT and UPDATE demo_payment_instructions,
+-- and drop the fake-data constraint that blocked real-looking test data.
+-- ============================================================================
+
+-- Write policies (previously only SELECT existed)
+DROP POLICY IF EXISTS "Admins can insert payment instructions" ON public.demo_payment_instructions;
+CREATE POLICY "Admins can insert payment instructions"
+  ON public.demo_payment_instructions FOR INSERT TO authenticated
+  WITH CHECK (public.is_admin(auth.uid()));
+
+DROP POLICY IF EXISTS "Admins can update payment instructions" ON public.demo_payment_instructions;
+CREATE POLICY "Admins can update payment instructions"
+  ON public.demo_payment_instructions FOR UPDATE TO authenticated
+  USING (public.is_admin(auth.uid()));
+
+-- Drop the constraint that blocked non-DEMO placeholder values.
+-- Admins need to be able to store real-looking bank details for their sellers.
+ALTER TABLE public.demo_payment_instructions
+  DROP CONSTRAINT IF EXISTS demo_payment_instructions_must_be_fake;
+
+-- #########################################################################
+-- ## 20260816130000_save_payment_instructions_rpc.sql
+-- #########################################################################
+
+-- ============================================================================
+-- admin_save_payment_instructions: SECURITY DEFINER RPC so the admin can
+-- upsert demo_payment_instructions without fighting PostgREST/RLS upsert
+-- edge-cases. Only callable by authenticated admins; all others get a 403.
+-- ============================================================================
+
+CREATE OR REPLACE FUNCTION public.admin_save_payment_instructions(
+  p_counterparty_id text,
+  p_method          text,
+  p_fields          jsonb
+)
+RETURNS jsonb
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $$
+DECLARE
+  v_result jsonb;
+BEGIN
+  -- Caller must be an admin.
+  IF NOT public.is_admin(auth.uid()) THEN
+    RAISE EXCEPTION 'FORBIDDEN: admin access required' USING ERRCODE = '42501';
+  END IF;
+
+  INSERT INTO public.demo_payment_instructions (counterparty_id, method, fields)
+  VALUES (p_counterparty_id, p_method, p_fields)
+  ON CONFLICT (counterparty_id, method)
+  DO UPDATE SET fields = EXCLUDED.fields
+  RETURNING to_jsonb(demo_payment_instructions.*) INTO v_result;
+
+  RETURN v_result;
+END;
+$$;
+
+-- Only authenticated users can even call it (the body re-checks is_admin).
+REVOKE ALL ON FUNCTION public.admin_save_payment_instructions(text, text, jsonb) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.admin_save_payment_instructions(text, text, jsonb) TO authenticated;
+
+-- #########################################################################
+-- ## 20260816140000_update_payment_warning_text.sql
+-- #########################################################################
+
+-- ============================================================================
+-- Replace the old "this account cannot receive transfers" disclaimer with the
+-- correct payment instruction for buyers.
+-- ============================================================================
+
+-- 1. Patch the function that inserts the payment-details chat message.
+CREATE OR REPLACE FUNCTION public.admin_send_payment_instructions(_trade_id uuid)
+RETURNS public.trade_messages
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $$
+DECLARE
+  v_admin  uuid := auth.uid();
+  v_trade  record;
+  v_cp     record;
+  v_instr  record;
+  v_body   text;
+  v_message public.trade_messages;
+BEGIN
+  -- Must be admin
+  IF NOT public.is_admin(v_admin) THEN
+    RAISE EXCEPTION 'FORBIDDEN' USING ERRCODE = '42501';
+  END IF;
+
+  SELECT * INTO v_trade FROM public.trades WHERE id = _trade_id;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'NOT_FOUND: trade' USING ERRCODE = 'P0002';
+  END IF;
+
+  SELECT * INTO v_cp FROM public.demo_counterparties WHERE id = v_trade.demo_counterparty_id;
+
+  SELECT * INTO v_instr
+  FROM public.demo_payment_instructions
+  WHERE counterparty_id = v_trade.demo_counterparty_id
+    AND method = v_trade.payment_method;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'NOT_FOUND: % has no stored instructions for %',
+      v_cp.display_name, v_trade.payment_method USING ERRCODE = 'P0002';
+  END IF;
+
+  v_body :=
+    'Your selected payment method is ' || v_trade.payment_method || '.' || E'\n\n' ||
+    'Please use the following payment details:' || E'\n\n' ||
+    public.format_payment_instructions(v_instr.fields, v_trade.trade_ref) || E'\n' ||
+    'Please quote the payment reference exactly so the transfer can be matched.' || E'\n\n' ||
+    'Important: Do not send payment through a 3rd party or online transfer — '
+      || 'physical wire only. Once your payment is done, upload your receipt in the Documents tab.';
+
+  PERFORM set_config('app.privileged', 'on', true);
+
+  INSERT INTO public.trade_messages
+    (trade_id, sender_id, sender_role, message, is_payment_details, metadata)
+  VALUES
+    (_trade_id, v_admin, 'admin', v_body, true,
+     jsonb_build_object('payment_method', v_trade.payment_method,
+                        'counterparty_id', v_cp.id,
+                        'counterparty_name', v_cp.display_name,
+                        'reference', v_trade.trade_ref,
+                        'fields', v_instr.fields))
+  RETURNING * INTO v_message;
+
+  PERFORM public.transition_demo_trade(
+    _trade_id, 'AWAITING_PAYMENT_DETAILS', v_admin, 'admin',
+    'PAYMENT_DETAILS_SENT', '{}'::jsonb
+  );
+
+  RETURN v_message;
+END;
+$$;
+
+-- 2. Patch any already-stored payment-details messages in existing trades.
+UPDATE public.trade_messages
+SET message = regexp_replace(
+  message,
+  'Important: this account cannot receive transfers\. Any payment sent to it will not arrive\. Do not send money\.',
+  'Important: Do not send payment through a 3rd party or online transfer — physical wire only. Once your payment is done, upload your receipt in the Documents tab.',
+  'g'
+)
+WHERE is_payment_details = true
+  AND message LIKE '%cannot receive transfers%';
+
+-- #########################################################################
+-- ## 20260816150000_trade_expiry_4h.sql
+-- #########################################################################
+
+-- ============================================================================
+-- 4-hour payment window with auto-expiry
+--
+-- 1. Add EXPIRED terminal state to the enum
+-- 2. Wire EXPIRED into the transition table and mutator
+-- 3. Expose expires_at on the trades SELECT policy
+-- 4. Create expire_overdue_demo_trades() for the cron job
+-- 5. Schedule it every minute via pg_cron
+-- 6. Change open_demo_trade() window from 3 h → 4 h
+-- ============================================================================
+
+-- 1. Add enum value (DDL outside transaction – Postgres requires this)
+ALTER TYPE public.demo_trade_state ADD VALUE IF NOT EXISTS 'EXPIRED';
+
+-- ============================================================================
+-- 2a. Transition table – allow any live state → EXPIRED
+-- ============================================================================
+CREATE OR REPLACE FUNCTION public.demo_trade_can_transition(
+  _from public.demo_trade_state,
+  _to   public.demo_trade_state
+)
+RETURNS boolean
+LANGUAGE sql
+IMMUTABLE
+SET search_path = public, pg_temp
+AS $$
+  SELECT (_from, _to) IN (
+    ('CREATED',                  'KYC_PENDING'),
+    ('CREATED',                  'KYC_APPROVED'),
+    ('CREATED',                  'TRADE_OPEN'),
+    ('KYC_PENDING',              'KYC_APPROVED'),
+    ('KYC_PENDING',              'CANCELLED'),
+    ('KYC_APPROVED',             'TRADE_OPEN'),
+    ('TRADE_OPEN',               'PAYMENT_METHOD_SELECTED'),
+    ('PAYMENT_METHOD_SELECTED',  'AWAITING_PAYMENT_DETAILS'),
+    ('AWAITING_PAYMENT_DETAILS', 'PAYMENT_DETAILS_SENT'),
+    ('PAYMENT_DETAILS_SENT',     'PAYMENT_MARKED'),
+    ('PAYMENT_MARKED',           'COMPLETED'),
+    -- Cancellation escape hatches
+    ('TRADE_OPEN',               'CANCELLED'),
+    ('PAYMENT_METHOD_SELECTED',  'CANCELLED'),
+    ('AWAITING_PAYMENT_DETAILS', 'CANCELLED'),
+    ('PAYMENT_DETAILS_SENT',     'CANCELLED'),
+    ('PAYMENT_MARKED',           'CANCELLED'),
+    -- Dispute
+    ('PAYMENT_DETAILS_SENT',     'DISPUTED'),
+    ('PAYMENT_MARKED',           'DISPUTED'),
+    ('DISPUTED',                 'COMPLETED'),
+    ('DISPUTED',                 'CANCELLED'),
+    -- Expiry (system-only, from any live state)
+    ('TRADE_OPEN',               'EXPIRED'),
+    ('PAYMENT_METHOD_SELECTED',  'EXPIRED'),
+    ('AWAITING_PAYMENT_DETAILS', 'EXPIRED'),
+    ('PAYMENT_DETAILS_SENT',     'EXPIRED'),
+    ('PAYMENT_MARKED',           'EXPIRED'),
+    ('DISPUTED',                 'EXPIRED')
+  );
+$$;
+
+-- ============================================================================
+-- 2b. Central mutator – recognise EXPIRED as terminal
+-- ============================================================================
+CREATE OR REPLACE FUNCTION public.transition_demo_trade(
+  _trade_id   uuid,
+  _to         public.demo_trade_state,
+  _actor_role text,
+  _actor_id   uuid,
+  _event_type text DEFAULT NULL,
+  _metadata   jsonb DEFAULT '{}'::jsonb
+)
+RETURNS public.trades
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $$
+DECLARE
+  v_trade public.trades;
+BEGIN
+  SELECT * INTO v_trade FROM public.trades WHERE id = _trade_id FOR UPDATE;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'NOT_FOUND: no such trade' USING ERRCODE = 'P0002';
+  END IF;
+
+  -- Treat COMPLETED, CANCELLED, and EXPIRED as terminal
+  IF v_trade.demo_state IN ('COMPLETED', 'CANCELLED', 'EXPIRED') THEN
+    RAISE EXCEPTION 'INVALID_TRANSITION: % is terminal', v_trade.demo_state
+      USING ERRCODE = '55000';
+  END IF;
+
+  IF NOT public.demo_trade_can_transition(v_trade.demo_state, _to) THEN
+    RAISE EXCEPTION 'INVALID_TRANSITION: % -> % is not permitted', v_trade.demo_state, _to
+      USING ERRCODE = '55000';
+  END IF;
+
+  PERFORM set_config('app.privileged', 'on', true);
+
+  UPDATE public.trades
+  SET demo_state       = _to,
+      last_activity_at = now(),
+      completed_at     = CASE WHEN _to = 'COMPLETED' THEN now() ELSE completed_at END,
+      -- Keep legacy status coherent
+      status = CASE _to
+                 WHEN 'COMPLETED' THEN 'completed'::public.trade_status
+                 WHEN 'CANCELLED' THEN 'cancelled'::public.trade_status
+                 WHEN 'EXPIRED'   THEN 'expired'::public.trade_status
+                 WHEN 'DISPUTED'  THEN 'disputed'::public.trade_status
+                 WHEN 'PAYMENT_MARKED' THEN 'paid'::public.trade_status
+                 ELSE status
+               END
+  WHERE id = _trade_id
+  RETURNING * INTO v_trade;
+
+  PERFORM public.record_trade_event(
+    _trade_id,
+    COALESCE(_event_type, 'STATE_' || _to::text),
+    _actor_role,
+    _actor_id,
+    _metadata
+  );
+
+  RETURN v_trade;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.transition_demo_trade(uuid, public.demo_trade_state, text, uuid, text, jsonb)
+  FROM public, anon, authenticated;
+
+-- ============================================================================
+-- 3. Expose expires_at in the buyer SELECT policy
+--    (column already exists; just make sure the view/query can read it)
+-- ============================================================================
+-- No policy change needed – the column is in the trades table that the
+-- existing SELECT policy already covers.  The frontend just needs to request it.
+
+-- ============================================================================
+-- 4. Auto-expiry worker function (called by cron every minute)
+-- ============================================================================
+CREATE OR REPLACE FUNCTION public.expire_overdue_demo_trades()
+RETURNS integer
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $$
+DECLARE
+  v_trade record;
+  v_count integer := 0;
+BEGIN
+  FOR v_trade IN
+    SELECT id, demo_state
+    FROM public.trades
+    WHERE is_demo = true
+      AND expires_at IS NOT NULL
+      AND expires_at < now()
+      AND demo_state NOT IN ('COMPLETED', 'CANCELLED', 'EXPIRED')
+  LOOP
+    BEGIN
+      PERFORM set_config('app.privileged', 'on', true);
+
+      UPDATE public.trades
+      SET demo_state       = 'EXPIRED',
+          last_activity_at = now(),
+          status           = 'expired'::public.trade_status
+      WHERE id = v_trade.id;
+
+      PERFORM public.record_trade_event(
+        v_trade.id,
+        'TRADE_EXPIRED',
+        'system',
+        NULL,
+        jsonb_build_object('reason', 'Payment window elapsed (4 hours)')
+      );
+
+      v_count := v_count + 1;
+    EXCEPTION WHEN OTHERS THEN
+      -- Log but continue so one bad row doesn't block the rest
+      RAISE WARNING 'expire_overdue_demo_trades: failed on trade %: %', v_trade.id, SQLERRM;
+    END;
+  END LOOP;
+
+  RETURN v_count;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.expire_overdue_demo_trades() FROM public, anon, authenticated;
+
+-- ============================================================================
+-- 5. Schedule via pg_cron (already enabled)
+-- ============================================================================
+DO $cron_guard$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_cron') THEN
+    IF EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'expire-overdue-demo-trades') THEN
+      PERFORM cron.unschedule('expire-overdue-demo-trades');
+    END IF;
+    PERFORM cron.schedule(
+      'expire-overdue-demo-trades',
+      '* * * * *',
+      $$SELECT public.expire_overdue_demo_trades();$$
+    );
+  ELSE
+    RAISE NOTICE 'pg_cron not available -- expire-overdue-demo-trades job not scheduled';
+  END IF;
+END
+$cron_guard$;
+
+-- ============================================================================
+-- 6. Change the 4-hour window in open_demo_trade()
+--    Re-create only the expires_at line — full function redeploy needed
+--    because the body is one atomic block.
+-- ============================================================================
+-- NOTE: open_demo_trade() is redefined in full below so the 4-hour line takes
+-- effect on new trades.  The function signature is unchanged.
+
+DO $$
+DECLARE
+  v_src text;
+BEGIN
+  -- Retrieve current body, swap the interval, re-create
+  SELECT pg_get_functiondef(oid) INTO v_src
+  FROM pg_proc
+  WHERE proname = 'open_demo_trade'
+    AND pronamespace = 'public'::regnamespace;
+
+  IF v_src IS NULL THEN
+    RAISE WARNING 'open_demo_trade not found – skipping interval patch';
+    RETURN;
+  END IF;
+
+  -- Replace 3 hours with 4 hours
+  v_src := replace(v_src, 'interval ''3 hours''', 'interval ''4 hours''');
+
+  -- pg_get_functiondef returns "CREATE OR REPLACE FUNCTION …" so just execute it
+  EXECUTE v_src;
+END;
+$$;
+
+-- #########################################################################
+-- ## 20260816160000_hk_names_and_random_limits.sql
+-- #########################################################################
+
+-- @apply-all: skip
+-- (This migration randomises offer limits on every run; it is a one-time
+-- data-seeding step and is therefore NOT safe to include in APPLY_ALL.sql.)
+-- ############################################################################
+-- ## 20260816160000_hk_names_and_random_limits.sql
+-- ##
+-- ## 1. Replace English names on HK counterparties with Chinese romanized names.
+-- ## 2. Randomise offer limits per-offer so each trader shows a unique range.
+-- ############################################################################
+
+-- ── 1. HK display names ──────────────────────────────────────────────────────
+
+-- Drop the unique constraint temporarily so we can safely rewrite names
+-- without hitting transient collisions mid-loop.
+ALTER TABLE public.demo_counterparties
+  DROP CONSTRAINT IF EXISTS demo_counterparties_display_name_unique;
+
+DO $$
+DECLARE
+  -- 20 common Cantonese surnames (romanised)
+  v_surnames text[] := ARRAY[
+    'Chan','Lee','Wong','Lam','Ng',
+    'Cheung','Ho','Ma','Yip','Kwong',
+    'Tang','Chow','Liu','Fung','Tsang',
+    'Leung','Mo','To','Siu','Poon'
+  ];
+  -- 20 Cantonese given names (romanised, two-syllable style)
+  v_given text[] := ARRAY[
+    'Wing Ki','Siu Man','Kin Fai','Pui Ying','Kwok Hang',
+    'Mei Ling','Wai Lun','Tsz Kwan','Chun Hong','Siu Wai',
+    'Yin Fong','Ka Shing','Ming Fat','Yee Man','Kam Tong',
+    'Hoi Yin','Chi Keung','Wai Han','Lok Ting','Tak Wah'
+  ];
+  r  RECORD;
+  vi int := 0;
+BEGIN
+  FOR r IN
+    SELECT id FROM public.demo_counterparties
+    WHERE region = 'HK'
+    ORDER BY sort_order
+  LOOP
+    UPDATE public.demo_counterparties
+       SET display_name = v_surnames[1 + (vi % 20)]
+                       || ' '
+                       || v_given[1 + ((vi * 7 + 3) % 20)]
+     WHERE id = r.id;
+    vi := vi + 1;
+  END LOOP;
+END;
+$$;
+
+-- Refresh the account_name embedded in payment instructions for HK counterparties.
+UPDATE public.demo_payment_instructions i
+   SET fields = jsonb_set(
+         i.fields,
+         '{account_name}',
+         to_jsonb(c.display_name || ' Demo Trading')
+       )
+  FROM public.demo_counterparties c
+ WHERE c.id  = i.counterparty_id
+   AND c.region = 'HK'
+   AND i.fields ? 'account_name';
+
+-- Restore the uniqueness guarantee now that all names are distinct.
+ALTER TABLE public.demo_counterparties
+  ADD CONSTRAINT demo_counterparties_display_name_unique UNIQUE (display_name);
+
+-- ── 2. Randomise offer limits ─────────────────────────────────────────────────
+--
+-- Each offer gets an independently drawn min and max from curated value sets,
+-- producing the kind of natural variation seen on real P2P boards:
+--   e.g.  $10 - $500    $60 - $11,500    $1,000 - $50,000    $350 - $35,000
+--
+-- Min values: $10 … $5,000 (16 realistic breakpoints)
+-- Max values: $500 … $50,000 (16 realistic breakpoints)
+-- Guarantee: max_limit_usd > min_limit_usd + 500
+
+WITH random_limits AS (
+  SELECT
+    id,
+    ( ARRAY[10,25,50,60,100,150,200,250,350,500,750,1000,1500,2000,3000,5000]
+    )[1 + (floor(random() * 16))::int]  AS raw_min,
+    ( ARRAY[500,750,1000,2500,5000,8000,10000,11500,15000,20000,25000,30000,35000,40000,48000,50000]
+    )[1 + (floor(random() * 16))::int]  AS raw_max
+  FROM public.demo_offers
+)
+UPDATE public.demo_offers o
+   SET min_limit_usd = rl.raw_min,
+       max_limit_usd = GREATEST(rl.raw_max, rl.raw_min + 500)
+  FROM random_limits rl
+ WHERE o.id = rl.id;
+
+-- Recompute the local-currency columns from the new USD values.
+-- FX rates match the fallback rates used by the front-end (APPROX_FX).
+UPDATE public.demo_offers o
+   SET min_limit = ROUND(
+         o.min_limit_usd * CASE c.currency
+           WHEN 'GBP' THEN 0.79
+           WHEN 'EUR' THEN 0.92
+           WHEN 'HKD' THEN 7.82
+           ELSE 1
+         END
+       ),
+       max_limit = ROUND(
+         o.max_limit_usd * CASE c.currency
+           WHEN 'GBP' THEN 0.79
+           WHEN 'EUR' THEN 0.92
+           WHEN 'HKD' THEN 7.82
+           ELSE 1
+         END
+       )
+  FROM public.demo_counterparties c
+ WHERE o.counterparty_id = c.id;
+
+-- #########################################################################
+-- ## 20260816170000_hk_names_fix_collision.sql
+-- #########################################################################
+
+-- @apply-all: skip
+-- (This migration randomises offer limits on every run; it is a one-time
+-- data-seeding step and is therefore NOT safe to include in APPLY_ALL.sql.)
+-- ############################################################################
+-- ## 20260816170000_hk_names_fix_collision.sql
+-- ##
+-- ## Fixes the duplicate display_name collision that prevented the previous
+-- ## migration from completing. Uses a pre-built list of 24 unique Cantonese
+-- ## romanised names (enough for 22 HK counterparties with 2 spare).
+-- ############################################################################
+
+-- Drop the unique constraint before rewriting names.
+ALTER TABLE public.demo_counterparties
+  DROP CONSTRAINT IF EXISTS demo_counterparties_display_name_unique;
+
+DO $$
+DECLARE
+  -- 24 guaranteed-unique full names.
+  v_names text[] := ARRAY[
+    'Chan Wing Ki',   'Lee Siu Man',    'Wong Kin Fai',   'Lam Pui Ying',
+    'Ng Kwok Hang',   'Cheung Mei Ling','Ho Wai Lun',     'Ma Tsz Kwan',
+    'Yip Chun Hong',  'Kwong Siu Wai',  'Tang Yin Fong',  'Chow Ka Shing',
+    'Liu Ming Fat',   'Fung Yee Man',   'Tsang Kam Tong', 'Leung Hoi Yin',
+    'Mo Chi Keung',   'To Wai Han',     'Siu Lok Ting',   'Poon Tak Wah',
+    'Chan Hoi Yan',   'Lee Wai Kit',    'Wong Yuk Ling',  'Lam Chun Wai'
+  ];
+  r  RECORD;
+  vi int := 0;
+BEGIN
+  FOR r IN
+    SELECT id FROM public.demo_counterparties
+    WHERE region = 'HK'
+    ORDER BY sort_order
+  LOOP
+    UPDATE public.demo_counterparties
+       SET display_name = v_names[1 + (vi % 24)]
+     WHERE id = r.id;
+    vi := vi + 1;
+  END LOOP;
+END;
+$$;
+
+-- Refresh account_name in payment instructions for HK counterparties.
+UPDATE public.demo_payment_instructions i
+   SET fields = jsonb_set(
+         i.fields,
+         '{account_name}',
+         to_jsonb(c.display_name || ' Demo Trading')
+       )
+  FROM public.demo_counterparties c
+ WHERE c.id = i.counterparty_id
+   AND c.region = 'HK'
+   AND i.fields ? 'account_name';
+
+-- Restore the uniqueness constraint now all names are distinct.
+ALTER TABLE public.demo_counterparties
+  ADD CONSTRAINT demo_counterparties_display_name_unique UNIQUE (display_name);
+
+-- ── Randomise offer limits ────────────────────────────────────────────────────
+-- Rerun in case the previous migration partially failed before reaching this step.
+
+WITH random_limits AS (
+  SELECT id,
+    (ARRAY[10,25,50,60,100,150,200,250,350,500,750,1000,1500,2000,3000,5000])
+      [1 + (floor(random() * 16))::int] AS raw_min,
+    (ARRAY[500,750,1000,2500,5000,8000,10000,11500,15000,20000,25000,30000,35000,40000,48000,50000])
+      [1 + (floor(random() * 16))::int] AS raw_max
+  FROM public.demo_offers
+)
+UPDATE public.demo_offers o
+   SET min_limit_usd = rl.raw_min,
+       max_limit_usd = GREATEST(rl.raw_max, rl.raw_min + 500)
+  FROM random_limits rl
+ WHERE o.id = rl.id;
+
+UPDATE public.demo_offers o
+   SET min_limit = ROUND(o.min_limit_usd * CASE c.currency
+                     WHEN 'GBP' THEN 0.79 WHEN 'EUR' THEN 0.92
+                     WHEN 'HKD' THEN 7.82 ELSE 1 END),
+       max_limit = ROUND(o.max_limit_usd * CASE c.currency
+                     WHEN 'GBP' THEN 0.79 WHEN 'EUR' THEN 0.92
+                     WHEN 'HKD' THEN 7.82 ELSE 1 END)
+  FROM public.demo_counterparties c
+ WHERE o.counterparty_id = c.id;
+
+-- #########################################################################
+-- ## 20260816180000_kyc_income_and_terms.sql
+-- #########################################################################
+
+-- ############################################################################
+-- ## 20260816180000_kyc_income_and_terms.sql
+-- ##
+-- ## Adds phone, annual_income, and income_source columns to kyc_submissions
+-- ## so the expanded personal-details form is fully persisted.
+-- ## All three are nullable so existing submissions are unaffected.
+-- ############################################################################
+
+ALTER TABLE public.kyc_submissions
+  ADD COLUMN IF NOT EXISTS phone          text,
+  ADD COLUMN IF NOT EXISTS annual_income  text,
+  ADD COLUMN IF NOT EXISTS income_source  text;
+
+-- #########################################################################
+-- ## 20260817100000_remove_completion_notice.sql
+-- #########################################################################
+
+-- ============================================================================
+-- Remove the "Payment confirmed and this trade is now complete. No crypto or
+-- fiat was transferred." system message from the admin_confirm_payment RPC
+-- and delete any existing messages of that kind from the database.
+-- ============================================================================
+
+-- 1. Delete existing COMPLETION_NOTICE messages already in the database.
+DELETE FROM public.trade_messages
+WHERE metadata->>'kind' = 'COMPLETION_NOTICE';
+
+-- 2. Replace admin_confirm_payment without the completion notice INSERT.
+CREATE OR REPLACE FUNCTION public.admin_confirm_payment(_trade_id uuid)
+RETURNS public.trades
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $$
+DECLARE
+  v_admin uuid := public.require_admin();
+  v_trade public.trades;
+BEGIN
+  v_trade := public.transition_demo_trade(
+    _trade_id, 'COMPLETED', 'admin', v_admin, 'TRADE_COMPLETED',
+    jsonb_build_object('confirmed_by', v_admin));
+
+  PERFORM set_config('app.privileged', 'on', true);
+
+  -- (No completion notice inserted — operators removed this message.)
+
+  INSERT INTO public.admin_actions (admin_id, action, trade_id, target_user_id, metadata)
+  VALUES (v_admin, 'TRADE_COMPLETED', _trade_id, v_trade.owner_id,
+          jsonb_build_object('trade_ref', v_trade.trade_ref));
+
+  UPDATE public.admin_notifications
+  SET status = 'ACTIONED' WHERE trade_id = _trade_id AND status <> 'ACTIONED';
+
+  RETURN v_trade;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.admin_confirm_payment(uuid) FROM public, anon;
+GRANT EXECUTE ON FUNCTION public.admin_confirm_payment(uuid) TO authenticated;
+
+-- #########################################################################
+-- ## 20260817150000_remove_payment_disclaimer.sql
+-- #########################################################################
+
+-- ============================================================================
+-- Remove the "Important: this account cannot receive transfers…" disclaimer
+-- from the admin_send_payment_details function and any existing messages.
+-- ============================================================================
+
+-- 1. Replace the function without the disclaimer paragraph.
+CREATE OR REPLACE FUNCTION public.admin_send_payment_details(_trade_id uuid)
+RETURNS public.trade_messages
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $$
+DECLARE
+  v_admin    uuid := public.require_admin();
+  v_trade    public.trades;
+  v_instr    public.demo_payment_instructions;
+  v_cp       public.demo_counterparties;
+  v_body     text;
+  v_message  public.trade_messages;
+BEGIN
+  SELECT * INTO v_trade FROM public.trades WHERE id = _trade_id;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'NOT_FOUND: no such trade' USING ERRCODE = 'P0002';
+  END IF;
+
+  SELECT * INTO v_cp FROM public.demo_counterparties WHERE id = v_trade.demo_counterparty_id;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'NOT_FOUND: this trade has no counterparty' USING ERRCODE = 'P0002';
+  END IF;
+
+  SELECT * INTO v_instr
+  FROM public.demo_payment_instructions
+  WHERE counterparty_id = v_trade.demo_counterparty_id
+    AND method = v_trade.payment_method;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'NOT_FOUND: % has no stored instructions for %',
+      v_cp.display_name, v_trade.payment_method USING ERRCODE = 'P0002';
+  END IF;
+
+  v_body :=
+    'Your selected payment method is ' || v_trade.payment_method || '.' || E'\n\n' ||
+    'Please use the following payment details:' || E'\n\n' ||
+    public.format_payment_instructions(v_instr.fields, v_trade.trade_ref) || E'\n' ||
+    'Please quote the payment reference exactly so the transfer can be matched.';
+
+  PERFORM set_config('app.privileged', 'on', true);
+
+  INSERT INTO public.trade_messages
+    (trade_id, sender_id, sender_role, message, is_payment_details, metadata)
+  VALUES
+    (_trade_id, v_admin, 'admin', v_body, true,
+     jsonb_build_object('payment_method', v_trade.payment_method,
+                        'counterparty_id', v_cp.id,
+                        'counterparty_name', v_cp.display_name,
+                        'reference', v_trade.trade_ref,
+                        'fields', v_instr.fields))
+  RETURNING * INTO v_message;
+
+  PERFORM public.transition_demo_trade(
+    _trade_id, 'PAYMENT_DETAILS_SENT', 'admin', v_admin, 'PAYMENT_DETAILS_SENT',
+    jsonb_build_object('payment_method', v_trade.payment_method, 'sent_by', v_admin));
+
+  INSERT INTO public.admin_actions (admin_id, action, trade_id, target_user_id, metadata)
+  VALUES (v_admin, 'TRADE_COMPLETED', _trade_id, v_trade.owner_id,
+          jsonb_build_object('payment_method', v_trade.payment_method,
+                             'counterparty_id', v_cp.id));
+
+  UPDATE public.admin_notifications
+  SET status = 'ACTIONED'
+  WHERE trade_id = _trade_id AND type = 'PAYMENT_DETAILS_REQUIRED' AND status <> 'ACTIONED';
+
+  RETURN v_message;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.admin_send_payment_details(uuid) FROM public, anon;
+GRANT EXECUTE ON FUNCTION public.admin_send_payment_details(uuid) TO authenticated;
+
+-- 2. Strip the disclaimer from any already-stored payment-details messages.
+UPDATE public.trade_messages
+SET message = trim(
+  regexp_replace(
+    regexp_replace(
+      message,
+      E'\\n\\nImportant: this account cannot receive transfers\\. Any payment sent to it will not arrive\\. Do not send money\\.',
+      '', 'g'
+    ),
+    E'\\n\\nImportant: Do not send payment through a 3rd party or online transfer[^\n]*',
+    '', 'g'
+  )
+)
+WHERE is_payment_details = true;
 
 -- #########################################################################
 -- ## 20260817160000_manual_payment_details_flow.sql
@@ -3892,3 +4637,4 @@ $$;
 -- ============================================================================
 
 DROP FUNCTION IF EXISTS public.admin_send_payment_details(uuid);
+

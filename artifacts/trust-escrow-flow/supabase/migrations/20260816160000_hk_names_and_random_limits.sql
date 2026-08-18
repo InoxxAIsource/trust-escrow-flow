@@ -1,3 +1,6 @@
+-- @apply-all: skip
+-- (This migration randomises offer limits on every run; it is a one-time
+-- data-seeding step and is therefore NOT safe to include in APPLY_ALL.sql.)
 -- ############################################################################
 -- ## 20260816160000_hk_names_and_random_limits.sql
 -- ##
