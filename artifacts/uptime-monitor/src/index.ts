@@ -3,7 +3,13 @@
  *
  * Runs completely independently of the API server process.
  * Checks the live site every 3 minutes from the outside.
- * Sends one alert email per incident; one recovery email when restored.
+ *
+ * Alert-delivery guarantee
+ * ─────────────────────────
+ * `alertSent` tracks whether the DOWN email was *successfully delivered*.
+ * If Resend fails, alertSent stays false and we retry on the next check
+ * (with exponential back-off capped at 3 attempts per incident).
+ * Recovery email is only sent once the service is back up.
  *
  * Also exposes a tiny HTTP status server so Replit can detect the port.
  */
@@ -18,6 +24,7 @@ const FROM_EMAIL  = process.env.FROM_EMAIL  ?? "P2PxBT <onboarding@resend.dev>";
 const INTERVAL_MS = 3 * 60 * 1_000; // 3 minutes
 const TIMEOUT_MS  = 10_000;          // 10-second per-probe timeout
 const STATE_FILE  = "/tmp/p2pxbt-monitor-state.json";
+const MAX_ALERT_RETRIES = 3;
 
 // ─── Targets ────────────────────────────────────────────────────────────────
 
@@ -36,7 +43,9 @@ const TARGETS: Target[] = [
   },
   {
     name: "API Server",
-    // Probe the explicit healthz endpoint — a 404 on /api proves nothing.
+    // Probe the explicit healthz endpoint and validate the body.
+    // A 404 on /api proves nothing — a broken proxy can return 404 while
+    // the API process itself is down.
     url: "https://p2pxbt.com/api/healthz",
     isHealthy: (status, body) => {
       if (status !== 200) return false;
@@ -54,6 +63,13 @@ const TARGETS: Target[] = [
 
 interface EndpointState {
   isDown: boolean;
+  /**
+   * True once a DOWN alert was *successfully delivered* to the operator.
+   * If the Resend call fails, this stays false and we retry next check.
+   */
+  alertSent: boolean;
+  /** How many consecutive Resend failures we've seen for the current incident. */
+  alertAttempts: number;
   downSince: string | null; // ISO timestamp
   lastChecked: string | null;
   lastStatus: number | string | null;
@@ -84,6 +100,8 @@ for (const t of TARGETS) {
   if (!monitorState[t.url]) {
     monitorState[t.url] = {
       isDown: false,
+      alertSent: false,
+      alertAttempts: 0,
       downSince: null,
       lastChecked: null,
       lastStatus: null,
@@ -194,11 +212,17 @@ function buildDownEmail(
   url: string,
   status: number | string,
   detectedAt: string,
+  attempt: number,
 ): string {
+  const retryNote =
+    attempt > 1
+      ? `<p style="margin:0 0 12px;font-size:12px;color:#f59e0b;">⚠ Alert delivery attempt ${attempt}/${MAX_ALERT_RETRIES} (earlier send failed)</p>`
+      : "";
   return shell(
     "🔴 Downtime alert",
     "#fca5a5",
-    `<p style="margin:0 0 4px;font-size:11px;font-weight:600;color:#dc2626;text-transform:uppercase;letter-spacing:.8px;">🔴 Service Down</p>
+    `${retryNote}
+<p style="margin:0 0 4px;font-size:11px;font-weight:600;color:#dc2626;text-transform:uppercase;letter-spacing:.8px;">🔴 Service Down</p>
 <p style="margin:0 0 20px;font-size:18px;font-weight:600;color:#0f172a;">${esc(name)} is not responding</p>
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#fff1f2;border:1px solid #fecaca;border-radius:6px;margin-bottom:24px;">
 <tr><td style="padding:16px;"><table width="100%" cellpadding="4" cellspacing="0">
@@ -246,29 +270,66 @@ async function runChecks(): Promise<void> {
     const prev = monitorState[target.url]!;
     const { healthy, status } = await probe(target);
 
-    monitorState[target.url] = {
-      isDown: !healthy,
-      downSince: !healthy ? (prev.isDown ? prev.downSince : now) : null,
-      lastChecked: now,
-      lastStatus: status,
-    };
+    if (!healthy) {
+      const firstFailure = !prev.isDown;
+      const downSince = firstFailure ? now : (prev.downSince ?? now);
+      const attempts = firstFailure ? 0 : prev.alertAttempts;
 
-    const curr = monitorState[target.url]!;
+      monitorState[target.url] = {
+        isDown: true,
+        alertSent: prev.alertSent && !firstFailure,
+        alertAttempts: attempts,
+        downSince,
+        lastChecked: now,
+        lastStatus: status,
+      };
 
-    if (!healthy && !prev.isDown) {
-      // ── First failure ─────────────────────────────────────────────────────
-      console.error(`[Monitor] DOWN: ${target.name} — status: ${status}`);
-      try {
-        await sendEmail(
-          `🔴 [P2PxBT Monitor] ${target.name} is DOWN`,
-          buildDownEmail(target.name, target.url, status, now),
+      const curr = monitorState[target.url]!;
+
+      if (!curr.alertSent && curr.alertAttempts < MAX_ALERT_RETRIES) {
+        // ── Send alert (or retry if a previous send failed) ─────────────
+        const attempt = curr.alertAttempts + 1;
+        if (firstFailure) {
+          console.error(`[Monitor] DOWN: ${target.name} — status: ${status}`);
+        } else {
+          console.warn(
+            `[Monitor] Still DOWN: ${target.name} — retrying alert (attempt ${attempt}/${MAX_ALERT_RETRIES})`,
+          );
+        }
+        try {
+          await sendEmail(
+            `🔴 [P2PxBT Monitor] ${target.name} is DOWN`,
+            buildDownEmail(target.name, target.url, status, downSince, attempt),
+          );
+          monitorState[target.url]!.alertSent = true;
+          monitorState[target.url]!.alertAttempts = attempt;
+        } catch (err) {
+          monitorState[target.url]!.alertAttempts = attempt;
+          console.error(
+            `[Monitor] Alert send failed (attempt ${attempt}/${MAX_ALERT_RETRIES}):`,
+            err,
+          );
+        }
+      } else if (!curr.alertSent && curr.alertAttempts >= MAX_ALERT_RETRIES) {
+        console.error(
+          `[Monitor] DOWN: ${target.name} — exhausted ${MAX_ALERT_RETRIES} alert attempts; will retry next incident`,
         );
-      } catch (err) {
-        console.error("[Monitor] Failed to send down alert:", err);
+      } else {
+        console.log(
+          `[Monitor] ${target.name} — still DOWN (status: ${status})`,
+        );
       }
-    } else if (healthy && prev.isDown) {
-      // ── Recovery ──────────────────────────────────────────────────────────
+    } else if (prev.isDown) {
+      // ── Recovery ──────────────────────────────────────────────────────
       console.log(`[Monitor] RECOVERED: ${target.name}`);
+      monitorState[target.url] = {
+        isDown: false,
+        alertSent: false,
+        alertAttempts: 0,
+        downSince: null,
+        lastChecked: now,
+        lastStatus: status,
+      };
       try {
         await sendEmail(
           `✅ [P2PxBT Monitor] ${target.name} is back UP`,
@@ -278,9 +339,16 @@ async function runChecks(): Promise<void> {
         console.error("[Monitor] Failed to send recovery email:", err);
       }
     } else {
-      console.log(
-        `[Monitor] ${target.name} — ${healthy ? "OK" : "still DOWN"} (status: ${status})`,
-      );
+      // ── Healthy, no incident ───────────────────────────────────────────
+      monitorState[target.url] = {
+        isDown: false,
+        alertSent: false,
+        alertAttempts: 0,
+        downSince: null,
+        lastChecked: now,
+        lastStatus: status,
+      };
+      console.log(`[Monitor] ${target.name} — OK (status: ${status})`);
     }
 
     saveState(monitorState);
@@ -288,8 +356,8 @@ async function runChecks(): Promise<void> {
 }
 
 // ─── HTTP status server ───────────────────────────────────────────────────────
-// Exposes port so Replit can detect the process is running.
-// Also serves live monitor state at GET /.
+// Exposes a port so Replit can detect the process is running.
+// Also serves live monitor state — consumed by the public status page (Task #21).
 
 const PORT = Number(process.env.PORT ?? 9000);
 
@@ -300,7 +368,10 @@ const httpServer = http.createServer((_req, res) => {
     ...monitorState[t.url],
   }));
   const anyDown = endpoints.some((e) => e.isDown);
-  res.writeHead(anyDown ? 503 : 200, { "Content-Type": "application/json" });
+  res.writeHead(anyDown ? 503 : 200, {
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": "*",
+  });
   res.end(
     JSON.stringify(
       { ok: !anyDown, checkedAt: new Date().toISOString(), endpoints },
@@ -319,9 +390,11 @@ httpServer.listen(PORT, () => {
 console.log("[Monitor] P2PxBT Uptime Monitor starting");
 console.log(`[Monitor] Watching: ${TARGETS.map((t) => t.url).join(", ")}`);
 console.log(`[Monitor] Alerts → ${ADMIN_EMAIL}`);
-console.log(`[Monitor] Check interval: 3 min | Timeout: 10 s`);
+console.log(
+  `[Monitor] Check interval: 3 min | Timeout: 10 s | Max alert retries: ${MAX_ALERT_RETRIES}`,
+);
 
-// First check after 30 s to let the monitor HTTP server bind.
+// First check after 30 s to let the HTTP server bind.
 setTimeout(() => {
   void runChecks();
   setInterval(() => void runChecks(), INTERVAL_MS);

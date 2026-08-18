@@ -1,0 +1,28 @@
+kind = "api"
+title = "Uptime Monitor"
+version = "1.0.0"
+id = "artifacts/uptime-monitor"
+
+[[services]]
+name = "monitor"
+localPort = 9000
+
+[services.development]
+run = "pnpm --filter @workspace/uptime-monitor run dev"
+
+[services.production.build]
+args = ["pnpm", "--filter", "@workspace/uptime-monitor", "run", "build"]
+
+[services.production.build.env]
+NODE_ENV = "production"
+
+[services.production.run]
+args = ["node", "--enable-source-maps", "artifacts/uptime-monitor/dist/index.mjs"]
+
+[services.production.run.env]
+PORT = "9000"
+NODE_ENV = "production"
+ADMIN_EMAIL = "chainlayer650@gmail.com"
+
+[services.production.health.startup]
+path = "/"
