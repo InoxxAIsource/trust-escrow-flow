@@ -75,30 +75,79 @@ WHERE counterparty_id IN (
 ) AND asset = 'USDT';
 
 -- ── 1d. Update BTC offer limits (operator-provided figures) ───────────────────
--- Rows already exist; we patch only min/max.
--- Michael Carter   max=$500 (min=max: fixed-amount offer)
-UPDATE public.demo_offers SET min_limit_usd =   500, max_limit_usd =     500 WHERE counterparty_id = 'demo_seller_001' AND asset = 'BTC';
-UPDATE public.demo_offers SET min_limit_usd =   500, max_limit_usd =  47325  WHERE counterparty_id = 'demo_seller_002' AND asset = 'BTC';
-UPDATE public.demo_offers SET min_limit_usd =   500, max_limit_usd = 128750  WHERE counterparty_id = 'demo_seller_003' AND asset = 'BTC';
-UPDATE public.demo_offers SET min_limit_usd =   500, max_limit_usd =  53680  WHERE counterparty_id = 'demo_seller_004' AND asset = 'BTC';
-UPDATE public.demo_offers SET min_limit_usd =   500, max_limit_usd =  18450  WHERE counterparty_id = 'demo_seller_005' AND asset = 'BTC';
-UPDATE public.demo_offers SET min_limit_usd =   500, max_limit_usd =  72915  WHERE counterparty_id = 'demo_seller_006' AND asset = 'BTC';
-UPDATE public.demo_offers SET min_limit_usd =   500, max_limit_usd =  44280  WHERE counterparty_id = 'demo_seller_007' AND asset = 'BTC';
-UPDATE public.demo_offers SET min_limit_usd =   500, max_limit_usd =   9275  WHERE counterparty_id = 'demo_seller_008' AND asset = 'BTC';
-UPDATE public.demo_offers SET min_limit_usd =   500, max_limit_usd =  57460  WHERE counterparty_id = 'demo_seller_009' AND asset = 'BTC';
-UPDATE public.demo_offers SET min_limit_usd =   500, max_limit_usd =   3180  WHERE counterparty_id = 'demo_seller_010' AND asset = 'BTC';
-UPDATE public.demo_offers SET min_limit_usd =   500, max_limit_usd =  49835  WHERE counterparty_id = 'demo_seller_011' AND asset = 'BTC';
-UPDATE public.demo_offers SET min_limit_usd =   500, max_limit_usd =  83640  WHERE counterparty_id = 'demo_seller_012' AND asset = 'BTC';
-UPDATE public.demo_offers SET min_limit_usd =   500, max_limit_usd =  52190  WHERE counterparty_id = 'demo_seller_013' AND asset = 'BTC';
-UPDATE public.demo_offers SET min_limit_usd =   500, max_limit_usd =  24680  WHERE counterparty_id = 'demo_seller_014' AND asset = 'BTC';
-UPDATE public.demo_offers SET min_limit_usd =   500, max_limit_usd = 141350  WHERE counterparty_id = 'demo_seller_015' AND asset = 'BTC';
-UPDATE public.demo_offers SET min_limit_usd =   500, max_limit_usd =  38275  WHERE counterparty_id = 'demo_seller_016' AND asset = 'BTC';
-UPDATE public.demo_offers SET min_limit_usd =   500, max_limit_usd =  55740  WHERE counterparty_id = 'demo_seller_017' AND asset = 'BTC';
-UPDATE public.demo_offers SET min_limit_usd =   500, max_limit_usd =  68520  WHERE counterparty_id = 'demo_seller_018' AND asset = 'BTC';
-UPDATE public.demo_offers SET min_limit_usd =   500, max_limit_usd =  46915  WHERE counterparty_id = 'demo_seller_019' AND asset = 'BTC';
-UPDATE public.demo_offers SET min_limit_usd =   500, max_limit_usd =  51380  WHERE counterparty_id = 'demo_seller_020' AND asset = 'BTC';
-UPDATE public.demo_offers SET min_limit_usd =   500, max_limit_usd =  34560  WHERE counterparty_id = 'demo_seller_021' AND asset = 'BTC';
-UPDATE public.demo_offers SET min_limit_usd =   500, max_limit_usd =   2475  WHERE counterparty_id = 'demo_seller_065' AND asset = 'BTC';
+-- Patches both the USD columns (used by the UI read path) and the legacy
+-- local-currency columns (enforced by the NOT NULL + limits_ordered constraint).
+-- For US sellers currency='USD', so min_limit = min_limit_usd, max_limit = max_limit_usd.
+--
+-- The limits_ordered constraint is: min_limit > 0 AND max_limit > min_limit (strict).
+-- Michael Carter's sell cap is $500 — setting min to $100 satisfies the constraint
+-- while honouring the spirit of a low-cap offer.
+UPDATE public.demo_offers
+SET min_limit_usd = 100,  max_limit_usd =     500, min_limit = 100,  max_limit =     500
+WHERE counterparty_id = 'demo_seller_001' AND asset = 'BTC';
+UPDATE public.demo_offers
+SET min_limit_usd = 500,  max_limit_usd =  47325,  min_limit = 500,  max_limit =  47325
+WHERE counterparty_id = 'demo_seller_002' AND asset = 'BTC';
+UPDATE public.demo_offers
+SET min_limit_usd = 500,  max_limit_usd = 128750,  min_limit = 500,  max_limit = 128750
+WHERE counterparty_id = 'demo_seller_003' AND asset = 'BTC';
+UPDATE public.demo_offers
+SET min_limit_usd = 500,  max_limit_usd =  53680,  min_limit = 500,  max_limit =  53680
+WHERE counterparty_id = 'demo_seller_004' AND asset = 'BTC';
+UPDATE public.demo_offers
+SET min_limit_usd = 500,  max_limit_usd =  18450,  min_limit = 500,  max_limit =  18450
+WHERE counterparty_id = 'demo_seller_005' AND asset = 'BTC';
+UPDATE public.demo_offers
+SET min_limit_usd = 500,  max_limit_usd =  72915,  min_limit = 500,  max_limit =  72915
+WHERE counterparty_id = 'demo_seller_006' AND asset = 'BTC';
+UPDATE public.demo_offers
+SET min_limit_usd = 500,  max_limit_usd =  44280,  min_limit = 500,  max_limit =  44280
+WHERE counterparty_id = 'demo_seller_007' AND asset = 'BTC';
+UPDATE public.demo_offers
+SET min_limit_usd = 500,  max_limit_usd =   9275,  min_limit = 500,  max_limit =   9275
+WHERE counterparty_id = 'demo_seller_008' AND asset = 'BTC';
+UPDATE public.demo_offers
+SET min_limit_usd = 500,  max_limit_usd =  57460,  min_limit = 500,  max_limit =  57460
+WHERE counterparty_id = 'demo_seller_009' AND asset = 'BTC';
+UPDATE public.demo_offers
+SET min_limit_usd = 500,  max_limit_usd =   3180,  min_limit = 500,  max_limit =   3180
+WHERE counterparty_id = 'demo_seller_010' AND asset = 'BTC';
+UPDATE public.demo_offers
+SET min_limit_usd = 500,  max_limit_usd =  49835,  min_limit = 500,  max_limit =  49835
+WHERE counterparty_id = 'demo_seller_011' AND asset = 'BTC';
+UPDATE public.demo_offers
+SET min_limit_usd = 500,  max_limit_usd =  83640,  min_limit = 500,  max_limit =  83640
+WHERE counterparty_id = 'demo_seller_012' AND asset = 'BTC';
+UPDATE public.demo_offers
+SET min_limit_usd = 500,  max_limit_usd =  52190,  min_limit = 500,  max_limit =  52190
+WHERE counterparty_id = 'demo_seller_013' AND asset = 'BTC';
+UPDATE public.demo_offers
+SET min_limit_usd = 500,  max_limit_usd =  24680,  min_limit = 500,  max_limit =  24680
+WHERE counterparty_id = 'demo_seller_014' AND asset = 'BTC';
+UPDATE public.demo_offers
+SET min_limit_usd = 500,  max_limit_usd = 141350,  min_limit = 500,  max_limit = 141350
+WHERE counterparty_id = 'demo_seller_015' AND asset = 'BTC';
+UPDATE public.demo_offers
+SET min_limit_usd = 500,  max_limit_usd =  38275,  min_limit = 500,  max_limit =  38275
+WHERE counterparty_id = 'demo_seller_016' AND asset = 'BTC';
+UPDATE public.demo_offers
+SET min_limit_usd = 500,  max_limit_usd =  55740,  min_limit = 500,  max_limit =  55740
+WHERE counterparty_id = 'demo_seller_017' AND asset = 'BTC';
+UPDATE public.demo_offers
+SET min_limit_usd = 500,  max_limit_usd =  68520,  min_limit = 500,  max_limit =  68520
+WHERE counterparty_id = 'demo_seller_018' AND asset = 'BTC';
+UPDATE public.demo_offers
+SET min_limit_usd = 500,  max_limit_usd =  46915,  min_limit = 500,  max_limit =  46915
+WHERE counterparty_id = 'demo_seller_019' AND asset = 'BTC';
+UPDATE public.demo_offers
+SET min_limit_usd = 500,  max_limit_usd =  51380,  min_limit = 500,  max_limit =  51380
+WHERE counterparty_id = 'demo_seller_020' AND asset = 'BTC';
+UPDATE public.demo_offers
+SET min_limit_usd = 500,  max_limit_usd =  34560,  min_limit = 500,  max_limit =  34560
+WHERE counterparty_id = 'demo_seller_021' AND asset = 'BTC';
+UPDATE public.demo_offers
+SET min_limit_usd = 500,  max_limit_usd =   2475,  min_limit = 500,  max_limit =   2475
+WHERE counterparty_id = 'demo_seller_065' AND asset = 'BTC';
 
 -- Also update payment instructions to reflect the new display names.
 UPDATE public.demo_payment_instructions pi
@@ -182,44 +231,53 @@ ON CONFLICT (id) DO UPDATE SET
   sort_order          = EXCLUDED.sort_order;
 
 -- ── 2b. USDT offers ───────────────────────────────────────────────────────────
--- One row per seller. available_amount scales loosely with max_limit.
--- min_limit_usd = 500 for all; max_limit_usd = independently set values.
+-- One row per seller. currency = 'USD' (US sellers).
+-- Both USD columns (ui read path) and legacy local-currency columns (NOT NULL,
+-- enforced by demo_offers_limits_ordered: min_limit > 0 AND max_limit > min_limit)
+-- are populated. For USD sellers they are identical values.
+--
+-- Robert Johnson's sell cap is exactly $500. The constraint requires max > min
+-- strictly, so min is set to $100 (accepts any USD amount from $100 to $500).
 INSERT INTO public.demo_offers (
   id, counterparty_id, side, asset,
-  available_amount, min_limit_usd, max_limit_usd,
+  available_amount,
+  currency, min_limit_usd, max_limit_usd, min_limit, max_limit,
   payment_methods, sort_order
 ) VALUES
-  -- $500–$10 k range (3 sellers, incl. exactly $500)
-  ('offer_demo_seller_070_usdt', 'demo_seller_070', 'BUY', 'USDT',   25000,  500,    500, ARRAY['USA Bank Wire','ACH Transfer'], 700),
-  ('offer_demo_seller_076_usdt', 'demo_seller_076', 'BUY', 'USDT',   40000,  500,   9180, ARRAY['USA Bank Wire','ACH Transfer'], 760),
-  ('offer_demo_seller_081_usdt', 'demo_seller_081', 'BUY', 'USDT',   18000,  500,   1850, ARRAY['USA Bank Wire'],               810),
+  -- $500–$10 k range (3 sellers, incl. Robert Johnson at exactly $500 max)
+  ('offer_demo_seller_070_usdt', 'demo_seller_070', 'BUY', 'USDT',   25000, 'USD',  100,    500,   100,    500, ARRAY['USA Bank Wire','ACH Transfer'], 700),
+  ('offer_demo_seller_076_usdt', 'demo_seller_076', 'BUY', 'USDT',   40000, 'USD',  500,   9180,   500,   9180, ARRAY['USA Bank Wire','ACH Transfer'], 760),
+  ('offer_demo_seller_081_usdt', 'demo_seller_081', 'BUY', 'USDT',   18000, 'USD',  500,   1850,   500,   1850, ARRAY['USA Bank Wire'],               810),
   -- $10 k–$40 k range (5 sellers)
-  ('offer_demo_seller_069_usdt', 'demo_seller_069', 'BUY', 'USDT',  120000,  500,  32680, ARRAY['USA Bank Wire','ACH Transfer'], 690),
-  ('offer_demo_seller_079_usdt', 'demo_seller_079', 'BUY', 'USDT',   80000,  500,  15760, ARRAY['USA Bank Wire','ACH Transfer'], 790),
-  ('offer_demo_seller_083_usdt', 'demo_seller_083', 'BUY', 'USDT',  100000,  500,  37125, ARRAY['USA Bank Wire','ACH Transfer'], 830),
-  ('offer_demo_seller_086_usdt', 'demo_seller_086', 'BUY', 'USDT',   95000,  500,  26840, ARRAY['USA Bank Wire','ACH Transfer'], 860),
-  ('offer_demo_seller_089_usdt', 'demo_seller_089', 'BUY', 'USDT',   75000,  500,  28340, ARRAY['USA Bank Wire'],               890),
+  ('offer_demo_seller_069_usdt', 'demo_seller_069', 'BUY', 'USDT',  120000, 'USD',  500,  32680,   500,  32680, ARRAY['USA Bank Wire','ACH Transfer'], 690),
+  ('offer_demo_seller_079_usdt', 'demo_seller_079', 'BUY', 'USDT',   80000, 'USD',  500,  15760,   500,  15760, ARRAY['USA Bank Wire','ACH Transfer'], 790),
+  ('offer_demo_seller_083_usdt', 'demo_seller_083', 'BUY', 'USDT',  100000, 'USD',  500,  37125,   500,  37125, ARRAY['USA Bank Wire','ACH Transfer'], 830),
+  ('offer_demo_seller_086_usdt', 'demo_seller_086', 'BUY', 'USDT',   95000, 'USD',  500,  26840,   500,  26840, ARRAY['USA Bank Wire','ACH Transfer'], 860),
+  ('offer_demo_seller_089_usdt', 'demo_seller_089', 'BUY', 'USDT',   75000, 'USD',  500,  28340,   500,  28340, ARRAY['USA Bank Wire'],               890),
   -- $40 k–$60 k range (8 sellers)
-  ('offer_demo_seller_071_usdt', 'demo_seller_071', 'BUY', 'USDT',  200000,  500,  54215, ARRAY['USA Bank Wire','ACH Transfer'], 710),
-  ('offer_demo_seller_073_usdt', 'demo_seller_073', 'BUY', 'USDT',  160000,  500,  46320, ARRAY['USA Bank Wire','ACH Transfer'], 730),
-  ('offer_demo_seller_075_usdt', 'demo_seller_075', 'BUY', 'USDT',  240000,  500,  58915, ARRAY['USA Bank Wire','ACH Transfer'], 750),
-  ('offer_demo_seller_077_usdt', 'demo_seller_077', 'BUY', 'USDT',  175000,  500,  41380, ARRAY['USA Bank Wire','ACH Transfer'], 770),
-  ('offer_demo_seller_080_usdt', 'demo_seller_080', 'BUY', 'USDT',  145000,  500,  52830, ARRAY['USA Bank Wire'],               800),
-  ('offer_demo_seller_084_usdt', 'demo_seller_084', 'BUY', 'USDT',  190000,  500,  43660, ARRAY['USA Bank Wire','ACH Transfer'], 840),
-  ('offer_demo_seller_087_usdt', 'demo_seller_087', 'BUY', 'USDT',  210000,  500,  59740, ARRAY['USA Bank Wire','ACH Transfer'], 870),
-  ('offer_demo_seller_090_usdt', 'demo_seller_090', 'BUY', 'USDT',  180000,  500,  46190, ARRAY['USA Bank Wire','ACH Transfer'], 900),
+  ('offer_demo_seller_071_usdt', 'demo_seller_071', 'BUY', 'USDT',  200000, 'USD',  500,  54215,   500,  54215, ARRAY['USA Bank Wire','ACH Transfer'], 710),
+  ('offer_demo_seller_073_usdt', 'demo_seller_073', 'BUY', 'USDT',  160000, 'USD',  500,  46320,   500,  46320, ARRAY['USA Bank Wire','ACH Transfer'], 730),
+  ('offer_demo_seller_075_usdt', 'demo_seller_075', 'BUY', 'USDT',  240000, 'USD',  500,  58915,   500,  58915, ARRAY['USA Bank Wire','ACH Transfer'], 750),
+  ('offer_demo_seller_077_usdt', 'demo_seller_077', 'BUY', 'USDT',  175000, 'USD',  500,  41380,   500,  41380, ARRAY['USA Bank Wire','ACH Transfer'], 770),
+  ('offer_demo_seller_080_usdt', 'demo_seller_080', 'BUY', 'USDT',  145000, 'USD',  500,  52830,   500,  52830, ARRAY['USA Bank Wire'],               800),
+  ('offer_demo_seller_084_usdt', 'demo_seller_084', 'BUY', 'USDT',  190000, 'USD',  500,  43660,   500,  43660, ARRAY['USA Bank Wire','ACH Transfer'], 840),
+  ('offer_demo_seller_087_usdt', 'demo_seller_087', 'BUY', 'USDT',  210000, 'USD',  500,  59740,   500,  59740, ARRAY['USA Bank Wire','ACH Transfer'], 870),
+  ('offer_demo_seller_090_usdt', 'demo_seller_090', 'BUY', 'USDT',  180000, 'USD',  500,  46190,   500,  46190, ARRAY['USA Bank Wire','ACH Transfer'], 900),
   -- $60 k–$100 k range (4 sellers)
-  ('offer_demo_seller_072_usdt', 'demo_seller_072', 'BUY', 'USDT',  320000,  500,  78940, ARRAY['USA Bank Wire','ACH Transfer'], 720),
-  ('offer_demo_seller_078_usdt', 'demo_seller_078', 'BUY', 'USDT',  280000,  500,  67240, ARRAY['USA Bank Wire'],               780),
-  ('offer_demo_seller_082_usdt', 'demo_seller_082', 'BUY', 'USDT',  360000,  500,  88490, ARRAY['USA Bank Wire','ACH Transfer'], 820),
-  ('offer_demo_seller_088_usdt', 'demo_seller_088', 'BUY', 'USDT',  260000,  500,  72560, ARRAY['USA Bank Wire','ACH Transfer'], 880),
+  ('offer_demo_seller_072_usdt', 'demo_seller_072', 'BUY', 'USDT',  320000, 'USD',  500,  78940,   500,  78940, ARRAY['USA Bank Wire','ACH Transfer'], 720),
+  ('offer_demo_seller_078_usdt', 'demo_seller_078', 'BUY', 'USDT',  280000, 'USD',  500,  67240,   500,  67240, ARRAY['USA Bank Wire'],               780),
+  ('offer_demo_seller_082_usdt', 'demo_seller_082', 'BUY', 'USDT',  360000, 'USD',  500,  88490,   500,  88490, ARRAY['USA Bank Wire','ACH Transfer'], 820),
+  ('offer_demo_seller_088_usdt', 'demo_seller_088', 'BUY', 'USDT',  260000, 'USD',  500,  72560,   500,  72560, ARRAY['USA Bank Wire','ACH Transfer'], 880),
   -- >$100 k range (2 sellers)
-  ('offer_demo_seller_074_usdt', 'demo_seller_074', 'BUY', 'USDT',  600000,  500, 112750, ARRAY['USA Bank Wire','ACH Transfer'], 740),
-  ('offer_demo_seller_085_usdt', 'demo_seller_085', 'BUY', 'USDT',  750000,  500, 131480, ARRAY['USA Bank Wire','ACH Transfer'], 850)
+  ('offer_demo_seller_074_usdt', 'demo_seller_074', 'BUY', 'USDT',  600000, 'USD',  500, 112750,   500, 112750, ARRAY['USA Bank Wire','ACH Transfer'], 740),
+  ('offer_demo_seller_085_usdt', 'demo_seller_085', 'BUY', 'USDT',  750000, 'USD',  500, 131480,   500, 131480, ARRAY['USA Bank Wire','ACH Transfer'], 850)
 ON CONFLICT (id) DO UPDATE SET
   available_amount = EXCLUDED.available_amount,
+  currency         = EXCLUDED.currency,
   min_limit_usd    = EXCLUDED.min_limit_usd,
   max_limit_usd    = EXCLUDED.max_limit_usd,
+  min_limit        = EXCLUDED.min_limit,
+  max_limit        = EXCLUDED.max_limit,
   payment_methods  = EXCLUDED.payment_methods,
   sort_order       = EXCLUDED.sort_order,
   is_active        = true;
