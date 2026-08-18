@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowUpRight, ArrowDownLeft, Clock, Lock, Wallet, TrendingUp, AlertCircle, CheckCircle, Package, Eye, MousePointer, CreditCard, XCircle, ArrowDownCircle, Plus, Shield, Mail, User, CalendarDays } from "lucide-react";
+import { ArrowUpRight, ArrowDownLeft, Clock, Lock, Wallet, TrendingUp, AlertCircle, CheckCircle, Package, Eye, MousePointer, CreditCard, XCircle, ArrowDownCircle, Plus, Shield, Mail, User, CalendarDays, Phone, MapPin } from "lucide-react";
 import { DepositDialog } from "@/components/DepositDialog";
 import { CreateOfferDialog } from "@/components/CreateOfferDialog";
 import { Card, CardContent } from "@/components/ui/card";
@@ -27,6 +27,7 @@ import { useUserOffers, type OfferRow } from "@/hooks/use-offers";
 import { useTransactions, type TransactionRow } from "@/hooks/use-transactions";
 import { useMyDemoTrades } from "@/hooks/use-demo-trade";
 import { useMarketPrices } from "@/hooks/use-demo-market";
+import { useMyKycSubmission } from "@/hooks/use-kyc";
 import { toast } from "sonner";
 import { KycLevelBadge, VerificationStepBadges } from "@/components/VerificationBadge";
 import { computeKycLevel, getTradeLimits } from "@/hooks/use-auth";
@@ -196,6 +197,7 @@ const Dashboard = () => {
   const { offers, cancelOffer } = useUserOffers();
   const { transactions } = useTransactions();
   const { trustScore, level: riskLevel, restrictions } = useMyRisk();
+  const { data: kycSubmission } = useMyKycSubmission();
   const { data: demoTrades = [] } = useMyDemoTrades();
   const { data: market } = useMarketPrices();
   const [depositAsset, setDepositAsset] = useState<string | null>(null);
@@ -315,7 +317,9 @@ const Dashboard = () => {
             <div className="flex-1 min-w-0">
               <div className="flex flex-wrap items-center gap-2 mb-1">
                 <h1 className="font-display text-xl font-bold text-foreground truncate">
-                  {profile?.username ?? "Trader"}
+                  {profile?.kyc_status === "verified" && kycSubmission?.full_name
+                    ? kycSubmission.full_name
+                    : profile?.username ?? "Trader"}
                 </h1>
                 {profile && <KycLevelBadge level={computeKycLevel(profile)} />}
                 {profile && <TrustScoreBadge trustScore={trustScore} riskLevel={riskLevel} size="sm" showLabel />}
@@ -334,6 +338,32 @@ const Dashboard = () => {
                   <CalendarDays className="h-3.5 w-3.5 flex-shrink-0" />
                   Member since {new Date(user.created_at).toLocaleDateString(undefined, { month: "short", year: "numeric" })}
                 </span>
+
+                {/* KYC-verified personal details */}
+                {profile?.kyc_status === "verified" && kycSubmission && (
+                  <>
+                    {kycSubmission.phone && (
+                      <span className="flex items-center gap-1.5">
+                        <Phone className="h-3.5 w-3.5 flex-shrink-0" />
+                        {kycSubmission.phone}
+                      </span>
+                    )}
+                    {(kycSubmission.address_line1 || kycSubmission.city) && (
+                      <span className="flex items-center gap-1.5">
+                        <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
+                        {[
+                          kycSubmission.address_line1,
+                          kycSubmission.address_line2,
+                          kycSubmission.city,
+                          kycSubmission.postal_code,
+                          kycSubmission.country,
+                        ]
+                          .filter(Boolean)
+                          .join(", ")}
+                      </span>
+                    )}
+                  </>
+                )}
               </div>
             </div>
 
