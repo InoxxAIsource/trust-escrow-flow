@@ -49,12 +49,28 @@ export function DemoOfferCard({
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
               <span className="truncate font-medium text-foreground">{cp.display_name}</span>
-              <Badge
-                variant="outline"
-                className="border-primary/25 bg-primary/5 text-[10px] font-medium uppercase tracking-wide text-primary"
-              >
-                {offer.isUserOffer ? "Community" : "Verified"}
-              </Badge>
+              {offer.isUserOffer ? (
+                <Badge
+                  variant="outline"
+                  className="border-primary/25 bg-primary/5 text-[10px] font-medium uppercase tracking-wide text-primary"
+                >
+                  Community
+                </Badge>
+              ) : cp.is_verified ? (
+                <Badge
+                  variant="outline"
+                  className="border-emerald-500/30 bg-emerald-500/10 text-[10px] font-medium uppercase tracking-wide text-emerald-600 dark:text-emerald-400"
+                >
+                  ✓ Verified
+                </Badge>
+              ) : (
+                <Badge
+                  variant="outline"
+                  className="border-muted-foreground/25 bg-muted text-[10px] font-medium uppercase tracking-wide text-muted-foreground"
+                >
+                  Unverified
+                </Badge>
+              )}
             </div>
             <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
               <span className="flex items-center gap-1">

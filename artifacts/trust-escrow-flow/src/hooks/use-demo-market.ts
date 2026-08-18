@@ -273,6 +273,7 @@ function priceUserOffer(
     display_name: row.profile?.username ?? "Community seller",
     avatar_url: null,
     verification_status: "verified",
+    is_verified: true,
     rating: Number(row.profile?.rating ?? 5),
     completion_rate: Number(row.profile?.completion_rate ?? 100),
     trade_count: Number(row.profile?.trades_count ?? 0),

@@ -29,6 +29,7 @@ export interface DemoCounterparty {
   display_name: string;
   avatar_url: string | null;
   verification_status: string;
+  is_verified: boolean;
   rating: number;
   completion_rate: number;
   trade_count: number;

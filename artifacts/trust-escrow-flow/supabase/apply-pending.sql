@@ -310,3 +310,14 @@ UPDATE public.demo_offers SET min_limit_usd = 10000, max_limit_usd =  85000 WHER
 UPDATE public.demo_offers SET min_limit_usd =  5000, max_limit_usd =  65000 WHERE counterparty_id = 'demo_seller_066';
 UPDATE public.demo_offers SET min_limit_usd =  1000, max_limit_usd = 100000 WHERE counterparty_id = 'demo_seller_067';
 UPDATE public.demo_offers SET min_limit_usd =  2000, max_limit_usd =  76000 WHERE counterparty_id = 'demo_seller_068';
+-- Add an is_verified flag to demo_counterparties.
+-- Defaults true so the existing roster stays verified; we explicitly
+-- mark the two lowest-volume sellers as unverified.
+
+ALTER TABLE public.demo_counterparties
+  ADD COLUMN IF NOT EXISTS is_verified boolean NOT NULL DEFAULT true;
+
+-- Pick the two sellers with the fewest trades (demo_seller_004 = 548 trades,
+-- demo_seller_008 = 407 trades) as unverified low-limit sellers.
+UPDATE public.demo_counterparties SET is_verified = false
+  WHERE id IN ('demo_seller_004', 'demo_seller_008');
