@@ -53,7 +53,7 @@ export function DemoOfferCard({
                 variant="outline"
                 className="border-primary/25 bg-primary/5 text-[10px] font-medium uppercase tracking-wide text-primary"
               >
-                Verified
+                {offer.isUserOffer ? "Community" : "Verified"}
               </Badge>
             </div>
             <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">

@@ -283,6 +283,9 @@ export function useOpenDemoTrade() {
       queryClient.invalidateQueries({ queryKey: ["my-demo-trades"] });
       queryClient.invalidateQueries({ queryKey: ["admin-trades"] });
       queryClient.invalidateQueries({ queryKey: ["admin-notifications"] });
+      // Opening a trade against a user listing decrements its remaining volume.
+      queryClient.invalidateQueries({ queryKey: ["user-sell-offers"] });
+      queryClient.invalidateQueries({ queryKey: ["user-offers"] });
 
       if (user && trade) {
         notifyAdminTradeOpened({

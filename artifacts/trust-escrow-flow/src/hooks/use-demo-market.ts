@@ -8,6 +8,7 @@ import {
 import { classifyProbe, type DemoBackendState } from "@/lib/demo-backend";
 import {
   quote,
+  formatSpread,
   DEMO_ASSETS,
   FALLBACK_MARKET_PRICES,
   CURRENCIES,
@@ -190,10 +191,137 @@ export function useDemoCounterparty(id: string | undefined) {
   });
 }
 
+// ── User-created sell offers ─────────────────────────────────────────────────
+
+const REGION_BY_CURRENCY: Record<Currency, MarketRegion> = {
+  USD: "US",
+  GBP: "UK",
+  EUR: "EU",
+  HKD: "HK",
+};
+
+interface UserOfferRow {
+  id: string;
+  user_id: string;
+  asset: string;
+  remaining_amount: number;
+  price: number;
+  currency: string;
+  payment_methods: string[];
+  min_limit: number;
+  max_limit: number;
+  profile: {
+    username: string;
+    rating: number;
+    trades_count: number;
+    completion_rate: number;
+  } | null;
+}
+
+/**
+ * Active sell offers created by real users via the Create Offer dialog.
+ * `offers` has no FK to `profiles`, so the seller profiles are fetched in a
+ * second query and stitched in.
+ */
+function useUserSellOffers(asset: DemoAsset, enabled: boolean) {
+  return useQuery<UserOfferRow[]>({
+    queryKey: ["user-sell-offers", asset],
+    queryFn: async () => {
+      const { data, error } = await demoDb
+        .from("offers")
+        .select("id, user_id, asset, remaining_amount, price, currency, payment_methods, min_limit, max_limit")
+        .eq("type", "sell")
+        .eq("asset", asset)
+        .eq("status", "active")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      const rows = (data ?? []) as Omit<UserOfferRow, "profile">[];
+      if (rows.length === 0) return [];
+
+      const userIds = [...new Set(rows.map((r) => r.user_id))];
+      const { data: profiles, error: profileError } = await demoDb
+        .from("profiles")
+        .select("user_id, username, rating, trades_count, completion_rate")
+        .in("user_id", userIds);
+      if (profileError) throw profileError;
+
+      const byUser = new Map(
+        (profiles ?? []).map((p: { user_id: string } & UserOfferRow["profile"]) => [p.user_id, p]),
+      );
+      return rows.map((r) => ({ ...r, profile: byUser.get(r.user_id) ?? null }));
+    },
+    enabled,
+    staleTime: 30_000,
+  });
+}
+
+/** Adapts a real user's `offers` row into the PricedOffer shape the marketplace renders. */
+function priceUserOffer(
+  row: UserOfferRow,
+  asset: DemoAsset,
+  localMid: number,
+  usdMid: number,
+): PricedOffer {
+  const currency = row.currency as Currency;
+  const cpRegion = REGION_BY_CURRENCY[currency];
+  const price = Number(row.price);
+  const localPerUsd = usdMid > 0 ? localMid / usdMid : 1;
+
+  const counterparty: DemoCounterparty = {
+    id: `user-${row.user_id}`,
+    kind: "SELLER",
+    display_name: row.profile?.username ?? "Community seller",
+    avatar_url: null,
+    verification_status: "verified",
+    rating: Number(row.profile?.rating ?? 5),
+    completion_rate: Number(row.profile?.completion_rate ?? 100),
+    trade_count: Number(row.profile?.trades_count ?? 0),
+    online_status: true,
+    response_time_label: "Community listing",
+    supported_assets: [row.asset],
+    payment_methods: row.payment_methods,
+    country_code: cpRegion,
+    region: cpRegion,
+    currency,
+    spread_bps: 0,
+    admin_mirror_id: "",
+    admin_mirror_label: "",
+    sort_order: 0,
+    is_active: true,
+  };
+
+  return {
+    id: row.id,
+    counterparty_id: counterparty.id,
+    side: "BUY",
+    asset,
+    available_amount: Number(row.remaining_amount),
+    currency,
+    min_limit: Number(row.min_limit),
+    max_limit: Number(row.max_limit),
+    min_limit_usd: Math.round(Number(row.min_limit) / localPerUsd),
+    max_limit_usd: Math.round(Number(row.max_limit) / localPerUsd),
+    payment_methods: row.payment_methods,
+    sort_order: 0,
+    is_active: true,
+    counterparty,
+    marketPrice: localMid,
+    p2pPrice: price,
+    spreadLabel: localMid > 0 ? formatSpread((price - localMid) / localMid) : "—",
+    minLimitUSD: Math.round(Number(row.min_limit) / localPerUsd),
+    maxLimitUSD: Math.round(Number(row.max_limit) / localPerUsd),
+    isUserOffer: true,
+    sellerUserId: row.user_id,
+  };
+}
+
 // ── Priced offers ─────────────────────────────────────────────────────────────
 
 export function usePricedOffers(side: TradeSide, asset: DemoAsset, region?: MarketRegion | "ALL") {
   const { data: market } = useMarketPrices();
+
+  // User-created offers are all SELL listings, so buyers (side BUY) see them.
+  const userOffersQuery = useUserSellOffers(asset, side === "BUY");
 
   const offersQuery = useQuery<Array<DemoOffer & { counterparty: DemoCounterparty }>>({
     queryKey: ["demo-offers", side, asset],
@@ -216,6 +344,23 @@ export function usePricedOffers(side: TradeSide, asset: DemoAsset, region?: Mark
 
   const usdMid = market?.prices.USD[asset] ?? FALLBACK_MARKET_PRICES.USD[asset];
 
+  const userPriced: PricedOffer[] =
+    side === "BUY"
+      ? (userOffersQuery.data ?? [])
+          .filter(
+            (r) =>
+              (CURRENCIES as readonly string[]).includes(r.currency) &&
+              Number(r.remaining_amount) > 0,
+          )
+          .map((r) => {
+            const currency = r.currency as Currency;
+            const localMid =
+              market?.prices[currency]?.[asset] ?? FALLBACK_MARKET_PRICES[currency][asset];
+            return priceUserOffer(r, asset, localMid, usdMid);
+          })
+          .filter((o) => !region || region === "ALL" || o.counterparty.region === region)
+      : [];
+
   const priced: PricedOffer[] = (offersQuery.data ?? [])
     .filter((o) => !!o.counterparty)
     .filter((o) => !region || region === "ALL" || o.counterparty.region === region)
@@ -234,18 +379,19 @@ export function usePricedOffers(side: TradeSide, asset: DemoAsset, region?: Mark
         minLimitUSD: offer.min_limit_usd ?? Math.round(offer.min_limit / (usdMid > 0 ? localMid / usdMid : APPROX_FX[currency] ?? 1)),
         maxLimitUSD: offer.max_limit_usd ?? Math.round(offer.max_limit / (usdMid > 0 ? localMid / usdMid : APPROX_FX[currency] ?? 1)),
       };
-    })
-    .sort((a, b) => {
-      const byPrice = side === "BUY" ? a.p2pPrice - b.p2pPrice : b.p2pPrice - a.p2pPrice;
-      if (byPrice !== 0) return byPrice;
-      return Number(b.counterparty.online_status) - Number(a.counterparty.online_status);
     });
 
+  const merged = [...priced, ...userPriced].sort((a, b) => {
+    const byPrice = side === "BUY" ? a.p2pPrice - b.p2pPrice : b.p2pPrice - a.p2pPrice;
+    if (byPrice !== 0) return byPrice;
+    return Number(b.counterparty.online_status) - Number(a.counterparty.online_status);
+  });
+
   return {
-    offers: priced,
+    offers: merged,
     marketPrice,
     isStale: market?.isStale ?? false,
-    isLoading: offersQuery.isLoading,
+    isLoading: offersQuery.isLoading || (side === "BUY" && userOffersQuery.isLoading),
     error: offersQuery.error,
   };
 }

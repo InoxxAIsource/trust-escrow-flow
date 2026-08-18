@@ -66,7 +66,11 @@ export function useUserOffers() {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["user-offers"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user-offers"] });
+      // The marketplace merges these rows in, so its list must refetch too.
+      queryClient.invalidateQueries({ queryKey: ["user-sell-offers"] });
+    },
   });
 
   const cancelOffer = useMutation({
@@ -95,6 +99,7 @@ export function useUserOffers() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user-offers"] });
+      queryClient.invalidateQueries({ queryKey: ["user-sell-offers"] });
       queryClient.invalidateQueries({ queryKey: ["wallets"] });
     },
   });

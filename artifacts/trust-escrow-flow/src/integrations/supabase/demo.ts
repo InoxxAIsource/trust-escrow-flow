@@ -75,6 +75,10 @@ export interface PricedOffer extends DemoOffer {
   /** Approximate USD equivalent of the offer's min/max limits (for cross-currency amount filtering). */
   minLimitUSD: number;
   maxLimitUSD: number;
+  /** Set when this listing comes from a real user's `offers` row, not the seeded demo book. */
+  isUserOffer?: boolean;
+  /** The listing owner's auth user id — used to stop a seller trading against their own offer. */
+  sellerUserId?: string;
 }
 
 export type KycStatus = "NOT_STARTED" | "PENDING" | "APPROVED" | "REJECTED";

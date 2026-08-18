@@ -67,8 +67,16 @@ export function OrderTicketDialog({
         ? `Maximum order is ${formatMoney(offer.max_limit, offer.currency)}.`
         : null;
 
+  const isOwnOffer = !!user && !!offer.sellerUserId && offer.sellerUserId === user.id;
+
   const canSubmit =
-    !!user && isApproved && amountIsValid && !validationMessage && !!paymentMethod && !openTrade.isPending;
+    !!user &&
+    isApproved &&
+    !isOwnOffer &&
+    amountIsValid &&
+    !validationMessage &&
+    !!paymentMethod &&
+    !openTrade.isPending;
 
   const handleSubmit = async () => {
     try {
@@ -188,6 +196,9 @@ export function OrderTicketDialog({
           </div>
 
           {/* Gates */}
+          {isOwnOffer && (
+            <GateNotice text="This is your own listing. Buyers can trade against it, but you can't take your own offer." />
+          )}
           {!user && (
             <GateNotice
               text="Create a free account to open a trade."

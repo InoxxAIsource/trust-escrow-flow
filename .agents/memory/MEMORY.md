@@ -1,2 +1,3 @@
 - [P2PxBT migration quirks](p2pxbt-migration.md) — React 18 + Tailwind v3 pinned explicitly; catalog has React 19 and Tailwind v4 which both conflict.
 - [Supabase migration application](supabase-migrations.md) — local migration files never auto-apply; user must paste SQL into Supabase SQL Editor; give SQL inline in chat.
+- [Reservation release discipline](reservation-release.md) — any open-time decrement (offer volume, locked funds) must be restored exactly once on cancel AND expiry; cron paths need atomic claims.
