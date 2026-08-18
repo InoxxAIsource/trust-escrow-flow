@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowUpRight, Clock, Lock, Wallet, TrendingUp, AlertCircle, CheckCircle, Package, Eye, MousePointer, CreditCard, XCircle, ArrowDownCircle, Plus, Shield, Mail, User, CalendarDays } from "lucide-react";
+import { ArrowUpRight, ArrowDownLeft, Clock, Lock, Wallet, TrendingUp, AlertCircle, CheckCircle, Package, Eye, MousePointer, CreditCard, XCircle, ArrowDownCircle, Plus, Shield, Mail, User, CalendarDays } from "lucide-react";
+import { DepositDialog } from "@/components/DepositDialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -196,6 +197,7 @@ const Dashboard = () => {
   const { trustScore, level: riskLevel, restrictions } = useMyRisk();
   const { data: demoTrades = [] } = useMyDemoTrades();
   const { data: market } = useMarketPrices();
+  const [depositAsset, setDepositAsset] = useState<string | null>(null);
   const [withdrawAsset, setWithdrawAsset] = useState<string | null>(null);
   const [withdrawAddr, setWithdrawAddr] = useState("");
   const [withdrawBusy, setWithdrawBusy] = useState(false);
@@ -341,11 +343,15 @@ const Dashboard = () => {
       </Card>
 
       {/* Wallet Overview */}
+      <div className="mb-2 flex items-center justify-between">
+        <h2 className="font-display text-sm font-semibold text-foreground">Wallets</h2>
+        <span className="text-xs text-muted-foreground">Tap a wallet to deposit</span>
+      </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
         {wallets.map((w) => {
           const available = Number(w.balance) - Number(w.locked_balance);
           return (
-            <Card key={w.asset}>
+            <Card key={w.asset} className="hover:border-primary/40 transition-colors">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between mb-1">
                   <div className="flex items-center gap-2">
@@ -365,6 +371,15 @@ const Dashboard = () => {
                     Total: {Number(w.balance).toFixed(4)}
                   </p>
                 )}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="mt-3 w-full h-7 text-xs"
+                  onClick={() => setDepositAsset(w.asset)}
+                >
+                  <ArrowDownLeft className="mr-1 h-3.5 w-3.5" />
+                  Deposit
+                </Button>
               </CardContent>
             </Card>
           );
@@ -506,6 +521,13 @@ const Dashboard = () => {
           )}
         </TabsContent>
       </Tabs>
+
+      {/* Deposit dialog */}
+      <DepositDialog
+        asset={depositAsset ?? ""}
+        open={!!depositAsset}
+        onOpenChange={(open) => { if (!open) setDepositAsset(null); }}
+      />
 
       {/* Demo withdraw dialog */}
       <Dialog open={!!withdrawAsset} onOpenChange={(open) => { if (!open) { setWithdrawAsset(null); setWithdrawAddr(""); } }}>
