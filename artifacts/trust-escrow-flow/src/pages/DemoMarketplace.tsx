@@ -26,7 +26,7 @@ import {
 } from "@/lib/pricing";
 import type { PricedOffer } from "@/integrations/supabase/demo";
 
-const AMOUNT_PRESETS = [500, 1_000, 5_000, 10_000, 25_000, 40_000, 50_000, 60_000, 70_000, 80_000, 100_000] as const;
+const AMOUNT_PRESETS = [500, 1_000, 5_000, 10_000, 25_000, 40_000, 50_000, 60_000, 70_000, 80_000, 100_000, 125_000, 150_000] as const;
 
 export default function DemoMarketplace() {
   const [side, setSide] = useState<TradeSide>("BUY");
@@ -212,7 +212,7 @@ export default function DemoMarketplace() {
                 <Input
                   type="number"
                   min={100}
-                  max={100000}
+                  max={150000}
                   placeholder="Enter amount"
                   value={amountInput}
                   onChange={(e) => setAmountInput(e.target.value)}
